@@ -9,7 +9,7 @@ const ProductCard = ({ product }: ProductCardProps) => (
   <Card className="group overflow-hidden transition-shadow hover:shadow-lg">
     <div className="aspect-square overflow-hidden bg-muted">
       <img
-        src={product.image_url || "/placeholder.svg"}
+        src={product.image || "/placeholder.svg"}
         alt={product.name}
         className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
       />
