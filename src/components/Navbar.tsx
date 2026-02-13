@@ -36,6 +36,9 @@ const Navbar = () => {
 
         {/* Desktop */}
         <div className="hidden items-center gap-6 md:flex">
+          <Link to="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+            Inicio
+          </Link>
           {user ? (
             <>
               <Link to="/dashboard" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
@@ -65,6 +68,7 @@ const Navbar = () => {
 
       {mobileOpen && (
         <div className="border-t bg-card px-4 pb-4 pt-2 md:hidden">
+          <Link to="/" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>Inicio</Link>
           {user ? (
             <div className="flex flex-col gap-2">
               <Link to="/dashboard" className="py-2 text-sm" onClick={() => setMobileOpen(false)}>Dashboard</Link>
