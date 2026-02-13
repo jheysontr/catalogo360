@@ -1,6 +1,10 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, Star, Monitor, Tablet, Smartphone } from "lucide-react";
+import {
+  ArrowRight, Play, Star, Monitor, Tablet, Smartphone,
+  Palette, MousePointerClick, BarChart3, Shield,
+  MessageCircle, Clock, MonitorSmartphone, Zap,
+} from "lucide-react";
 import { motion } from "framer-motion";
 
 const Landing = () => {
@@ -87,6 +91,164 @@ const Landing = () => {
                 </div>
               </div>
             </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 1 — Why CatalogHub */}
+      <section className="py-20 sm:py-28">
+        <div className="container">
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center font-display text-3xl font-bold text-foreground sm:text-4xl"
+          >
+            ¿Por qué elegir <span className="text-primary">CatalogHub</span>?
+          </motion.h2>
+          <p className="mx-auto mt-3 max-w-md text-center text-muted-foreground">
+            Todo lo que necesitas para vender online, en una sola plataforma.
+          </p>
+
+          <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:gap-8">
+            {[
+              {
+                icon: Palette,
+                title: "Diseño Adaptable",
+                desc: "Personaliza colores, logos y banners para que tu tienda refleje la identidad de tu marca sin necesidad de un diseñador.",
+              },
+              {
+                icon: MousePointerClick,
+                title: "Fácil de Usar",
+                desc: "Interfaz intuitiva pensada para emprendedores. Agrega productos, organiza categorías y publica en pocos clics.",
+              },
+              {
+                icon: BarChart3,
+                title: "Gestión Inteligente",
+                desc: "Controla inventario, pedidos y métricas desde un solo dashboard. Toma decisiones basadas en datos reales.",
+              },
+              {
+                icon: Shield,
+                title: "Control Total",
+                desc: "Tú decides quién ve tu catálogo, los precios y la disponibilidad. Seguridad y privacidad garantizadas.",
+              },
+            ].map((card, i) => (
+              <motion.div
+                key={card.title}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="rounded-xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-accent">
+                  <card.icon className="h-6 w-6 text-accent-foreground" />
+                </div>
+                <h3 className="mt-5 font-display text-lg font-semibold text-card-foreground">{card.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{card.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Section 2 — How orders work */}
+      <section className="border-t bg-secondary/30 py-20 sm:py-28">
+        <div className="container">
+          <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+            {/* WhatsApp mockup */}
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="mx-auto w-full max-w-sm"
+            >
+              <div className="rounded-2xl border bg-card p-4 shadow-lg">
+                <div className="mb-3 flex items-center gap-3 border-b pb-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
+                    <MessageCircle className="h-5 w-5 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-card-foreground">CatalogHub Bot</p>
+                    <p className="text-xs text-muted-foreground">Nuevo pedido recibido</p>
+                  </div>
+                </div>
+                {["🛒 Pedido #1042", "👤 María López", "📦 3 productos — $45.00", "✅ Estado: Confirmado"].map((line) => (
+                  <div key={line} className="mb-2 w-fit max-w-[80%] rounded-xl rounded-tl-none bg-accent px-4 py-2 text-sm text-accent-foreground">
+                    {line}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* Steps */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+            >
+              <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
+                Así recibes tus pedidos con <span className="text-primary">CatalogHub</span>
+              </h2>
+              <p className="mt-4 text-muted-foreground">
+                Tus clientes ven tu catálogo, eligen productos y finalizan el pedido. Tú recibes todo organizado, listo para despachar.
+              </p>
+
+              <ol className="mt-8 space-y-5">
+                {[
+                  "Tu cliente abre el enlace de tu catálogo desde cualquier dispositivo.",
+                  "Explora tus productos, agrega al carrito y completa sus datos.",
+                  "Recibes el pedido con todos los detalles en tu dashboard.",
+                  "Confirmas, preparas y entregas. ¡Así de fácil!",
+                ].map((step, i) => (
+                  <li key={i} className="flex items-start gap-4">
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                      {i + 1}
+                    </span>
+                    <p className="pt-1 text-sm leading-relaxed text-muted-foreground">{step}</p>
+                  </li>
+                ))}
+              </ol>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Section 3 — Stats */}
+      <section className="py-20 sm:py-28">
+        <div className="container">
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center font-display text-3xl font-bold text-foreground sm:text-4xl"
+          >
+            Crea en minutos, <span className="text-primary">sin código</span>
+          </motion.h2>
+
+          <div className="mx-auto mt-14 grid max-w-3xl gap-8 sm:grid-cols-3">
+            {[
+              { icon: Clock, value: "5 minutos", label: "Tiempo para crear tu catálogo" },
+              { icon: MonitorSmartphone, value: "100% Responsive", label: "Se ve perfecto en cualquier dispositivo" },
+              { icon: Zap, value: "Instantáneo", label: "Tu catálogo está listo inmediatamente" },
+            ].map((stat, i) => (
+              <motion.div
+                key={stat.value}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.12 }}
+                className="flex flex-col items-center rounded-xl border bg-card p-8 text-center shadow-sm"
+              >
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent">
+                  <stat.icon className="h-6 w-6 text-accent-foreground" />
+                </div>
+                <p className="mt-4 font-display text-2xl font-bold text-foreground">{stat.value}</p>
+                <p className="mt-1 text-sm text-muted-foreground">{stat.label}</p>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
