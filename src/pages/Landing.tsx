@@ -1,13 +1,117 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import {
   ArrowRight, Play, Star, Monitor, Tablet, Smartphone,
   Palette, MousePointerClick, BarChart3, Shield,
   MessageCircle, Clock, MonitorSmartphone, Zap,
+  Check, ChevronDown, Package, Mail, Phone,
+  Quote,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
+const currencies = [
+  { code: "USD", symbol: "$", rate: 1 },
+  { code: "EUR", symbol: "€", rate: 0.92 },
+  { code: "CLP", symbol: "$", rate: 980 },
+  { code: "ARS", symbol: "$", rate: 1250 },
+  { code: "MXN", symbol: "$", rate: 17.2 },
+  { code: "PEN", symbol: "S/", rate: 3.7 },
+  { code: "COP", symbol: "$", rate: 4100 },
+  { code: "UYU", symbol: "$", rate: 42 },
+  { code: "BOB", symbol: "Bs", rate: 6.9 },
+];
+
+const plans = [
+  {
+    name: "Estándar",
+    basePrice: 7.5,
+    popular: false,
+    features: [
+      "Hasta 60 productos",
+      "Soporte por WhatsApp",
+      "Estadísticas básicas",
+      "Diseño responsive",
+    ],
+  },
+  {
+    name: "Pro",
+    basePrice: 10.5,
+    popular: true,
+    features: [
+      "Todo de Estándar",
+      "Hasta 200 productos",
+      "Soporte 24/7",
+      "Estadísticas avanzadas",
+      "Linkbox gratis",
+      "Gestión de inventario inteligente",
+    ],
+  },
+];
+
+const faqs = [
+  {
+    q: "¿Qué es CatalogHub?",
+    a: "CatalogHub es una plataforma que te permite crear tu catálogo digital y tienda online en minutos, sin necesidad de conocimientos técnicos. Ideal para emprendedores en Latinoamérica.",
+  },
+  {
+    q: "¿Cómo se crea una tienda?",
+    a: "Solo necesitas registrarte, agregar tus productos con fotos y precios, personalizar tu tienda y compartir el enlace con tus clientes. ¡Todo en menos de 5 minutos!",
+  },
+  {
+    q: "¿Puedo usar CatalogHub desde el celular?",
+    a: "¡Claro! Tanto el panel de administración como tu tienda pública son 100% responsive y funcionan perfectamente en cualquier dispositivo.",
+  },
+  {
+    q: "¿Cuántos productos puedo subir?",
+    a: "Depende de tu plan. El plan Estándar permite hasta 60 productos y el plan Pro hasta 200 productos.",
+  },
+  {
+    q: "¿Qué pasa cuando termina el período de prueba?",
+    a: "Puedes elegir un plan de pago para continuar. Si no lo haces, tu tienda seguirá visible pero no podrás agregar nuevos productos hasta que actives un plan.",
+  },
+  {
+    q: "¿Es necesario saber diseño o programación?",
+    a: "No. CatalogHub está diseñado para que cualquier persona pueda crear su tienda sin conocimientos técnicos. Solo arrastra, escribe y publica.",
+  },
+];
+
+const testimonials = [
+  {
+    name: "Carolina Méndez",
+    type: "Tienda de Ropa",
+    text: "CatalogHub transformó mi negocio. Antes perdía horas armando catálogos en PDF, ahora mis clientes ven todo actualizado en tiempo real.",
+  },
+  {
+    name: "Andrés Fuentes",
+    type: "Tienda de Tecnología",
+    text: "Lo que más me gusta es lo fácil que es. En 10 minutos tenía mi tienda lista y mis clientes ya estaban haciendo pedidos.",
+  },
+  {
+    name: "Valentina Ríos",
+    type: "Cosméticos",
+    text: "El soporte es increíble y la plataforma es muy intuitiva. Mis ventas aumentaron un 40% desde que empecé a usar CatalogHub.",
+  },
+];
+
 const Landing = () => {
+  const [isAnnual, setIsAnnual] = useState(false);
+  const [currency, setCurrency] = useState(currencies[0]);
+  const [currencyOpen, setCurrencyOpen] = useState(false);
+
+  const formatPrice = (baseUSD: number) => {
+    const price = isAnnual ? baseUSD * 0.6 : baseUSD;
+    const converted = price * currency.rate;
+    const decimals = currency.rate >= 100 ? 0 : 2;
+    return `${currency.symbol}${converted.toFixed(decimals)}`;
+  };
+
   return (
     <div className="flex flex-col">
       {/* Hero */}
@@ -252,6 +356,231 @@ const Landing = () => {
           </div>
         </div>
       </section>
+
+      {/* Pricing */}
+      <section id="planes" className="border-t bg-secondary/30 py-20 sm:py-28">
+        <div className="container">
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center font-display text-3xl font-bold text-foreground sm:text-4xl"
+          >
+            Planes y <span className="text-primary">Precios</span>
+          </motion.h2>
+          <p className="mx-auto mt-3 max-w-md text-center text-muted-foreground">
+            Elige el plan perfecto para tu negocio. Cancela cuando quieras.
+          </p>
+
+          {/* Controls */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-6">
+            {/* Currency dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => setCurrencyOpen(!currencyOpen)}
+                className="flex items-center gap-2 rounded-lg border bg-card px-4 py-2 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-accent"
+              >
+                {currency.code} ({currency.symbol})
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              </button>
+              {currencyOpen && (
+                <div className="absolute left-0 z-50 mt-1 w-44 rounded-lg border bg-card py-1 shadow-lg">
+                  {currencies.map((c) => (
+                    <button
+                      key={c.code}
+                      onClick={() => { setCurrency(c); setCurrencyOpen(false); }}
+                      className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-foreground hover:bg-accent"
+                    >
+                      {c.code} ({c.symbol})
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Toggle */}
+            <div className="flex items-center gap-3 rounded-full border bg-card p-1 shadow-sm">
+              <button
+                onClick={() => setIsAnnual(false)}
+                className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${!isAnnual ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Mensual
+              </button>
+              <button
+                onClick={() => setIsAnnual(true)}
+                className={`flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${isAnnual ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Anual
+                <span className="rounded-full bg-accent px-2 py-0.5 text-xs font-bold text-accent-foreground">
+                  -40%
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Plan cards */}
+          <div className="mx-auto mt-12 grid max-w-3xl gap-8 sm:grid-cols-2">
+            {plans.map((plan) => (
+              <motion.div
+                key={plan.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className={`relative rounded-2xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-md ${plan.popular ? "border-primary ring-2 ring-primary/20" : ""}`}
+              >
+                {plan.popular && (
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground">
+                    Más Popular
+                  </span>
+                )}
+                <h3 className="font-display text-xl font-bold text-card-foreground">{plan.name}</h3>
+                <div className="mt-4 flex items-baseline gap-1">
+                  <span className="font-display text-4xl font-bold text-foreground">{formatPrice(plan.basePrice)}</span>
+                  <span className="text-sm text-muted-foreground">/{isAnnual ? "año" : "mes"}</span>
+                </div>
+                {isAnnual && (
+                  <p className="mt-1 text-xs font-medium text-primary">-40% OFF aplicado</p>
+                )}
+                <ul className="mt-6 space-y-3">
+                  {plan.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-8 flex flex-col gap-3">
+                  <Button
+                    asChild
+                    className="w-full"
+                    variant={plan.popular ? "default" : "outline"}
+                  >
+                    <a
+                      href={`https://wa.me/1234567890?text=Hola, quiero el plan ${plan.name} de CatalogHub`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Elegir Plan
+                    </a>
+                  </Button>
+                  <Button asChild variant="ghost" className="w-full">
+                    <Link to="/register">Probar Gratis</Link>
+                  </Button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-20 sm:py-28">
+        <div className="container">
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center font-display text-3xl font-bold text-foreground sm:text-4xl"
+          >
+            Lo que dicen nuestros <span className="text-primary">clientes</span>
+          </motion.h2>
+          <div className="mx-auto mt-14 grid max-w-4xl gap-8 sm:grid-cols-3">
+            {testimonials.map((t, i) => (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="rounded-xl border bg-card p-6 shadow-sm"
+              >
+                <Quote className="h-6 w-6 text-primary/30" />
+                <p className="mt-3 text-sm leading-relaxed text-muted-foreground italic">"{t.text}"</p>
+                <div className="mt-5 flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">
+                    {t.name.split(" ").map((n) => n[0]).join("")}
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold text-card-foreground">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.type}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="border-t bg-secondary/30 py-20 sm:py-28">
+        <div className="container max-w-2xl">
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center font-display text-3xl font-bold text-foreground sm:text-4xl"
+          >
+            Preguntas <span className="text-primary">Frecuentes</span>
+          </motion.h2>
+          <Accordion type="single" collapsible className="mt-12">
+            {faqs.map((faq, i) => (
+              <AccordionItem key={i} value={`faq-${i}`}>
+                <AccordionTrigger className="text-left font-display text-base font-semibold text-foreground">
+                  {faq.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
+                  {faq.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t bg-card py-12">
+        <div className="container">
+          <div className="grid gap-10 sm:grid-cols-3">
+            {/* Brand */}
+            <div>
+              <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold text-foreground">
+                <Package className="h-5 w-5 text-primary" />
+                CatalogHub
+              </Link>
+              <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+                La plataforma más completa para crear catálogos digitales y vender online en Latinoamérica.
+              </p>
+            </div>
+
+            {/* Links */}
+            <div>
+              <h4 className="font-display text-sm font-semibold text-foreground">Enlaces</h4>
+              <ul className="mt-3 space-y-2">
+                <li><Link to="/" className="text-sm text-muted-foreground hover:text-foreground">Inicio</Link></li>
+                <li><Link to="/login" className="text-sm text-muted-foreground hover:text-foreground">Iniciar sesión</Link></li>
+                <li><Link to="/register" className="text-sm text-muted-foreground hover:text-foreground">Registrarse</Link></li>
+              </ul>
+            </div>
+
+            {/* Contact */}
+            <div>
+              <h4 className="font-display text-sm font-semibold text-foreground">Contacto</h4>
+              <ul className="mt-3 space-y-2">
+                <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Mail className="h-4 w-4" /> soporte@cataloghub.com
+                </li>
+                <li className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Phone className="h-4 w-4" /> WhatsApp: +1 234 567 890
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-10 border-t pt-6 text-center text-xs text-muted-foreground">
+            © 2026 CatalogHub. Todos los derechos reservados.
+          </div>
+        </div>
+      </footer>
     </div>
   );
 };
