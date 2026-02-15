@@ -203,11 +203,27 @@ const StoreFront = () => {
 
       {/* ── FILTERS ── */}
       <div className="container mt-8 space-y-4 px-4">
-        <div className="flex flex-col gap-3 sm:flex-row">
+        <div className="flex items-center gap-3">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="Buscar productos..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
+          <div className="flex shrink-0 rounded-lg border sm:hidden">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`flex items-center justify-center p-2.5 transition-colors ${viewMode === "grid" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`flex items-center justify-center p-2.5 transition-colors ${viewMode === "list" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              <List className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+        <div className="flex gap-3">
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-full sm:w-48">
               <SelectValue placeholder="Ordenar por" />
@@ -218,7 +234,7 @@ const StoreFront = () => {
               <SelectItem value="price_low">Menor precio</SelectItem>
             </SelectContent>
           </Select>
-          <div className="flex rounded-lg border">
+          <div className="hidden shrink-0 rounded-lg border sm:flex">
             <button
               onClick={() => setViewMode("grid")}
               className={`flex items-center justify-center p-2 transition-colors ${viewMode === "grid" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
