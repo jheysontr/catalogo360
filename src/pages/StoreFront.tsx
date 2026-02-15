@@ -399,6 +399,7 @@ const StoreFront = () => {
         onOpenChange={setCheckoutOpen}
         storeId={store.id}
         storePhone={socialMedia?.whatsapp || ""}
+        storeName={store.store_name}
         primaryColor={primaryColor}
         currencySymbol={currencySymbol}
       />

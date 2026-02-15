@@ -20,6 +20,7 @@ interface CartModalProps {
   onOpenChange: (open: boolean) => void;
   storeId: string;
   storePhone: string;
+  storeName?: string;
   primaryColor: string;
   currencySymbol?: string;
 }
@@ -36,7 +37,7 @@ const METHOD_LABELS: Record<string, string> = {
   national: "Envío nacional",
 };
 
-const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor, currencySymbol = "$" }: CartModalProps) => {
+const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primaryColor, currencySymbol = "$" }: CartModalProps) => {
   const { toast } = useToast();
   const { items, cartTotal, clearCart } = useCart();
 
@@ -299,6 +300,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor, curr
 
     const waUrl = generateWhatsAppUrl({
       storePhone,
+      storeName,
       cartItems: items,
       customer: {
         name: name.trim(),
