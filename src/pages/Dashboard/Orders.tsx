@@ -15,11 +15,16 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator,
+  DropdownMenuTrigger, DropdownMenuSub, DropdownMenuSubTrigger, DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
+import {
   Pagination, PaginationContent, PaginationItem, PaginationLink,
   PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
   Search, ShoppingCart, Eye, MessageCircle, Download, Loader2, Package, Truck,
+  MoreHorizontal, CheckCircle, XCircle, Clock, ThumbsUp,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Json } from "@/integrations/supabase/types";
@@ -384,17 +389,52 @@ const Orders = () => {
                         {fmtDate(order.created_at)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button size="sm" variant="ghost" onClick={async () => {
-                          setSelected(order);
-                          const { data: shipData } = await supabase
-                            .from("shipments")
-                            .select("shipping_method, tracking_number, cost, address, city, status, estimated_delivery_date")
-                            .eq("order_id", order.id)
-                            .limit(1);
-                          setSelectedShipment(shipData?.[0] as ShipmentData ?? null);
-                        }}>
-                          <Eye className="mr-1.5 h-3.5 w-3.5" /> Ver
-                        </Button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={async () => {
+                            setSelected(order);
+                            const { data: shipData } = await supabase
+                              .from("shipments")
+                              .select("shipping_method, tracking_number, cost, address, city, status, estimated_delivery_date")
+                              .eq("order_id", order.id)
+                              .limit(1);
+                            setSelectedShipment(shipData?.[0] as ShipmentData ?? null);
+                          }}>
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuSub>
+                                <DropdownMenuSubTrigger>
+                                  <Clock className="mr-2 h-3.5 w-3.5" /> Cambiar estado
+                                </DropdownMenuSubTrigger>
+                                <DropdownMenuSubContent>
+                                  {[
+                                    { value: "pending", label: "Pendiente", icon: Clock },
+                                    { value: "confirmed", label: "Confirmada", icon: ThumbsUp },
+                                    { value: "completed", label: "Completada", icon: CheckCircle },
+                                    { value: "cancelled", label: "Cancelada", icon: XCircle },
+                                  ].filter((s) => s.value !== order.status).map((s) => (
+                                    <DropdownMenuItem key={s.value} onClick={() => updateStatus(order.id, s.value)}>
+                                      <s.icon className="mr-2 h-3.5 w-3.5" /> {s.label}
+                                    </DropdownMenuItem>
+                                  ))}
+                                </DropdownMenuSubContent>
+                              </DropdownMenuSub>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem onClick={() => openWhatsApp(order)}>
+                                <MessageCircle className="mr-2 h-3.5 w-3.5" /> WhatsApp
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => downloadDetails(order)}>
+                                <Download className="mr-2 h-3.5 w-3.5" /> Descargar
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
                       </TableCell>
                     </TableRow>
                   );
