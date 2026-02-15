@@ -171,22 +171,28 @@ const Landing = () => {
               className="relative mx-auto flex w-full max-w-lg items-end justify-center gap-4 lg:max-w-none"
             >
               {/* Desktop mockup */}
-              <div className="relative w-full max-w-xs rounded-xl border bg-card p-2 shadow-xl lg:max-w-sm">
-                <div className="flex items-center gap-1.5 px-2 pb-2">
-                  <span className="h-2 w-2 rounded-full bg-destructive/60" />
-                  <span className="h-2 w-2 rounded-full bg-primary/40" />
-                  <span className="h-2 w-2 rounded-full bg-muted-foreground/30" />
+              <div className="relative w-full max-w-xs rounded-2xl border bg-card shadow-[0_20px_60px_-15px_rgba(0,0,0,0.25)] lg:max-w-sm dark:shadow-[0_20px_60px_-15px_rgba(0,0,0,0.5)]">
+                <div className="flex items-center gap-2 border-b px-3 py-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+                  </div>
+                  <div className="mx-auto flex-1 max-w-[60%]">
+                    <div className="rounded-md bg-muted/60 px-3 py-1 text-center text-[10px] text-muted-foreground truncate">catalogo360.online/dashboard</div>
+                  </div>
                 </div>
-                <div className="overflow-hidden rounded-lg">
+                <div className="overflow-hidden rounded-b-2xl">
                   <img src={demoDashboard} alt="Panel de administración de Catalogo360" className="h-full w-full object-cover" loading="lazy" />
                 </div>
               </div>
 
               {/* Mobile mockup */}
-              <div className="w-20 rounded-xl border bg-card p-1 shadow-lg lg:w-24">
-                <div className="overflow-hidden rounded-lg">
-                  <img src={demoStorefrontMobile} alt="Tienda móvil de Catalogo360" className="h-full w-full object-cover" loading="lazy" />
+              <div className="w-20 overflow-hidden rounded-[16px] border-2 border-foreground/10 bg-card shadow-[0_15px_40px_-10px_rgba(0,0,0,0.2)] lg:w-24 dark:shadow-[0_15px_40px_-10px_rgba(0,0,0,0.45)]">
+                <div className="flex items-center justify-center bg-muted/40 py-1">
+                  <div className="h-1 w-6 rounded-full bg-muted-foreground/20" />
                 </div>
+                <img src={demoStorefrontMobile} alt="Tienda móvil de Catalogo360" className="h-full w-full object-cover" loading="lazy" />
               </div>
             </motion.div>
           </div>
@@ -289,13 +295,20 @@ const Landing = () => {
               transition={{ duration: 0.6 }}
               className="relative"
             >
-              <div className="rounded-2xl border bg-card p-2 shadow-xl">
-                <div className="flex items-center gap-1.5 px-2 pb-2">
-                  <span className="h-2 w-2 rounded-full bg-destructive/60" />
-                  <span className="h-2 w-2 rounded-full bg-primary/40" />
-                  <span className="h-2 w-2 rounded-full bg-muted-foreground/30" />
+              <div className="rounded-2xl border bg-card shadow-[0_25px_60px_-15px_rgba(0,0,0,0.25)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)]">
+                <div className="flex items-center gap-2 border-b px-3 py-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+                  </div>
+                  <div className="mx-auto flex-1 max-w-[60%]">
+                    <div className="rounded-md bg-muted/60 px-3 py-1 text-center text-[10px] text-muted-foreground truncate">catalogo360.online/store/mi-tienda</div>
+                  </div>
                 </div>
-                <img src={demoStorefront} alt="Vista de la tienda online de Catalogo360" className="w-full rounded-lg" loading="lazy" />
+                <div className="overflow-hidden rounded-b-2xl">
+                  <img src={demoStorefront} alt="Vista de la tienda online de Catalogo360" className="w-full" loading="lazy" />
+                </div>
               </div>
             </motion.div>
           </div>
@@ -313,13 +326,20 @@ const Landing = () => {
               transition={{ duration: 0.6 }}
               className="order-2 lg:order-1"
             >
-              <div className="rounded-2xl border bg-card p-2 shadow-xl">
-                <div className="flex items-center gap-1.5 px-2 pb-2">
-                  <span className="h-2 w-2 rounded-full bg-destructive/60" />
-                  <span className="h-2 w-2 rounded-full bg-primary/40" />
-                  <span className="h-2 w-2 rounded-full bg-muted-foreground/30" />
+              <div className="rounded-2xl border bg-card shadow-[0_25px_60px_-15px_rgba(0,0,0,0.25)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)]">
+                <div className="flex items-center gap-2 border-b px-3 py-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
+                  </div>
+                  <div className="mx-auto flex-1 max-w-[60%]">
+                    <div className="rounded-md bg-muted/60 px-3 py-1 text-center text-[10px] text-muted-foreground truncate">catalogo360.online/dashboard/analytics</div>
+                  </div>
                 </div>
-                <img src={demoAnalytics} alt="Panel de analíticas de Catalogo360" className="w-full rounded-lg" loading="lazy" />
+                <div className="overflow-hidden rounded-b-2xl">
+                  <img src={demoAnalytics} alt="Panel de analíticas de Catalogo360" className="w-full" loading="lazy" />
+                </div>
               </div>
             </motion.div>
             <motion.div
