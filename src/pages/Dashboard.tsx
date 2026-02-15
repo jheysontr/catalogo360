@@ -10,6 +10,7 @@ import {
   ExternalLink, Plus, Eye, Menu, X, LogOut, ChevronRight,
 } from "lucide-react";
 import Products from "@/pages/Dashboard/Products";
+import StoreSettings from "@/pages/Dashboard/StoreSettings";
 
 interface StoreData {
   id: string;
@@ -158,6 +159,8 @@ const Dashboard = () => {
         <main className="flex-1 p-6 lg:p-8">
           {activeSection === "products" ? (
             <Products />
+          ) : activeSection === "settings" ? (
+            <StoreSettings />
           ) : (
             <>
               <h1 className="font-display text-2xl font-bold text-foreground">Mi Tienda</h1>
