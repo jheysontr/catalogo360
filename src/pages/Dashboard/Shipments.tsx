@@ -1,6 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/AuthContext";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ShippingConfig from "@/pages/Dashboard/ShippingConfig";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -202,8 +204,16 @@ const Shipments = () => {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-bold text-foreground">Envíos</h1>
-        <p className="text-sm text-muted-foreground">Gestiona los envíos de tus pedidos</p>
+        <p className="text-sm text-muted-foreground">Gestiona los envíos y configuración de métodos de envío</p>
       </div>
+
+      <Tabs defaultValue="list" className="w-full">
+        <TabsList>
+          <TabsTrigger value="list">Envíos</TabsTrigger>
+          <TabsTrigger value="config">Configuración</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="list" className="mt-4 space-y-6">
 
       {/* Filters */}
       <div className="flex flex-col gap-3 sm:flex-row">
@@ -419,6 +429,12 @@ const Shipments = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </TabsContent>
+
+        <TabsContent value="config" className="mt-4">
+          <ShippingConfig />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

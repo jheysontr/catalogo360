@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Package, Store, ShoppingCart, BarChart3, CreditCard, Settings,
   ExternalLink, Plus, Eye, Menu, X, LogOut, ChevronRight, FolderOpen, Ticket,
-  Truck, Settings2, Link2,
+  Truck, Link2,
 } from "lucide-react";
 import Products from "@/pages/Dashboard/Products";
 import StoreSettings from "@/pages/Dashboard/StoreSettings";
@@ -17,7 +17,7 @@ import Plans from "@/pages/Dashboard/Plans";
 import Analytics from "@/pages/Dashboard/Analytics";
 import Categories from "@/pages/Dashboard/Categories";
 import Coupons from "@/pages/Dashboard/Coupons";
-import ShippingConfig from "@/pages/Dashboard/ShippingConfig";
+
 import Shipments from "@/pages/Dashboard/Shipments";
 import Linkbox from "@/pages/Dashboard/Linkbox";
 
@@ -34,7 +34,6 @@ const sidebarLinks = [
   { label: "Cupones", icon: Ticket, id: "coupons" },
   { label: "Órdenes", icon: ShoppingCart, id: "orders" },
   { label: "Envíos", icon: Truck, id: "shipments" },
-  { label: "Config. Envíos", icon: Settings2, id: "shipping-config" },
   { label: "Linkbox", icon: Link2, id: "linkbox" },
   { label: "Estadísticas", icon: BarChart3, id: "stats" },
   { label: "Planes", icon: CreditCard, id: "plans" },
@@ -171,8 +170,6 @@ const Dashboard = () => {
             <Coupons />
           ) : activeSection === "shipments" ? (
             <Shipments />
-          ) : activeSection === "shipping-config" ? (
-            <ShippingConfig />
           ) : activeSection === "linkbox" ? (
             <Linkbox />
           ) : activeSection === "settings" ? (
