@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Upload, Store, Palette, Share2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Upload, Store, Palette, Share2, DollarSign } from "lucide-react";
 import toast from "react-hot-toast";
 
 interface StoreData {
@@ -21,7 +22,23 @@ interface StoreData {
   primary_color: string | null;
   secondary_color: string | null;
   social_media: Record<string, string> | null;
+  currency: string;
 }
+
+const CURRENCIES = [
+  { code: "USD", name: "Dólar estadounidense", symbol: "$" },
+  { code: "EUR", name: "Euro", symbol: "€" },
+  { code: "BOB", name: "Boliviano", symbol: "Bs" },
+  { code: "ARS", name: "Peso argentino", symbol: "$" },
+  { code: "MXN", name: "Peso mexicano", symbol: "$" },
+  { code: "CLP", name: "Peso chileno", symbol: "$" },
+  { code: "COP", name: "Peso colombiano", symbol: "$" },
+  { code: "PEN", name: "Sol peruano", symbol: "S/" },
+  { code: "UYU", name: "Peso uruguayo", symbol: "$U" },
+  { code: "BRL", name: "Real brasileño", symbol: "R$" },
+  { code: "PYG", name: "Guaraní paraguayo", symbol: "₲" },
+  { code: "GBP", name: "Libra esterlina", symbol: "£" },
+];
 
 const StoreSettings = () => {
   const { user } = useAuth();
@@ -44,6 +61,7 @@ const StoreSettings = () => {
   const [instagram, setInstagram] = useState("");
   const [tiktok, setTiktok] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
+  const [currency, setCurrency] = useState("BOB");
 
   // Upload states
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -77,6 +95,7 @@ const StoreSettings = () => {
         setTiktok(social.tiktok ?? "");
         setWhatsapp(social.whatsapp ?? "");
         setPhone(social.phone ?? "");
+        setCurrency((s as any).currency ?? "BOB");
       }
       setLoading(false);
     };
@@ -158,6 +177,7 @@ const StoreSettings = () => {
         secondary_color: secondaryColor,
         logo_url: logoUrl,
         banner_url: bannerUrl,
+        currency,
         social_media: {
           facebook: facebook.trim(),
           instagram: instagram.trim(),
@@ -192,6 +212,7 @@ const StoreSettings = () => {
     setTiktok(social.tiktok ?? "");
     setWhatsapp(social.whatsapp ?? "");
     setPhone(social.phone ?? "");
+    setCurrency((store as any).currency ?? "BOB");
     toast("Cambios descartados");
   };
 
@@ -421,6 +442,32 @@ const StoreSettings = () => {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Currency */}
+          <Card>
+            <CardHeader className="flex flex-row items-center gap-3 pb-2">
+              <DollarSign className="h-5 w-5 text-primary" />
+              <CardTitle className="text-base">Moneda</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Label htmlFor="s-currency">Moneda de tu tienda</Label>
+              <Select value={currency} onValueChange={setCurrency}>
+                <SelectTrigger id="s-currency" className="mt-1.5">
+                  <SelectValue placeholder="Selecciona moneda" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CURRENCIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>
+                      {c.symbol} — {c.name} ({c.code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                Los precios de tus productos se mostrarán con esta moneda
+              </p>
             </CardContent>
           </Card>
 

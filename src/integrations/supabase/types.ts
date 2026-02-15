@@ -396,6 +396,7 @@ export type Database = {
           address: string | null
           banner_url: string | null
           created_at: string
+          currency: string
           description: string | null
           email: string | null
           id: string
@@ -413,6 +414,7 @@ export type Database = {
           address?: string | null
           banner_url?: string | null
           created_at?: string
+          currency?: string
           description?: string | null
           email?: string | null
           id?: string
@@ -430,6 +432,7 @@ export type Database = {
           address?: string | null
           banner_url?: string | null
           created_at?: string
+          currency?: string
           description?: string | null
           email?: string | null
           id?: string

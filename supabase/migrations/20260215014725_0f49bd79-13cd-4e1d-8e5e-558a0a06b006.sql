@@ -1,0 +1,1 @@
+ALTER TABLE public.stores ADD COLUMN currency text NOT NULL DEFAULT 'BOB';
