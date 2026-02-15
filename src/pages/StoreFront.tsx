@@ -64,7 +64,7 @@ interface Category {
 const StoreFront = () => {
   const { slug } = useParams<{ slug: string }>();
   const { toast } = useToast();
-  const { items: cart, addToCart, removeFromCart, updateQuantity, cartTotal, itemCount } = useCart();
+  const { items: cart, addToCart, removeFromCart, updateQuantity, cartTotal, itemCount, setStoreId } = useCart();
 
   const [store, setStore] = useState<StoreData | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -99,6 +99,7 @@ const StoreFront = () => {
 
       const s = storeData[0] as StoreData;
       setStore(s);
+      setStoreId(s.id);
 
       const [{ data: prods }, { data: cats }] = await Promise.all([
         supabase.from("products").select("*").eq("store_id", s.id).gt("stock", 0).order("created_at", { ascending: false }),
