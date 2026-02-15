@@ -17,6 +17,7 @@ import {
 import { motion } from "framer-motion";
 
 const currencies = [
+  { code: "BOB", symbol: "Bs", rate: 6.9 },
   { code: "USD", symbol: "$", rate: 1 },
   { code: "EUR", symbol: "€", rate: 0.92 },
   { code: "CLP", symbol: "$", rate: 980 },
@@ -25,7 +26,6 @@ const currencies = [
   { code: "PEN", symbol: "S/", rate: 3.7 },
   { code: "COP", symbol: "$", rate: 4100 },
   { code: "UYU", symbol: "$", rate: 42 },
-  { code: "BOB", symbol: "Bs", rate: 6.9 },
 ];
 
 const plans = [

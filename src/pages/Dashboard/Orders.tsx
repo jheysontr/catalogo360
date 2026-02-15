@@ -112,7 +112,7 @@ const itemQty = (i: OrderItem) => i.quantity ?? i.qty ?? 1;
 const itemPrice = (i: OrderItem) => i.price ?? i.unit_price ?? 0;
 
 const fmtCurrency = (n: number) =>
-  new Intl.NumberFormat("es", { style: "currency", currency: "USD" }).format(n);
+  `Bs${n.toFixed(2)}`;
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString("es", {
