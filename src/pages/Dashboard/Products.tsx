@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/pagination";
 import {
   Plus, Search, MoreVertical, Pencil, Copy, Trash2, ImagePlus, Package, Loader2,
-  LayoutGrid, List, FolderPlus,
+  LayoutGrid, List,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -74,10 +74,6 @@ const Products = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [saving, setSaving] = useState(false);
 
-  // Category modal
-  const [catModalOpen, setCatModalOpen] = useState(false);
-  const [newCatName, setNewCatName] = useState("");
-  const [savingCat, setSavingCat] = useState(false);
 
   // Form state
   const [formName, setFormName] = useState("");
@@ -248,10 +244,7 @@ const Products = () => {
       toast({ title: "Error", description: "El stock debe ser >= 0", variant: "destructive" });
       return;
     }
-    if (!editingProduct && !formImageFile && !formImagePreview) {
-      toast({ title: "Error", description: "La imagen es requerida", variant: "destructive" });
-      return;
-    }
+    // Image is optional - products can be created without an image
     if (formOnSale && (Number(formDiscount) < 0 || Number(formDiscount) > 100)) {
       toast({ title: "Error", description: "El descuento debe ser entre 0 y 100", variant: "destructive" });
       return;
@@ -330,20 +323,6 @@ const Products = () => {
     else { toast({ title: "Producto eliminado" }); fetchProducts(); }
   };
 
-  /* ── Add category ── */
-  const handleAddCategory = async () => {
-    if (!storeId || !newCatName.trim()) return;
-    setSavingCat(true);
-    const { error } = await supabase.from("categories").insert({ name: newCatName.trim(), store_id: storeId });
-    if (error) toast({ title: "Error", description: "Error al crear categoría", variant: "destructive" });
-    else {
-      toast({ title: "Categoría creada" });
-      setNewCatName("");
-      setCatModalOpen(false);
-      fetchCategories();
-    }
-    setSavingCat(false);
-  };
 
   /* ── Pagination display ── */
   const fromItem = totalCount === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1;
@@ -396,9 +375,6 @@ const Products = () => {
             <SelectItem value="on_sale">En oferta</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setCatModalOpen(true)}>
-          <FolderPlus className="h-4 w-4" /> Agregar categoría
-        </Button>
         <div className="flex rounded-lg border bg-muted p-0.5">
           <Button
             variant={viewMode === "table" ? "default" : "ghost"}
@@ -795,26 +771,6 @@ const Products = () => {
         </DialogContent>
       </Dialog>
 
-      {/* ── ADD CATEGORY MODAL ── */}
-      <Dialog open={catModalOpen} onOpenChange={setCatModalOpen}>
-        <DialogContent className="sm:max-w-sm">
-          <DialogHeader>
-            <DialogTitle className="font-display">Agregar categoría</DialogTitle>
-            <DialogDescription>Crea una nueva categoría para organizar tus productos</DialogDescription>
-          </DialogHeader>
-          <div>
-            <Label htmlFor="cat-name">Nombre de categoría</Label>
-            <Input id="cat-name" value={newCatName} onChange={(e) => setNewCatName(e.target.value)} placeholder="Ej: Electrónica" className="mt-1.5" />
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCatModalOpen(false)}>Cancelar</Button>
-            <Button onClick={handleAddCategory} disabled={savingCat || !newCatName.trim()} className="gap-2">
-              {savingCat && <Loader2 className="h-4 w-4 animate-spin" />}
-              Crear categoría
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
