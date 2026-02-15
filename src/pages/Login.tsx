@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/AuthContext";
 import toast from "react-hot-toast";
 import { Package, Eye, EyeOff } from "lucide-react";
 
-const REMEMBER_KEY = "cataloghub_remembered_email";
+const REMEMBER_KEY = "catalogo360_remembered_email";
 
 const Login = () => {
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -71,7 +71,7 @@ const Login = () => {
         <div className="mb-8 text-center">
           <Package className="mx-auto h-10 w-10 text-primary" />
           <h1 className="mt-4 font-display text-2xl font-bold text-foreground">Inicia sesión</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Accede a tu cuenta de CatalogHub</p>
+          <p className="mt-1 text-sm text-muted-foreground">Accede a tu cuenta de Catalogo360</p>
         </div>
 
         <form onSubmit={handleLogin} className="space-y-4">

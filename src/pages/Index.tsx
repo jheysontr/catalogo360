@@ -46,7 +46,7 @@ const Index = () => {
             transition={{ duration: 0.7, delay: 0.15 }}
             className="mx-auto mt-6 max-w-xl text-lg text-primary-foreground/70"
           >
-            CatalogHub te permite crear catálogos profesionales, compartirlos con tus clientes y gestionar tu inventario desde un solo lugar.
+            Catalogo360 te permite crear catálogos profesionales, compartirlos con tus clientes y gestionar tu inventario desde un solo lugar.
           </motion.p>
           <motion.div
             initial={{ opacity: 0, y: 16 }}

@@ -109,7 +109,7 @@ const Dashboard = () => {
       >
         <div className="flex h-16 items-center gap-2 border-b px-6">
           <Package className="h-6 w-6 text-primary" />
-          <span className="font-display text-lg font-bold text-foreground">CatalogHub</span>
+          <span className="font-display text-lg font-bold text-foreground">Catalogo360</span>
           <button className="ml-auto lg:hidden" onClick={() => setSidebarOpen(false)}>
             <X className="h-5 w-5" />
           </button>

@@ -57,15 +57,15 @@ const plans = [
 
 const faqs = [
   {
-    q: "¿Qué es CatalogHub?",
-    a: "CatalogHub es una plataforma que te permite crear tu catálogo digital y tienda online en minutos, sin necesidad de conocimientos técnicos. Ideal para emprendedores en Latinoamérica.",
+    q: "¿Qué es Catalogo360?",
+    a: "Catalogo360 es una plataforma que te permite crear tu catálogo digital y tienda online en minutos, sin necesidad de conocimientos técnicos. Ideal para emprendedores en Latinoamérica.",
   },
   {
     q: "¿Cómo se crea una tienda?",
     a: "Solo necesitas registrarte, agregar tus productos con fotos y precios, personalizar tu tienda y compartir el enlace con tus clientes. ¡Todo en menos de 5 minutos!",
   },
   {
-    q: "¿Puedo usar CatalogHub desde el celular?",
+    q: "¿Puedo usar Catalogo360 desde el celular?",
     a: "¡Claro! Tanto el panel de administración como tu tienda pública son 100% responsive y funcionan perfectamente en cualquier dispositivo.",
   },
   {
@@ -78,7 +78,7 @@ const faqs = [
   },
   {
     q: "¿Es necesario saber diseño o programación?",
-    a: "No. CatalogHub está diseñado para que cualquier persona pueda crear su tienda sin conocimientos técnicos. Solo arrastra, escribe y publica.",
+    a: "No. Catalogo360 está diseñado para que cualquier persona pueda crear su tienda sin conocimientos técnicos. Solo arrastra, escribe y publica.",
   },
 ];
 
@@ -86,7 +86,7 @@ const testimonials = [
   {
     name: "Carolina Méndez",
     type: "Tienda de Ropa",
-    text: "CatalogHub transformó mi negocio. Antes perdía horas armando catálogos en PDF, ahora mis clientes ven todo actualizado en tiempo real.",
+    text: "Catalogo360 transformó mi negocio. Antes perdía horas armando catálogos en PDF, ahora mis clientes ven todo actualizado en tiempo real.",
   },
   {
     name: "Andrés Fuentes",
@@ -96,7 +96,7 @@ const testimonials = [
   {
     name: "Valentina Ríos",
     type: "Cosméticos",
-    text: "El soporte es increíble y la plataforma es muy intuitiva. Mis ventas aumentaron un 40% desde que empecé a usar CatalogHub.",
+    text: "El soporte es increíble y la plataforma es muy intuitiva. Mis ventas aumentaron un 40% desde que empecé a usar Catalogo360.",
   },
 ];
 
@@ -136,7 +136,7 @@ const Landing = () => {
                     <Star key={i} className="h-3.5 w-3.5 fill-primary text-primary" />
                   ))}
                 </div>
-                <span className="font-medium">+500 emprendedores confían en CatalogHub</span>
+                <span className="font-medium">+500 emprendedores confían en Catalogo360</span>
               </div>
 
               <h1 className="font-display text-4xl font-bold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl">
@@ -199,7 +199,7 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Section 1 — Why CatalogHub */}
+      {/* Section 1 — Why Catalogo360 */}
       <section className="py-20 sm:py-28">
         <div className="container">
           <motion.h2
@@ -208,7 +208,7 @@ const Landing = () => {
             viewport={{ once: true }}
             className="text-center font-display text-3xl font-bold text-foreground sm:text-4xl"
           >
-            ¿Por qué elegir <span className="text-primary">CatalogHub</span>?
+            ¿Por qué elegir <span className="text-primary">Catalogo360</span>?
           </motion.h2>
           <p className="mx-auto mt-3 max-w-md text-center text-muted-foreground">
             Todo lo que necesitas para vender online, en una sola plataforma.
@@ -274,7 +274,7 @@ const Landing = () => {
                     <MessageCircle className="h-5 w-5 text-primary" />
                   </div>
                   <div>
-                    <p className="text-sm font-semibold text-card-foreground">CatalogHub Bot</p>
+                    <p className="text-sm font-semibold text-card-foreground">Catalogo360 Bot</p>
                     <p className="text-xs text-muted-foreground">Nuevo pedido recibido</p>
                   </div>
                 </div>
@@ -294,7 +294,7 @@ const Landing = () => {
               transition={{ duration: 0.6 }}
             >
               <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
-                Así recibes tus pedidos con <span className="text-primary">CatalogHub</span>
+                Así recibes tus pedidos con <span className="text-primary">Catalogo360</span>
               </h2>
               <p className="mt-4 text-muted-foreground">
                 Tus clientes ven tu catálogo, eligen productos y finalizan el pedido. Tú recibes todo organizado, listo para despachar.
@@ -456,7 +456,7 @@ const Landing = () => {
                     variant={plan.popular ? "default" : "outline"}
                   >
                     <a
-                      href={`https://wa.me/1234567890?text=Hola, quiero el plan ${plan.name} de CatalogHub`}
+                      href={`https://wa.me/1234567890?text=Hola, quiero el plan ${plan.name} de Catalogo360`}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -545,7 +545,7 @@ const Landing = () => {
             <div>
               <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold text-foreground">
                 <Package className="h-5 w-5 text-primary" />
-                CatalogHub
+                Catalogo360
               </Link>
               <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
                 La plataforma más completa para crear catálogos digitales y vender online en Latinoamérica.
@@ -567,7 +567,7 @@ const Landing = () => {
               <h4 className="font-display text-sm font-semibold text-foreground">Contacto</h4>
               <ul className="mt-3 space-y-2">
                 <li className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Mail className="h-4 w-4" /> soporte@cataloghub.com
+                  <Mail className="h-4 w-4" /> soporte@catalogo360.com
                 </li>
                 <li className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Phone className="h-4 w-4" /> WhatsApp: +1 234 567 890
@@ -577,7 +577,7 @@ const Landing = () => {
           </div>
 
           <div className="mt-10 border-t pt-6 text-center text-xs text-muted-foreground">
-            © 2026 CatalogHub. Todos los derechos reservados.
+            © 2026 Catalogo360. Todos los derechos reservados.
           </div>
         </div>
       </footer>
