@@ -160,7 +160,7 @@ const LinkboxPage = () => {
           🛒 Visitar tienda
         </a>
         <p className="mt-4 text-xs text-white/40">
-          Powered by <span className="font-semibold">CatalogHub</span>
+          Powered by <span className="font-semibold">Catalogo360</span>
         </p>
       </motion.div>
     </div>

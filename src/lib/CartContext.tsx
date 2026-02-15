@@ -19,8 +19,8 @@ interface CartContextValue {
 
 const CartContext = createContext<CartContextValue | null>(null);
 
-const STORAGE_KEY = "cataloghub_cart";
-const STORE_KEY = "cataloghub_cart_store";
+const STORAGE_KEY = "catalogo360_cart";
+const STORE_KEY = "catalogo360_cart_store";
 
 function loadCart(): CartItem[] {
   try {
