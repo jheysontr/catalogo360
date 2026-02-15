@@ -7,13 +7,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import {
   Package, Store, ShoppingCart, BarChart3, CreditCard, Settings,
-  ExternalLink, Plus, Eye, Menu, X, LogOut, ChevronRight,
+  ExternalLink, Plus, Eye, Menu, X, LogOut, ChevronRight, FolderOpen,
 } from "lucide-react";
 import Products from "@/pages/Dashboard/Products";
 import StoreSettings from "@/pages/Dashboard/StoreSettings";
 import Orders from "@/pages/Dashboard/Orders";
 import Plans from "@/pages/Dashboard/Plans";
 import Analytics from "@/pages/Dashboard/Analytics";
+import Categories from "@/pages/Dashboard/Categories";
 
 interface StoreData {
   id: string;
@@ -24,6 +25,7 @@ interface StoreData {
 const sidebarLinks = [
   { label: "Mi Tienda", icon: Store, id: "store" },
   { label: "Productos", icon: Package, id: "products" },
+  { label: "Categorías", icon: FolderOpen, id: "categories" },
   { label: "Órdenes", icon: ShoppingCart, id: "orders" },
   { label: "Estadísticas", icon: BarChart3, id: "stats" },
   { label: "Planes", icon: CreditCard, id: "plans" },
@@ -162,6 +164,8 @@ const Dashboard = () => {
         <main className="flex-1 p-6 lg:p-8">
           {activeSection === "products" ? (
             <Products />
+          ) : activeSection === "categories" ? (
+            <Categories />
           ) : activeSection === "settings" ? (
             <StoreSettings />
           ) : activeSection === "orders" ? (
