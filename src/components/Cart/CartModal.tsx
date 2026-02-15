@@ -13,7 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/lib/CartContext";
 import { getFinalPrice, generateWhatsAppUrl } from "@/utils/whatsapp";
 import { supabase } from "@/integrations/supabase/client";
-import type { ShippingConfigData } from "@/pages/Dashboard/ShippingConfig";
+import type { ShippingConfigData, LocalZone } from "@/pages/Dashboard/ShippingConfig";
 
 interface CartModalProps {
   open: boolean;
@@ -47,6 +47,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
   // Shipping
   const [shippingConfig, setShippingConfig] = useState<ShippingConfigData | null>(null);
   const [shippingMethod, setShippingMethod] = useState<string>("");
+  const [selectedZoneIndex, setSelectedZoneIndex] = useState<number>(-1);
   const [shipAddress, setShipAddress] = useState("");
   const [shipCity, setShipCity] = useState("");
   const [shipPostalCode, setShipPostalCode] = useState("");
@@ -165,7 +166,14 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
     if (shippingMethod === "pickup") return 0;
 
     let cost = 0;
-    if (shippingMethod === "local") cost = shippingConfig.local_cost || 0;
+    if (shippingMethod === "local") {
+      const zones = shippingConfig.local_zones || [];
+      if (zones.length > 0 && selectedZoneIndex >= 0 && selectedZoneIndex < zones.length) {
+        cost = zones[selectedZoneIndex].cost || 0;
+      } else {
+        cost = shippingConfig.local_cost || 0;
+      }
+    }
     if (shippingMethod === "national") cost = shippingConfig.national_cost || 0;
 
     if (shippingConfig.free_shipping_threshold > 0 && subtotalAfterCoupon >= shippingConfig.free_shipping_threshold) {
@@ -203,6 +211,10 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
     // Validate shipping
     if (hasShipping && !shippingMethod) {
       toast({ title: "Error", description: "Selecciona un método de envío", variant: "destructive" });
+      return;
+    }
+    if (hasShipping && shippingMethod === "local" && shippingConfig?.local_zones && shippingConfig.local_zones.length > 0 && selectedZoneIndex < 0) {
+      toast({ title: "Error", description: "Selecciona tu zona de envío", variant: "destructive" });
       return;
     }
     if (hasShipping && shippingMethod !== "pickup") {
@@ -280,8 +292,11 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
       ? `\n🏷️ Cupón: ${appliedCoupon.code} (-$${couponDiscount.toFixed(2)})`
       : "";
 
+    const zoneName = shippingMethod === "local" && shippingConfig?.local_zones && selectedZoneIndex >= 0
+      ? ` (${shippingConfig.local_zones[selectedZoneIndex].name})`
+      : "";
     const shippingNote = hasShipping && shippingMethod
-      ? `\n📦 Envío: ${METHOD_LABELS[shippingMethod]}${shippingCost > 0 ? ` ($${shippingCost.toFixed(2)})` : " (Gratis)"}${shippingMethod !== "pickup" ? `\n📍 ${shipAddress.trim()}, ${shipCity.trim()}` : ""}\n🔍 Rastreo: ${trackingNumber}`
+      ? `\n📦 Envío: ${METHOD_LABELS[shippingMethod]}${zoneName}${shippingCost > 0 ? ` ($${shippingCost.toFixed(2)})` : " (Gratis)"}${shippingMethod !== "pickup" ? `\n📍 ${shipAddress.trim()}, ${shipCity.trim()}` : ""}\n🔍 Rastreo: ${trackingNumber}`
       : "";
 
     const waUrl = generateWhatsAppUrl(
@@ -332,18 +347,22 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
                 <Label className="text-sm font-semibold">Método de envío *</Label>
                 <div className="mt-2 space-y-2">
                   {availableMethods.map((method) => {
-                    let cost = 0;
                     let description = "";
                     if (method === "pickup") {
                       description = `Gratis${shippingConfig?.pickup_address ? ` — ${shippingConfig.pickup_address}` : ""}`;
                       if (shippingConfig?.pickup_hours) description += ` (${shippingConfig.pickup_hours})`;
                     } else if (method === "local") {
-                      cost = shippingConfig?.local_cost || 0;
+                      const zones = shippingConfig?.local_zones || [];
                       const isFree = shippingConfig?.free_shipping_threshold && shippingConfig.free_shipping_threshold > 0 && cartTotal >= shippingConfig.free_shipping_threshold;
-                      description = isFree ? "Gratis" : cost > 0 ? `$${cost.toFixed(2)}` : "Gratis";
+                      if (zones.length > 0) {
+                        description = isFree ? "Gratis" : "Selecciona tu zona";
+                      } else {
+                        const cost = shippingConfig?.local_cost || 0;
+                        description = isFree ? "Gratis" : cost > 0 ? `$${cost.toFixed(2)}` : "Gratis";
+                      }
                       if (shippingConfig?.local_delivery_days) description += ` — ${shippingConfig.local_delivery_days} día(s)`;
                     } else if (method === "national") {
-                      cost = shippingConfig?.national_cost || 0;
+                      const cost = shippingConfig?.national_cost || 0;
                       const isFree = shippingConfig?.free_shipping_threshold && shippingConfig.free_shipping_threshold > 0 && cartTotal >= shippingConfig.free_shipping_threshold;
                       description = isFree ? "Gratis" : cost > 0 ? `$${cost.toFixed(2)}` : "Gratis";
                       if (shippingConfig?.national_carrier) description += ` — ${shippingConfig.national_carrier}`;
@@ -364,7 +383,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
                           name="shipping-method"
                           value={method}
                           checked={shippingMethod === method}
-                          onChange={() => setShippingMethod(method)}
+                          onChange={() => { setShippingMethod(method); setSelectedZoneIndex(-1); }}
                           className="mt-1"
                         />
                         <div className="flex-1">
@@ -379,6 +398,39 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
                   })}
                 </div>
               </div>
+
+              {/* Local zone selection */}
+              {shippingMethod === "local" && shippingConfig?.local_zones && shippingConfig.local_zones.length > 0 && (
+                <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+                  <p className="text-xs font-semibold text-muted-foreground uppercase">Selecciona tu zona *</p>
+                  <div className="space-y-1.5">
+                    {shippingConfig.local_zones.map((zone, i) => {
+                      const isFree = shippingConfig.free_shipping_threshold > 0 && subtotalAfterCoupon >= shippingConfig.free_shipping_threshold;
+                      return (
+                        <label
+                          key={i}
+                          className={`flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm transition-colors ${
+                            selectedZoneIndex === i
+                              ? "border-primary bg-primary/5"
+                              : "hover:bg-accent/50"
+                          }`}
+                        >
+                          <input
+                            type="radio"
+                            name="local-zone"
+                            checked={selectedZoneIndex === i}
+                            onChange={() => setSelectedZoneIndex(i)}
+                          />
+                          <span className="flex-1 font-medium">{zone.name || `Zona ${i + 1}`}</span>
+                          <span className="text-muted-foreground">
+                            {isFree ? "Gratis" : zone.cost > 0 ? `$${zone.cost.toFixed(2)}` : "Gratis"}
+                          </span>
+                        </label>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Shipping address fields */}
               {shippingMethod && shippingMethod !== "pickup" && (

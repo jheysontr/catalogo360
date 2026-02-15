@@ -4,12 +4,15 @@ import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, MapPin, Truck, Package as PackageIcon, Save } from "lucide-react";
+import { Loader2, MapPin, Truck, Package as PackageIcon, Save, Plus, Trash2 } from "lucide-react";
+
+export interface LocalZone {
+  name: string;
+  cost: number;
+}
 
 export interface ShippingConfigData {
   pickup_enabled: boolean;
@@ -19,6 +22,7 @@ export interface ShippingConfigData {
   local_cost: number;
   local_cities: string;
   local_delivery_days: number;
+  local_zones: LocalZone[];
   national_enabled: boolean;
   national_cost: number;
   national_carrier: string;
@@ -34,6 +38,7 @@ const DEFAULT_CONFIG: ShippingConfigData = {
   local_cost: 0,
   local_cities: "",
   local_delivery_days: 1,
+  local_zones: [],
   national_enabled: false,
   national_cost: 0,
   national_carrier: "",
@@ -62,7 +67,15 @@ const ShippingConfig = () => {
         setStoreId(data[0].id);
         const sc = data[0].shipping_config as Record<string, any> | null;
         if (sc && Object.keys(sc).length > 0) {
-          setConfig({ ...DEFAULT_CONFIG, ...sc } as ShippingConfigData);
+          const loaded = { ...DEFAULT_CONFIG, ...sc } as ShippingConfigData;
+          // Migrate old single-cost format to zones
+          if ((!loaded.local_zones || loaded.local_zones.length === 0) && (loaded.local_cost > 0 || loaded.local_cities)) {
+            loaded.local_zones = [{
+              name: loaded.local_cities || "Zona local",
+              cost: loaded.local_cost || 0,
+            }];
+          }
+          setConfig(loaded);
         } else if (data[0].address) {
           setConfig({ ...DEFAULT_CONFIG, pickup_address: data[0].address || "" });
         }
@@ -73,6 +86,28 @@ const ShippingConfig = () => {
 
   const update = (key: keyof ShippingConfigData, value: any) => {
     setConfig((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const addZone = () => {
+    setConfig((prev) => ({
+      ...prev,
+      local_zones: [...prev.local_zones, { name: "", cost: 0 }],
+    }));
+  };
+
+  const updateZone = (index: number, field: keyof LocalZone, value: string | number) => {
+    setConfig((prev) => {
+      const zones = [...prev.local_zones];
+      zones[index] = { ...zones[index], [field]: value };
+      return { ...prev, local_zones: zones };
+    });
+  };
+
+  const removeZone = (index: number) => {
+    setConfig((prev) => ({
+      ...prev,
+      local_zones: prev.local_zones.filter((_, i) => i !== index),
+    }));
   };
 
   const handleSave = async () => {
@@ -102,7 +137,7 @@ const ShippingConfig = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="font-display text-2xl font-bold text-foreground">Configuración de Envíos</h1>
+          <h2 className="font-display text-xl font-bold text-foreground">Configuración de Envíos</h2>
           <p className="text-sm text-muted-foreground">Configura los métodos de envío disponibles en tu tienda</p>
         </div>
         <Button onClick={handleSave} disabled={saving} className="gap-2">
@@ -177,7 +212,7 @@ const ShippingConfig = () => {
         )}
       </Card>
 
-      {/* Local */}
+      {/* Local with zones */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
@@ -187,7 +222,7 @@ const ShippingConfig = () => {
               </div>
               <div>
                 <CardTitle className="text-base">Envío Local</CardTitle>
-                <CardDescription>Entregas dentro de tu ciudad o zona</CardDescription>
+                <CardDescription>Agrega zonas con diferentes precios de envío</CardDescription>
               </div>
             </div>
             <Switch checked={config.local_enabled} onCheckedChange={(v) => update("local_enabled", v)} />
@@ -195,43 +230,67 @@ const ShippingConfig = () => {
         </CardHeader>
         {config.local_enabled && (
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="local-cost">Costo de envío ($) *</Label>
-                <Input
-                  id="local-cost"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  value={config.local_cost || ""}
-                  onChange={(e) => update("local_cost", Number(e.target.value) || 0)}
-                  placeholder="0"
-                  className="mt-1.5"
-                />
-              </div>
-              <div>
-                <Label htmlFor="local-days">Días de entrega</Label>
-                <Input
-                  id="local-days"
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={config.local_delivery_days}
-                  onChange={(e) => update("local_delivery_days", Number(e.target.value) || 1)}
-                  className="mt-1.5"
-                />
-              </div>
-            </div>
             <div>
-              <Label htmlFor="local-cities">Ciudades / zonas cubiertas</Label>
-              <Textarea
-                id="local-cities"
-                value={config.local_cities}
-                onChange={(e) => update("local_cities", e.target.value)}
-                placeholder="Ej: Santa Cruz, Cochabamba, La Paz"
-                className="mt-1.5"
-                rows={2}
+              <Label htmlFor="local-days">Días de entrega estimados</Label>
+              <Input
+                id="local-days"
+                type="number"
+                min="1"
+                step="1"
+                value={config.local_delivery_days}
+                onChange={(e) => update("local_delivery_days", Number(e.target.value) || 1)}
+                className="mt-1.5 w-32"
               />
+            </div>
+
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold">Zonas de envío</Label>
+                <Button variant="outline" size="sm" onClick={addZone} className="gap-1.5">
+                  <Plus className="h-3.5 w-3.5" /> Agregar zona
+                </Button>
+              </div>
+
+              {config.local_zones.length === 0 && (
+                <p className="text-sm text-muted-foreground py-4 text-center border-2 border-dashed rounded-lg">
+                  No hay zonas configuradas. Agrega una zona para habilitar el envío local.
+                </p>
+              )}
+
+              {config.local_zones.map((zone, i) => (
+                <div key={i} className="flex items-center gap-3 rounded-lg border bg-muted/30 p-3">
+                  <div className="flex-1">
+                    <Input
+                      value={zone.name}
+                      onChange={(e) => updateZone(i, "name", e.target.value)}
+                      placeholder="Nombre de zona (ej: Centro, Zona Sur)"
+                      className="bg-background"
+                    />
+                  </div>
+                  <div className="w-28">
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={zone.cost || ""}
+                        onChange={(e) => updateZone(i, "cost", Number(e.target.value) || 0)}
+                        placeholder="0"
+                        className="bg-background pl-7"
+                      />
+                    </div>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
+                    onClick={() => removeZone(i)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              ))}
             </div>
           </CardContent>
         )}
