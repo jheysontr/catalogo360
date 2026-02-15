@@ -135,7 +135,12 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
       return;
     }
     setAppliedCoupon({ id: c.id, code: c.code, discount_type: c.discount_type, discount_value: Number(c.discount_value) });
-    toast({ title: "¡Cupón aplicado!", description: `Descuento: ${c.discount_type === "percentage" ? `${c.discount_value}%` : `${currencySymbol}${Number(c.discount_value).toFixed(2)}`}` });
+    const discountDesc = c.discount_type === "free_shipping"
+      ? "Envío gratis"
+      : c.discount_type === "percentage"
+        ? `${c.discount_value}%`
+        : `${currencySymbol}${Number(c.discount_value).toFixed(2)}`;
+    toast({ title: "¡Cupón aplicado!", description: `Descuento: ${discountDesc}` });
     setValidatingCoupon(false);
   };
 
@@ -158,8 +163,12 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
   const couponDiscount = appliedCoupon
     ? appliedCoupon.discount_type === "percentage"
       ? cartTotal * (appliedCoupon.discount_value / 100)
-      : Math.min(appliedCoupon.discount_value, cartTotal)
+      : appliedCoupon.discount_type === "free_shipping"
+        ? 0
+        : Math.min(appliedCoupon.discount_value, cartTotal)
     : 0;
+
+  const isFreeShippingCoupon = appliedCoupon?.discount_type === "free_shipping";
 
   const subtotalAfterCoupon = cartTotal - couponDiscount;
 
@@ -167,6 +176,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
   const getShippingCost = () => {
     if (!shippingConfig || !shippingMethod) return 0;
     if (shippingMethod === "pickup") return 0;
+    if (isFreeShippingCoupon) return 0;
 
     let cost = 0;
     if (shippingMethod === "local") {
