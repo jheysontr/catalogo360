@@ -51,7 +51,7 @@ const PIE_COLORS = [
 ];
 
 const fmtCurrency = (n: number) =>
-  new Intl.NumberFormat("es", { style: "currency", currency: "USD" }).format(n);
+  `Bs${n.toFixed(2)}`;
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString("es", { day: "2-digit", month: "short" });
