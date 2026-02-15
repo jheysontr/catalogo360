@@ -234,8 +234,14 @@ const Products = () => {
       toast({ title: "Error", description: "El nombre debe tener al menos 3 caracteres", variant: "destructive" });
       return;
     }
-    if (!formPrice || Number(formPrice) <= 0) {
+    const priceNum = Number(formPrice);
+    if (!formPrice || priceNum <= 0) {
       toast({ title: "Error", description: "Ingresa un precio válido (> 0)", variant: "destructive" });
+      return;
+    }
+    // Validate max 2 decimal places
+    if (formPrice.includes(".") && formPrice.split(".")[1]?.length > 2) {
+      toast({ title: "Error", description: "El precio debe tener máximo 2 decimales", variant: "destructive" });
       return;
     }
     if (formStock === "" || Number(formStock) < 0) {
@@ -305,6 +311,20 @@ const Products = () => {
 
   const handleDelete = async (product: Product) => {
     if (!confirm(`¿Eliminar "${product.name}"?`)) return;
+
+    // Clean up image from storage if exists
+    if (product.image_url) {
+      try {
+        const url = new URL(product.image_url);
+        const pathMatch = url.pathname.match(/\/storage\/v1\/object\/public\/products\/(.+)/);
+        if (pathMatch?.[1]) {
+          await supabase.storage.from("products").remove([decodeURIComponent(pathMatch[1])]);
+        }
+      } catch {
+        // Ignore storage cleanup errors
+      }
+    }
+
     const { error } = await supabase.from("products").delete().eq("id", product.id);
     if (error) toast({ title: "Error", description: "Error al eliminar", variant: "destructive" });
     else { toast({ title: "Producto eliminado" }); fetchProducts(); }

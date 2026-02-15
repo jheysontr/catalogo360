@@ -20,6 +20,7 @@ interface Category {
   id: string;
   name: string;
   icon: string | null;
+  description: string | null;
 }
 
 const EMOJI_GRID = [
@@ -75,7 +76,7 @@ const Categories = () => {
     setLoading(true);
     const { data } = await supabase
       .from("categories")
-      .select("id, name, icon")
+      .select("id, name, icon, description")
       .eq("store_id", storeId)
       .order("created_at", { ascending: false });
     setCategories(data ?? []);
@@ -100,7 +101,7 @@ const Categories = () => {
     setEditing(cat);
     setFormName(cat.name);
     setFormIcon(cat.icon || "📦");
-    setFormDesc("");
+    setFormDesc(cat.description || "");
     setModalOpen(true);
   };
 
@@ -125,7 +126,7 @@ const Categories = () => {
     }
 
     setSaving(true);
-    const payload = { name, icon: formIcon, store_id: storeId };
+    const payload = { name, icon: formIcon, description: formDesc.trim(), store_id: storeId };
 
     if (editing) {
       const { error } = await supabase.from("categories").update(payload).eq("id", editing.id);
