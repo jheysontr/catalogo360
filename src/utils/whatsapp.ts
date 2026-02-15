@@ -31,7 +31,8 @@ export function generateWhatsAppUrl(
   storePhone: string,
   cartItems: CartItem[],
   customerInfo: CustomerInfo,
-  total: number
+  total: number,
+  currencySymbol: string = "$"
 ): string {
   const itemLines = cartItems
     .map((i) => `📦 ${i.product.name} x${i.quantity}`)
@@ -42,7 +43,7 @@ export function generateWhatsAppUrl(
     "",
     itemLines,
     "",
-    `💰 Total: $${total.toFixed(2)}`,
+    `💰 Total: ${currencySymbol}${total.toFixed(2)}`,
     "",
     `👤 Nombre: ${customerInfo.name}`,
     `📱 WhatsApp: ${customerInfo.phone}`,

@@ -21,6 +21,7 @@ interface CartModalProps {
   storeId: string;
   storePhone: string;
   primaryColor: string;
+  currencySymbol?: string;
 }
 
 const METHOD_ICONS: Record<string, React.ReactNode> = {
@@ -35,7 +36,7 @@ const METHOD_LABELS: Record<string, string> = {
   national: "Envío nacional",
 };
 
-const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: CartModalProps) => {
+const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor, currencySymbol = "$" }: CartModalProps) => {
   const { toast } = useToast();
   const { items, cartTotal, clearCart } = useCart();
 
@@ -127,12 +128,12 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
     }
     // Check min purchase
     if (c.min_purchase && cartTotal < Number(c.min_purchase)) {
-      toast({ title: "Compra mínima no alcanzada", description: `Mínimo $${Number(c.min_purchase).toFixed(2)}`, variant: "destructive" });
+      toast({ title: "Compra mínima no alcanzada", description: `Mínimo ${currencySymbol}${Number(c.min_purchase).toFixed(2)}`, variant: "destructive" });
       setValidatingCoupon(false);
       return;
     }
     setAppliedCoupon({ id: c.id, code: c.code, discount_type: c.discount_type, discount_value: Number(c.discount_value) });
-    toast({ title: "¡Cupón aplicado!", description: `Descuento: ${c.discount_type === "percentage" ? `${c.discount_value}%` : `$${Number(c.discount_value).toFixed(2)}`}` });
+    toast({ title: "¡Cupón aplicado!", description: `Descuento: ${c.discount_type === "percentage" ? `${c.discount_value}%` : `${currencySymbol}${Number(c.discount_value).toFixed(2)}`}` });
     setValidatingCoupon(false);
   };
 
@@ -289,14 +290,14 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
     }
 
     const couponNote = appliedCoupon
-      ? `\n🏷️ Cupón: ${appliedCoupon.code} (-$${couponDiscount.toFixed(2)})`
+      ? `\n🏷️ Cupón: ${appliedCoupon.code} (-${currencySymbol}${couponDiscount.toFixed(2)})`
       : "";
 
     const zoneName = shippingMethod === "local" && shippingConfig?.local_zones && selectedZoneIndex >= 0
       ? ` (${shippingConfig.local_zones[selectedZoneIndex].name})`
       : "";
     const shippingNote = hasShipping && shippingMethod
-      ? `\n📦 Envío: ${METHOD_LABELS[shippingMethod]}${zoneName}${shippingCost > 0 ? ` ($${shippingCost.toFixed(2)})` : " (Gratis)"}${shippingMethod !== "pickup" ? `\n📍 ${shipAddress.trim()}, ${shipCity.trim()}` : ""}\n🔍 Rastreo: ${trackingNumber}`
+      ? `\n📦 Envío: ${METHOD_LABELS[shippingMethod]}${zoneName}${shippingCost > 0 ? ` (${currencySymbol}${shippingCost.toFixed(2)})` : " (Gratis)"}${shippingMethod !== "pickup" ? `\n📍 ${shipAddress.trim()}, ${shipCity.trim()}` : ""}\n🔍 Rastreo: ${trackingNumber}`
       : "";
 
     const waUrl = generateWhatsAppUrl(
@@ -309,7 +310,8 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
         address: shippingMethod === "pickup" ? undefined : shipAddress.trim() || undefined,
         note: (note.trim() + couponNote + shippingNote) || undefined,
       },
-      grandTotal
+      grandTotal,
+      currencySymbol
     );
 
     setSubmitting(false);
@@ -358,13 +360,13 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
                         description = isFree ? "Gratis" : "Selecciona tu zona";
                       } else {
                         const cost = shippingConfig?.local_cost || 0;
-                        description = isFree ? "Gratis" : cost > 0 ? `$${cost.toFixed(2)}` : "Gratis";
+                        description = isFree ? "Gratis" : cost > 0 ? `${currencySymbol}${cost.toFixed(2)}` : "Gratis";
                       }
                       if (shippingConfig?.local_delivery_days) description += ` — ${shippingConfig.local_delivery_days} día(s)`;
                     } else if (method === "national") {
                       const cost = shippingConfig?.national_cost || 0;
                       const isFree = shippingConfig?.free_shipping_threshold && shippingConfig.free_shipping_threshold > 0 && cartTotal >= shippingConfig.free_shipping_threshold;
-                      description = isFree ? "Gratis" : cost > 0 ? `$${cost.toFixed(2)}` : "Gratis";
+                      description = isFree ? "Gratis" : cost > 0 ? `${currencySymbol}${cost.toFixed(2)}` : "Gratis";
                       if (shippingConfig?.national_carrier) description += ` — ${shippingConfig.national_carrier}`;
                       if (shippingConfig?.national_delivery_days) description += ` (${shippingConfig.national_delivery_days} días)`;
                     }
@@ -423,7 +425,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
                           />
                           <span className="flex-1 font-medium">{zone.name || `Zona ${i + 1}`}</span>
                           <span className="text-muted-foreground">
-                            {isFree ? "Gratis" : zone.cost > 0 ? `$${zone.cost.toFixed(2)}` : "Gratis"}
+                            {isFree ? "Gratis" : zone.cost > 0 ? `${currencySymbol}${zone.cost.toFixed(2)}` : "Gratis"}
                           </span>
                         </label>
                       );
@@ -511,7 +513,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
                   <span className="ml-2 text-xs text-green-600 dark:text-green-500">
                     {appliedCoupon.discount_type === "percentage"
                       ? `-${appliedCoupon.discount_value}%`
-                      : `-$${appliedCoupon.discount_value.toFixed(2)}`}
+                      : `-${currencySymbol}${appliedCoupon.discount_value.toFixed(2)}`}
                   </span>
                 </div>
                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={removeCoupon}>
@@ -544,24 +546,24 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
           <div className="space-y-1.5 text-sm">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium">${cartTotal.toFixed(2)}</span>
+              <span className="font-medium">{currencySymbol}{cartTotal.toFixed(2)}</span>
             </div>
             {appliedCoupon && (
               <div className="flex justify-between text-green-600">
                 <span>Cupón ({appliedCoupon.code})</span>
-                <span className="font-medium">-${couponDiscount.toFixed(2)}</span>
+                <span className="font-medium">-{currencySymbol}{couponDiscount.toFixed(2)}</span>
               </div>
             )}
             {hasShipping && (
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Envío</span>
-                <span className="font-medium">{shippingCost > 0 ? `$${shippingCost.toFixed(2)}` : "Gratis"}</span>
+                <span className="font-medium">{shippingCost > 0 ? `${currencySymbol}${shippingCost.toFixed(2)}` : "Gratis"}</span>
               </div>
             )}
             <Separator />
             <div className="flex justify-between text-base font-bold">
               <span>Total</span>
-              <span style={{ color: primaryColor }}>${grandTotal.toFixed(2)}</span>
+              <span style={{ color: primaryColor }}>{currencySymbol}{grandTotal.toFixed(2)}</span>
             </div>
           </div>
         </div>
