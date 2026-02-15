@@ -40,7 +40,6 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
   const { items, cartTotal, clearCart } = useCart();
 
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -196,10 +195,6 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
       toast({ title: "Error", description: "Ingresa tu nombre completo (min 3 caracteres)", variant: "destructive" });
       return;
     }
-    if (!email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      toast({ title: "Error", description: "Ingresa un email válido", variant: "destructive" });
-      return;
-    }
     if (!phone.trim() || phone.trim().length < 7) {
       toast({ title: "Error", description: "Ingresa un teléfono válido", variant: "destructive" });
       return;
@@ -243,7 +238,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
     const { data: orderData, error: orderError } = await supabase.from("orders").insert({
       store_id: storeId,
       customer_name: name.trim(),
-      customer_email: email.trim(),
+      customer_email: "",
       customer_phone: phone.trim(),
       items: orderItems as any,
       total_price: grandTotal,
@@ -294,7 +289,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
       items,
       {
         name: name.trim(),
-        email: email.trim(),
+        email: "",
         phone: phone.trim(),
         address: shippingMethod === "pickup" ? undefined : shipAddress.trim() || undefined,
         note: (note.trim() + couponNote + shippingNote) || undefined,
@@ -305,7 +300,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
     setSubmitting(false);
     onOpenChange(false);
     clearCart();
-    setName(""); setEmail(""); setPhone(""); setNote("");
+    setName(""); setPhone(""); setNote("");
     setShipAddress(""); setShipCity(""); setShipPostalCode(""); setShipPhone("");
 
     toast({ title: "¡Pedido enviado!" });
@@ -325,11 +320,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
             <Input id="cust-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre completo" className="mt-1.5" />
           </div>
           <div>
-            <Label htmlFor="cust-email">Email *</Label>
-            <Input id="cust-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="tu@email.com" className="mt-1.5" />
-          </div>
-          <div>
-            <Label htmlFor="cust-phone">Teléfono *</Label>
+            <Label htmlFor="cust-phone">WhatsApp / Teléfono *</Label>
             <Input id="cust-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+591 12345678" className="mt-1.5" />
           </div>
 
