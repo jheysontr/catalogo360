@@ -10,6 +10,7 @@ import {
   ExternalLink, Plus, Eye, Menu, X, LogOut, ChevronRight, FolderOpen, Ticket,
   Truck, Link2,
 } from "lucide-react";
+import SalesCalculator from "@/components/SalesCalculator";
 import Products from "@/pages/Dashboard/Products";
 import StoreSettings from "@/pages/Dashboard/StoreSettings";
 import Orders from "@/pages/Dashboard/Orders";
@@ -153,6 +154,7 @@ const Dashboard = () => {
               Hola, <span className="font-semibold text-foreground">{userName}</span> 👋
             </p>
           </div>
+          <SalesCalculator />
           <Button variant="ghost" size="icon" onClick={() => setActiveSection("settings")}>
             <Settings className="h-4 w-4" />
           </Button>
