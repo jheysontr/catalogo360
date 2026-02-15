@@ -403,6 +403,12 @@ const StoreFront = () => {
         storeName={store.store_name}
         primaryColor={primaryColor}
         currencySymbol={currencySymbol}
+        onOrderComplete={() => {
+          setCartOpen(false);
+          setActiveCategory("all");
+          setSearch("");
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        }}
       />
 
       {/* ── INFO MODAL ── */}
