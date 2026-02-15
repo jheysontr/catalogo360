@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Package, Store, ShoppingCart, BarChart3, CreditCard, Settings,
   ExternalLink, Plus, Eye, Menu, X, LogOut, ChevronRight, FolderOpen, Ticket,
+  Truck, Settings2,
 } from "lucide-react";
 import Products from "@/pages/Dashboard/Products";
 import StoreSettings from "@/pages/Dashboard/StoreSettings";
@@ -16,6 +17,8 @@ import Plans from "@/pages/Dashboard/Plans";
 import Analytics from "@/pages/Dashboard/Analytics";
 import Categories from "@/pages/Dashboard/Categories";
 import Coupons from "@/pages/Dashboard/Coupons";
+import ShippingConfig from "@/pages/Dashboard/ShippingConfig";
+import Shipments from "@/pages/Dashboard/Shipments";
 
 interface StoreData {
   id: string;
@@ -29,6 +32,8 @@ const sidebarLinks = [
   { label: "Categorías", icon: FolderOpen, id: "categories" },
   { label: "Cupones", icon: Ticket, id: "coupons" },
   { label: "Órdenes", icon: ShoppingCart, id: "orders" },
+  { label: "Envíos", icon: Truck, id: "shipments" },
+  { label: "Config. Envíos", icon: Settings2, id: "shipping-config" },
   { label: "Estadísticas", icon: BarChart3, id: "stats" },
   { label: "Planes", icon: CreditCard, id: "plans" },
   { label: "Configuración", icon: Settings, id: "settings" },
@@ -50,7 +55,6 @@ const Dashboard = () => {
     if (!user) return;
 
     const fetchData = async () => {
-      // Fetch user's store
       const { data: stores } = await supabase
         .from("stores")
         .select("id, store_name, store_slug")
@@ -61,14 +65,12 @@ const Dashboard = () => {
         const s = stores[0];
         setStore(s);
 
-        // Fetch product count
         const { count: pCount } = await supabase
           .from("products")
           .select("id", { count: "exact", head: true })
           .eq("store_id", s.id);
         setProductCount(pCount ?? 0);
 
-        // Fetch today's orders
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const { data: orders, count: oCount } = await supabase
@@ -91,16 +93,14 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  const maxProducts = 60; // Default standard plan
+  const maxProducts = 60;
 
   return (
     <div className="flex min-h-screen bg-secondary/20">
-      {/* Sidebar overlay on mobile */}
       {sidebarOpen && (
         <div className="fixed inset-0 z-40 bg-black/40 lg:hidden" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* Sidebar */}
       <aside
         className={`fixed inset-y-0 left-0 z-50 flex w-64 flex-col border-r bg-card transition-transform duration-200 lg:static lg:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
@@ -114,7 +114,7 @@ const Dashboard = () => {
           </button>
         </div>
 
-        <nav className="flex-1 space-y-1 p-4">
+        <nav className="flex-1 space-y-1 overflow-y-auto p-4">
           {sidebarLinks.map((link) => (
             <button
               key={link.id}
@@ -142,9 +142,7 @@ const Dashboard = () => {
         </div>
       </aside>
 
-      {/* Main content */}
       <div className="flex flex-1 flex-col">
-        {/* Top bar */}
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card/80 px-6 backdrop-blur-lg">
           <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
@@ -162,7 +160,6 @@ const Dashboard = () => {
           </Button>
         </header>
 
-        {/* Content area */}
         <main className="flex-1 p-6 lg:p-8">
           {activeSection === "products" ? (
             <Products />
@@ -170,6 +167,10 @@ const Dashboard = () => {
             <Categories />
           ) : activeSection === "coupons" ? (
             <Coupons />
+          ) : activeSection === "shipments" ? (
+            <Shipments />
+          ) : activeSection === "shipping-config" ? (
+            <ShippingConfig />
           ) : activeSection === "settings" ? (
             <StoreSettings />
           ) : activeSection === "orders" ? (
@@ -184,7 +185,6 @@ const Dashboard = () => {
               <p className="mt-1 text-sm text-muted-foreground">Resumen general de tu negocio</p>
 
               <div className="mt-8 grid gap-6 sm:grid-cols-2">
-                {/* Card 1: Tienda */}
                 <Card className="transition-shadow hover:shadow-md">
                   <CardHeader className="flex flex-row items-center gap-3 pb-2">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
@@ -212,7 +212,6 @@ const Dashboard = () => {
                   </CardContent>
                 </Card>
 
-                {/* Card 2: Productos */}
                 <Card className="transition-shadow hover:shadow-md">
                   <CardHeader className="flex flex-row items-center gap-3 pb-2">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
@@ -234,7 +233,6 @@ const Dashboard = () => {
                   </CardContent>
                 </Card>
 
-                {/* Card 3: Órdenes */}
                 <Card className="transition-shadow hover:shadow-md">
                   <CardHeader className="flex flex-row items-center gap-3 pb-2">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
@@ -256,7 +254,6 @@ const Dashboard = () => {
                   </CardContent>
                 </Card>
 
-                {/* Card 4: Plan Actual */}
                 <Card className="transition-shadow hover:shadow-md">
                   <CardHeader className="flex flex-row items-center gap-3 pb-2">
                     <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">

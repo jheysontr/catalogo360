@@ -19,10 +19,33 @@ import {
   PaginationNext, PaginationPrevious,
 } from "@/components/ui/pagination";
 import {
-  Search, ShoppingCart, Eye, MessageCircle, Download, Loader2, Package,
+  Search, ShoppingCart, Eye, MessageCircle, Download, Loader2, Package, Truck,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Json } from "@/integrations/supabase/types";
+
+interface ShipmentData {
+  shipping_method: string;
+  tracking_number: string;
+  cost: number;
+  address: string;
+  city: string;
+  status: string;
+  estimated_delivery_date: string | null;
+}
+
+const SHIPPING_METHOD_LABELS: Record<string, string> = {
+  pickup: "Retiro en tienda",
+  local: "Envío local",
+  national: "Envío nacional",
+};
+
+const SHIPPING_STATUS_LABELS: Record<string, string> = {
+  pending: "Pendiente",
+  processing: "Procesando",
+  shipped: "Enviado",
+  delivered: "Entregado",
+};
 
 /* ─── Types ──────────────────────────────────────── */
 
@@ -138,6 +161,7 @@ const Orders = () => {
 
   // Detail modal
   const [selected, setSelected] = useState<OrderRow | null>(null);
+  const [selectedShipment, setSelectedShipment] = useState<ShipmentData | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState(false);
 
   /* ── Fetch store ── */
@@ -360,7 +384,15 @@ const Orders = () => {
                         {fmtDate(order.created_at)}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button size="sm" variant="ghost" onClick={() => setSelected(order)}>
+                        <Button size="sm" variant="ghost" onClick={async () => {
+                          setSelected(order);
+                          const { data: shipData } = await supabase
+                            .from("shipments")
+                            .select("shipping_method, tracking_number, cost, address, city, status, estimated_delivery_date")
+                            .eq("order_id", order.id)
+                            .limit(1);
+                          setSelectedShipment(shipData?.[0] as ShipmentData ?? null);
+                        }}>
                           <Eye className="mr-1.5 h-3.5 w-3.5" /> Ver
                         </Button>
                       </TableCell>
@@ -412,7 +444,7 @@ const Orders = () => {
       )}
 
       {/* Detail modal */}
-      <Dialog open={!!selected} onOpenChange={(o) => !o && setSelected(null)}>
+      <Dialog open={!!selected} onOpenChange={(o) => { if (!o) { setSelected(null); setSelectedShipment(null); } }}>
         {selected && (
           <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
             <DialogHeader>
@@ -461,6 +493,49 @@ const Orders = () => {
                 </span>
               </div>
             </div>
+
+            {/* Shipping info */}
+            {selectedShipment && (
+              <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
+                <h3 className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <Truck className="h-4 w-4" /> Envío
+                </h3>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-xs text-muted-foreground">Método</span>
+                    <p className="font-medium">{SHIPPING_METHOD_LABELS[selectedShipment.shipping_method] || selectedShipment.shipping_method}</p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground">Estado envío</span>
+                    <p className="font-medium">{SHIPPING_STATUS_LABELS[selectedShipment.status] || selectedShipment.status}</p>
+                  </div>
+                  {selectedShipment.cost > 0 && (
+                    <div>
+                      <span className="text-xs text-muted-foreground">Costo envío</span>
+                      <p className="font-medium">{fmtCurrency(selectedShipment.cost)}</p>
+                    </div>
+                  )}
+                  {selectedShipment.tracking_number && (
+                    <div>
+                      <span className="text-xs text-muted-foreground">Rastreo</span>
+                      <p className="font-mono text-xs font-medium">{selectedShipment.tracking_number}</p>
+                    </div>
+                  )}
+                  {selectedShipment.address && (
+                    <div className="col-span-2">
+                      <span className="text-xs text-muted-foreground">Dirección</span>
+                      <p className="font-medium">{selectedShipment.address}{selectedShipment.city ? `, ${selectedShipment.city}` : ""}</p>
+                    </div>
+                  )}
+                  {selectedShipment.estimated_delivery_date && (
+                    <div>
+                      <span className="text-xs text-muted-foreground">Entrega estimada</span>
+                      <p className="font-medium">{new Date(selectedShipment.estimated_delivery_date).toLocaleDateString("es", { day: "2-digit", month: "short", year: "numeric" })}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Status */}
             <div className="space-y-2">

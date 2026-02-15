@@ -281,6 +281,72 @@ export type Database = {
         }
         Relationships: []
       }
+      shipments: {
+        Row: {
+          address: string | null
+          city: string | null
+          cost: number
+          created_at: string
+          estimated_delivery_date: string | null
+          id: string
+          order_id: string
+          phone: string | null
+          postal_code: string | null
+          shipping_method: string
+          status: string
+          store_id: string
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          cost?: number
+          created_at?: string
+          estimated_delivery_date?: string | null
+          id?: string
+          order_id: string
+          phone?: string | null
+          postal_code?: string | null
+          shipping_method?: string
+          status?: string
+          store_id: string
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          cost?: number
+          created_at?: string
+          estimated_delivery_date?: string | null
+          id?: string
+          order_id?: string
+          phone?: string | null
+          postal_code?: string | null
+          shipping_method?: string
+          status?: string
+          store_id?: string
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shipments_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       stores: {
         Row: {
           address: string | null
@@ -292,6 +358,7 @@ export type Database = {
           logo_url: string | null
           primary_color: string | null
           secondary_color: string | null
+          shipping_config: Json | null
           social_media: Json | null
           store_name: string
           store_slug: string
@@ -308,6 +375,7 @@ export type Database = {
           logo_url?: string | null
           primary_color?: string | null
           secondary_color?: string | null
+          shipping_config?: Json | null
           social_media?: Json | null
           store_name: string
           store_slug: string
@@ -324,6 +392,7 @@ export type Database = {
           logo_url?: string | null
           primary_color?: string | null
           secondary_color?: string | null
+          shipping_config?: Json | null
           social_media?: Json | null
           store_name?: string
           store_slug?: string
@@ -337,6 +406,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      generate_tracking_number: { Args: never; Returns: string }
       generate_unique_slug: { Args: { base_name: string }; Returns: string }
     }
     Enums: {
