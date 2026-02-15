@@ -35,7 +35,13 @@ interface StoreData {
   email: string | null;
   address: string | null;
   social_media: Record<string, string> | null;
+  currency: string;
 }
+
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: "$", EUR: "€", BOB: "Bs", ARS: "$", MXN: "$", CLP: "$",
+  COP: "$", PEN: "S/", UYU: "$U", BRL: "R$", PYG: "₲", GBP: "£",
+};
 
 interface Product {
   id: string;
@@ -108,6 +114,7 @@ const StoreFront = () => {
   const primaryColor = store?.primary_color || "#2a9d8f";
   const secondaryColor = store?.secondary_color || "#264653";
   const socialMedia = (store?.social_media ?? {}) as Record<string, string>;
+  const currencySymbol = CURRENCY_SYMBOLS[store?.currency || "BOB"] || store?.currency || "$";
 
   const filteredProducts = useMemo(() => {
     let items = [...products];
@@ -271,11 +278,11 @@ const StoreFront = () => {
                     <div className="flex items-baseline gap-2">
                       {p.on_sale && p.discount_percent ? (
                         <>
-                          <span className="text-xl font-bold text-destructive">${finalPrice.toFixed(2)}</span>
-                          <span className="text-sm text-muted-foreground line-through">${p.price.toFixed(2)}</span>
+                          <span className="text-xl font-bold text-destructive">{currencySymbol}{finalPrice.toFixed(2)}</span>
+                          <span className="text-sm text-muted-foreground line-through">{currencySymbol}{p.price.toFixed(2)}</span>
                         </>
                       ) : (
-                        <span className="text-xl font-bold" style={{ color: primaryColor }}>${p.price.toFixed(2)}</span>
+                        <span className="text-xl font-bold" style={{ color: primaryColor }}>{currencySymbol}{p.price.toFixed(2)}</span>
                       )}
                     </div>
                     <p className={`text-xs ${p.stock < 5 ? "font-medium text-destructive" : "text-muted-foreground"}`}>
@@ -341,7 +348,7 @@ const StoreFront = () => {
                       <div className="flex flex-1 flex-col">
                         <p className="text-sm font-medium text-foreground">{item.product.name}</p>
                         <p className="text-sm font-semibold" style={{ color: primaryColor }}>
-                          ${(price * item.quantity).toFixed(2)}
+                          {currencySymbol}{(price * item.quantity).toFixed(2)}
                         </p>
                         <div className="mt-1 flex items-center gap-2">
                           <button
@@ -370,7 +377,7 @@ const StoreFront = () => {
               <div className="border-t pt-4 space-y-3">
                 <div className="flex items-center justify-between text-lg font-bold text-foreground">
                   <span>Total</span>
-                  <span style={{ color: primaryColor }}>${cartTotal.toFixed(2)}</span>
+                  <span style={{ color: primaryColor }}>{currencySymbol}{cartTotal.toFixed(2)}</span>
                 </div>
                 <Button
                   className="w-full text-white"
@@ -393,6 +400,7 @@ const StoreFront = () => {
         storeId={store.id}
         storePhone={socialMedia?.whatsapp || ""}
         primaryColor={primaryColor}
+        currencySymbol={currencySymbol}
       />
 
       {/* ── INFO MODAL ── */}
