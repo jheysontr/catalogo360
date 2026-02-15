@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import StoreFront from "./pages/StoreFront";
+import LinkboxPage from "./pages/LinkboxPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -19,10 +20,11 @@ const AppLayout = () => {
   const location = useLocation();
   const isDashboard = location.pathname.startsWith("/dashboard");
   const isStoreFront = location.pathname.startsWith("/store/");
+  const isLinkbox = location.pathname.startsWith("/linkbox/");
 
   return (
     <div className="flex min-h-screen flex-col">
-      {!isDashboard && !isStoreFront && <Navbar />}
+      {!isDashboard && !isStoreFront && !isLinkbox && <Navbar />}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Landing />} />
@@ -37,10 +39,11 @@ const AppLayout = () => {
             }
           />
           <Route path="/store/:slug" element={<StoreFront />} />
+          <Route path="/linkbox/:slug" element={<LinkboxPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {!isDashboard && !isStoreFront && <Footer />}
+      {!isDashboard && !isStoreFront && !isLinkbox && <Footer />}
     </div>
   );
 };
