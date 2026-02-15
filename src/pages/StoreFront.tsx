@@ -17,6 +17,7 @@ import {
 import {
   Search, ShoppingCart, Share2, Info, Plus, Minus, X, Loader2,
   Store as StoreIcon, Facebook, Instagram, Mail, MapPin, Phone, ExternalLink,
+  LayoutGrid, List,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCart, getFinalPrice } from "@/lib/CartContext";
@@ -79,6 +80,7 @@ const StoreFront = () => {
   const [cartOpen, setCartOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
 
   /* ── Fetch store data ── */
   useEffect(() => {
@@ -216,6 +218,20 @@ const StoreFront = () => {
               <SelectItem value="price_low">Menor precio</SelectItem>
             </SelectContent>
           </Select>
+          <div className="flex rounded-lg border">
+            <button
+              onClick={() => setViewMode("grid")}
+              className={`flex items-center justify-center p-2 transition-colors ${viewMode === "grid" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("list")}
+              className={`flex items-center justify-center p-2 transition-colors ${viewMode === "list" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            >
+              <List className="h-4 w-4" />
+            </button>
+          </div>
         </div>
 
         {categories.length > 0 && (
@@ -255,10 +271,70 @@ const StoreFront = () => {
             <p className="text-sm text-muted-foreground">Intenta con otra búsqueda o categoría</p>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+          <div className={viewMode === "grid" ? "grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4" : "flex flex-col gap-3"}>
             {filteredProducts.map((p) => {
               const catName = getCategoryName(p.category_id);
               const finalPrice = getFinalPrice(p);
+
+              if (viewMode === "list") {
+                return (
+                  <Card key={p.id} className="group overflow-hidden transition-shadow hover:shadow-lg">
+                    <div className="flex">
+                      <div className="relative h-32 w-32 flex-shrink-0 overflow-hidden bg-muted sm:h-40 sm:w-40">
+                        {p.image_url ? (
+                          <img src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <StoreIcon className="h-10 w-10 text-muted-foreground/30" />
+                          </div>
+                        )}
+                        {p.on_sale && (
+                          <Badge className="absolute left-1.5 top-1.5 text-[10px] bg-destructive text-destructive-foreground hover:bg-destructive/90">¡Oferta!</Badge>
+                        )}
+                      </div>
+                      <CardContent className="flex flex-1 flex-col justify-between p-3 sm:p-4">
+                        <div className="space-y-1">
+                          {catName && <Badge variant="outline" className="text-[10px] sm:text-xs">{catName}</Badge>}
+                          <h3 className="text-sm font-semibold text-foreground sm:text-base">{p.name}</h3>
+                          {p.description && (
+                            <p className="line-clamp-2 text-xs text-muted-foreground">{p.description}</p>
+                          )}
+                          <div className="flex items-baseline gap-1.5">
+                            {p.on_sale && p.discount_percent ? (
+                              <>
+                                <span className="text-base font-bold text-destructive">{currencySymbol}{finalPrice.toFixed(2)}</span>
+                                <span className="text-[10px] text-muted-foreground line-through">{currencySymbol}{p.price.toFixed(2)}</span>
+                              </>
+                            ) : (
+                              <span className="text-base font-bold" style={{ color: primaryColor }}>{currencySymbol}{p.price.toFixed(2)}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="mt-2 flex items-center justify-between">
+                          <p className={`text-[10px] sm:text-xs ${p.stock < 5 ? "font-medium text-destructive" : "text-muted-foreground"}`}>
+                            Stock: {p.stock}
+                          </p>
+                          <Button
+                            className="gap-1.5 text-xs text-white transition-all duration-150 active:scale-90 active:brightness-110"
+                            size="sm"
+                            style={{ backgroundColor: primaryColor }}
+                            onClick={(e) => {
+                              addToCart(p);
+                              toast({ title: "✓ Agregado", description: p.name, duration: 1500 });
+                              const btn = e.currentTarget;
+                              btn.classList.add("animate-scale-in");
+                              setTimeout(() => btn.classList.remove("animate-scale-in"), 200);
+                            }}
+                          >
+                            <ShoppingCart className="h-3.5 w-3.5" /> Agregar
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </div>
+                  </Card>
+                );
+              }
+
               return (
                 <Card key={p.id} className="group overflow-hidden transition-shadow hover:shadow-lg">
                   <div className="relative aspect-square overflow-hidden bg-muted">
@@ -276,6 +352,9 @@ const StoreFront = () => {
                   <CardContent className="space-y-1.5 p-2.5 sm:space-y-2 sm:p-4">
                     {catName && <Badge variant="outline" className="text-[10px] sm:text-xs">{catName}</Badge>}
                     <h3 className="truncate text-sm font-semibold text-foreground sm:text-base">{p.name}</h3>
+                    {p.description && (
+                      <p className="line-clamp-2 text-[10px] text-muted-foreground sm:text-xs">{p.description}</p>
+                    )}
                     <div className="flex items-baseline gap-1.5 sm:gap-2">
                       {p.on_sale && p.discount_percent ? (
                         <>
