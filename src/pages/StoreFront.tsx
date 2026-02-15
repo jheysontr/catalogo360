@@ -290,12 +290,15 @@ const StoreFront = () => {
                       Stock: {p.stock}
                     </p>
                     <Button
-                      className="w-full gap-1.5 text-xs text-white sm:gap-2 sm:text-sm"
+                      className="w-full gap-1.5 text-xs text-white transition-all duration-150 sm:gap-2 sm:text-sm active:scale-90 active:brightness-110"
                       size="sm"
                       style={{ backgroundColor: primaryColor }}
-                      onClick={() => {
+                      onClick={(e) => {
                         addToCart(p);
                         toast({ title: "✓ Agregado", description: p.name, duration: 1500 });
+                        const btn = e.currentTarget;
+                        btn.classList.add("animate-scale-in");
+                        setTimeout(() => btn.classList.remove("animate-scale-in"), 200);
                       }}
                     >
                       <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
