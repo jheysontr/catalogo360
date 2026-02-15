@@ -12,6 +12,7 @@ import {
 import Products from "@/pages/Dashboard/Products";
 import StoreSettings from "@/pages/Dashboard/StoreSettings";
 import Orders from "@/pages/Dashboard/Orders";
+import Plans from "@/pages/Dashboard/Plans";
 
 interface StoreData {
   id: string;
@@ -164,6 +165,8 @@ const Dashboard = () => {
             <StoreSettings />
           ) : activeSection === "orders" ? (
             <Orders />
+          ) : activeSection === "plans" ? (
+            <Plans />
           ) : (
             <>
               <h1 className="font-display text-2xl font-bold text-foreground">Mi Tienda</h1>
