@@ -4,16 +4,20 @@ import { useAuth } from "@/lib/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Button } from "@/components/ui/button";
 import {
-  Store, CreditCard, BarChart3, Shield, LogOut, Menu, X,
+  Store, CreditCard, BarChart3, Shield, LogOut, Menu, X, Users, Activity,
 } from "lucide-react";
 import AdminStores from "@/pages/Admin/AdminStores";
 import AdminPlans from "@/pages/Admin/AdminPlans";
 import AdminMetrics from "@/pages/Admin/AdminMetrics";
+import AdminUsers from "@/pages/Admin/AdminUsers";
+import AdminActivity from "@/pages/Admin/AdminActivity";
 
 const sidebarLinks = [
-  { label: "Tiendas", icon: Store, id: "stores" },
-  { label: "Planes", icon: CreditCard, id: "plans" },
   { label: "Métricas", icon: BarChart3, id: "metrics" },
+  { label: "Tiendas", icon: Store, id: "stores" },
+  { label: "Usuarios", icon: Users, id: "users" },
+  { label: "Planes", icon: CreditCard, id: "plans" },
+  { label: "Actividad", icon: Activity, id: "activity" },
 ];
 
 const Admin = () => {
@@ -21,7 +25,7 @@ const Admin = () => {
   const navigate = useNavigate();
   const { isAdmin, loading } = useAdminCheck();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [activeSection, setActiveSection] = useState("stores");
+  const [activeSection, setActiveSection] = useState("metrics");
 
   if (loading) {
     return (
@@ -112,9 +116,11 @@ const Admin = () => {
         </header>
 
         <main className="flex-1 p-6 lg:p-8">
-          {activeSection === "stores" && <AdminStores />}
-          {activeSection === "plans" && <AdminPlans />}
           {activeSection === "metrics" && <AdminMetrics />}
+          {activeSection === "stores" && <AdminStores />}
+          {activeSection === "users" && <AdminUsers />}
+          {activeSection === "plans" && <AdminPlans />}
+          {activeSection === "activity" && <AdminActivity />}
         </main>
       </div>
     </div>
