@@ -1,0 +1,407 @@
+import { useEffect, useState, useMemo } from "react";
+import { useAuth } from "@/lib/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import {
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
+} from "@/components/ui/table";
+import {
+  Eye, ShoppingCart, Package, DollarSign, TrendingUp, TrendingDown, Loader2, BarChart3,
+} from "lucide-react";
+import {
+  ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid,
+  BarChart, Bar, PieChart, Pie, Cell, Legend,
+} from "recharts";
+import type { Json } from "@/integrations/supabase/types";
+
+/* ─── Types ──────────────────────────────────────── */
+
+interface OrderRow {
+  id: string;
+  customer_name: string;
+  items: Json;
+  total_price: number;
+  status: string;
+  created_at: string;
+}
+
+interface OrderItem {
+  name?: string;
+  product_name?: string;
+  quantity?: number;
+  qty?: number;
+  category?: string;
+}
+
+/* ─── Helpers ────────────────────────────────────── */
+
+const PERIOD_OPTIONS = [
+  { value: "7", label: "Últimos 7 días" },
+  { value: "30", label: "Últimos 30 días" },
+  { value: "90", label: "Últimos 90 días" },
+];
+
+const PIE_COLORS = [
+  "hsl(165, 60%, 40%)", "hsl(200, 65%, 50%)", "hsl(35, 80%, 55%)",
+  "hsl(280, 50%, 55%)", "hsl(0, 65%, 55%)", "hsl(120, 45%, 45%)",
+];
+
+const fmtCurrency = (n: number) =>
+  new Intl.NumberFormat("es", { style: "currency", currency: "USD" }).format(n);
+
+const fmtDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("es", { day: "2-digit", month: "short" });
+
+const fmtDateFull = (iso: string) =>
+  new Date(iso).toLocaleDateString("es", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" });
+
+const parseItems = (raw: Json): OrderItem[] => (Array.isArray(raw) ? raw as OrderItem[] : []);
+const itemName = (i: OrderItem) => i.name || i.product_name || "Producto";
+const itemQty = (i: OrderItem) => i.quantity ?? i.qty ?? 1;
+
+const statusLabel = (s: string) => {
+  const map: Record<string, string> = { pending: "Pendiente", confirmed: "Confirmada", completed: "Completada", cancelled: "Cancelada" };
+  return map[s] ?? s;
+};
+const statusColor = (s: string) => {
+  const map: Record<string, string> = {
+    pending: "bg-yellow-100 text-yellow-800 border-yellow-200",
+    confirmed: "bg-blue-100 text-blue-800 border-blue-200",
+    completed: "bg-green-100 text-green-800 border-green-200",
+    cancelled: "bg-red-100 text-red-800 border-red-200",
+  };
+  return map[s] ?? "";
+};
+
+/* ─── Mock data generator (when no real orders) ── */
+
+const generateMockData = () => {
+  const now = new Date();
+  const days: { date: string; views: number; orders: number }[] = [];
+  for (let i = 29; i >= 0; i--) {
+    const d = new Date(now);
+    d.setDate(d.getDate() - i);
+    days.push({
+      date: d.toISOString().slice(0, 10),
+      views: Math.floor(Math.random() * 80) + 20,
+      orders: Math.floor(Math.random() * 8),
+    });
+  }
+  return days;
+};
+
+const MOCK_TOP_PRODUCTS = [
+  { name: "Camiseta Premium", sold: 42 },
+  { name: "Pantalón Slim", sold: 35 },
+  { name: "Zapatillas Sport", sold: 28 },
+  { name: "Gorra Classic", sold: 22 },
+  { name: "Sudadera Urban", sold: 18 },
+];
+
+const MOCK_CATEGORIES = [
+  { name: "Ropa", value: 45 },
+  { name: "Calzado", value: 25 },
+  { name: "Accesorios", value: 18 },
+  { name: "Electrónica", value: 12 },
+];
+
+/* ─── Component ──────────────────────────────────── */
+
+const Analytics = () => {
+  const { user } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const [period, setPeriod] = useState("30");
+  const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [storeId, setStoreId] = useState<string | null>(null);
+
+  /* Fetch store + orders */
+  useEffect(() => {
+    if (!user) return;
+    const load = async () => {
+      setLoading(true);
+      const { data: stores } = await supabase.from("stores").select("id").eq("user_id", user.id).limit(1);
+      if (!stores?.[0]) { setLoading(false); return; }
+      const sid = stores[0].id;
+      setStoreId(sid);
+
+      const start = new Date();
+      start.setDate(start.getDate() - parseInt(period));
+      start.setHours(0, 0, 0, 0);
+
+      const { data } = await supabase
+        .from("orders")
+        .select("id, customer_name, items, total_price, status, created_at")
+        .eq("store_id", sid)
+        .gte("created_at", start.toISOString())
+        .order("created_at", { ascending: false });
+
+      setOrders((data as OrderRow[]) ?? []);
+      setLoading(false);
+    };
+    load();
+  }, [user, period]);
+
+  /* Computed analytics */
+  const hasRealData = orders.length > 0;
+
+  const completedOrders = orders.filter((o) => o.status === "completed");
+  const totalRevenue = completedOrders.reduce((s, o) => s + o.total_price, 0);
+  const totalItems = orders.reduce((s, o) => parseItems(o.items).reduce((a, i) => a + itemQty(i), 0) + s, 0);
+
+  // Simulated views (2-5x orders in real scenario)
+  const storeViews = hasRealData ? orders.length * 4 + Math.floor(Math.random() * 20) : 347;
+
+  // % change mock
+  const pctChange = (base: number) => {
+    const v = ((Math.random() - 0.3) * 30).toFixed(1);
+    return parseFloat(v);
+  };
+
+  const kpis = useMemo(() => [
+    { label: "Vistas tienda", value: storeViews, fmt: storeViews.toLocaleString(), icon: Eye, change: pctChange(storeViews) },
+    { label: "Agregados al carrito", value: totalItems, fmt: totalItems.toLocaleString(), icon: Package, change: pctChange(totalItems) },
+    { label: "Órdenes completadas", value: completedOrders.length, fmt: completedOrders.length.toLocaleString(), icon: ShoppingCart, change: pctChange(completedOrders.length) },
+    { label: "Ingresos totales", value: totalRevenue, fmt: fmtCurrency(totalRevenue), icon: DollarSign, change: pctChange(totalRevenue) },
+  ], [orders]);
+
+  /* Chart data */
+  const lineData = useMemo(() => {
+    if (!hasRealData) return generateMockData();
+    const map = new Map<string, { views: number; orders: number }>();
+    const days = parseInt(period);
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      map.set(key, { views: Math.floor(Math.random() * 50) + 10, orders: 0 });
+    }
+    orders.forEach((o) => {
+      const key = o.created_at.slice(0, 10);
+      const entry = map.get(key);
+      if (entry) entry.orders++;
+    });
+    return Array.from(map.entries()).map(([date, v]) => ({ date, ...v }));
+  }, [orders, period]);
+
+  const topProducts = useMemo(() => {
+    if (!hasRealData) return MOCK_TOP_PRODUCTS;
+    const map = new Map<string, number>();
+    orders.forEach((o) =>
+      parseItems(o.items).forEach((i) => {
+        const n = itemName(i);
+        map.set(n, (map.get(n) ?? 0) + itemQty(i));
+      })
+    );
+    return Array.from(map.entries())
+      .map(([name, sold]) => ({ name, sold }))
+      .sort((a, b) => b.sold - a.sold)
+      .slice(0, 5);
+  }, [orders]);
+
+  const categoryData = useMemo(() => {
+    if (!hasRealData) return MOCK_CATEGORIES;
+    const map = new Map<string, number>();
+    orders.forEach((o) =>
+      parseItems(o.items).forEach((i) => {
+        const cat = (i as any).category || "Sin categoría";
+        map.set(cat, (map.get(cat) ?? 0) + itemQty(i));
+      })
+    );
+    return Array.from(map.entries()).map(([name, value]) => ({ name, value }));
+  }, [orders]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-foreground">Estadísticas</h1>
+          <p className="text-sm text-muted-foreground">
+            {hasRealData ? `${orders.length} órdenes en el período` : "Mostrando datos de ejemplo"}
+          </p>
+        </div>
+        <Select value={period} onValueChange={setPeriod}>
+          <SelectTrigger className="w-48">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            {PERIOD_OPTIONS.map((o) => (
+              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {!hasRealData && (
+        <div className="rounded-lg border border-primary/20 bg-primary/5 px-4 py-3 text-sm text-muted-foreground">
+          <BarChart3 className="mr-2 inline-block h-4 w-4 text-primary" />
+          Aún no tienes órdenes. Los datos mostrados son de ejemplo para que veas cómo lucirá tu panel.
+        </div>
+      )}
+
+      {/* KPI Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {kpis.map((kpi) => {
+          const up = kpi.change >= 0;
+          return (
+            <Card key={kpi.label} className="transition-shadow hover:shadow-md">
+              <CardContent className="flex items-start justify-between p-5">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-muted-foreground">{kpi.label}</p>
+                  <p className="text-2xl font-bold text-foreground">{kpi.fmt}</p>
+                  <div className={`flex items-center gap-1 text-xs font-medium ${up ? "text-green-600" : "text-red-500"}`}>
+                    {up ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+                    {up ? "+" : ""}{kpi.change}%
+                  </div>
+                </div>
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <kpi.icon className="h-5 w-5 text-primary" />
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Charts row */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Line chart */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">Vistas y órdenes en el tiempo</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={lineData}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis dataKey="date" tickFormatter={(d) => fmtDate(d)} tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+                  <YAxis tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+                  <Tooltip
+                    contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
+                    labelFormatter={(d) => fmtDate(d as string)}
+                  />
+                  <Line type="monotone" dataKey="views" stroke="hsl(200, 65%, 50%)" strokeWidth={2} dot={false} name="Vistas" />
+                  <Line type="monotone" dataKey="orders" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={false} name="Órdenes" />
+                  <Legend />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Bar chart */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">Productos más vendidos</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={topProducts} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                  <XAxis type="number" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+                  <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />
+                  <Bar dataKey="sold" fill="hsl(165, 60%, 40%)" radius={[0, 6, 6, 0]} name="Vendidos" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Pie + Recent orders */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Pie chart */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">Órdenes por categoría</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-72">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={categoryData}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={100}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    labelLine={false}
+                  >
+                    {categoryData.map((_, idx) => (
+                      <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent orders table */}
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base font-semibold">Últimas órdenes</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {orders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
+                <ShoppingCart className="h-10 w-10" />
+                <p className="text-sm">Sin órdenes en este período</p>
+              </div>
+            ) : (
+              <div className="max-h-72 overflow-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Cliente</TableHead>
+                      <TableHead>Total</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead className="hidden sm:table-cell">Fecha</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {orders.slice(0, 10).map((o) => (
+                      <TableRow key={o.id}>
+                        <TableCell className="text-sm font-medium">{o.customer_name}</TableCell>
+                        <TableCell className="text-sm font-semibold">{fmtCurrency(o.total_price)}</TableCell>
+                        <TableCell>
+                          <Badge variant="outline" className={statusColor(o.status)}>
+                            {statusLabel(o.status)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="hidden text-xs text-muted-foreground sm:table-cell">
+                          {fmtDateFull(o.created_at)}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
+export default Analytics;

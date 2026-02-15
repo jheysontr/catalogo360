@@ -13,6 +13,7 @@ import Products from "@/pages/Dashboard/Products";
 import StoreSettings from "@/pages/Dashboard/StoreSettings";
 import Orders from "@/pages/Dashboard/Orders";
 import Plans from "@/pages/Dashboard/Plans";
+import Analytics from "@/pages/Dashboard/Analytics";
 
 interface StoreData {
   id: string;
@@ -167,6 +168,8 @@ const Dashboard = () => {
             <Orders />
           ) : activeSection === "plans" ? (
             <Plans />
+          ) : activeSection === "stats" ? (
+            <Analytics />
           ) : (
             <>
               <h1 className="font-display text-2xl font-bold text-foreground">Mi Tienda</h1>
