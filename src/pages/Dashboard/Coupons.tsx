@@ -139,20 +139,22 @@ const Coupons = () => {
       toast({ title: "Error", description: "El código solo puede contener letras, números, guiones y guiones bajos", variant: "destructive" });
       return;
     }
-    const value = Number(formValue);
-    if (isNaN(value) || value <= 0) {
-      toast({ title: "Error", description: "El valor del descuento debe ser mayor a 0", variant: "destructive" });
-      return;
-    }
-    if (formType === "percentage" && value > 100) {
-      toast({ title: "Error", description: "El porcentaje no puede ser mayor a 100", variant: "destructive" });
-      return;
-    }
-    // Validate max 2 decimals
-    const decimalPart = formValue.split(".")[1];
-    if (decimalPart && decimalPart.length > 2) {
-      toast({ title: "Error", description: "Máximo 2 decimales", variant: "destructive" });
-      return;
+    if (formType !== "free_shipping") {
+      const value = Number(formValue);
+      if (isNaN(value) || value <= 0) {
+        toast({ title: "Error", description: "El valor del descuento debe ser mayor a 0", variant: "destructive" });
+        return;
+      }
+      if (formType === "percentage" && value > 100) {
+        toast({ title: "Error", description: "El porcentaje no puede ser mayor a 100", variant: "destructive" });
+        return;
+      }
+      // Validate max 2 decimals
+      const decimalPart = formValue.split(".")[1];
+      if (decimalPart && decimalPart.length > 2) {
+        toast({ title: "Error", description: "Máximo 2 decimales", variant: "destructive" });
+        return;
+      }
     }
 
     const minPurchase = formMinPurchase ? Number(formMinPurchase) : 0;
@@ -175,7 +177,7 @@ const Coupons = () => {
       code,
       description: formDescription.trim(),
       discount_type: formType,
-      discount_value: value,
+      discount_value: formType === "free_shipping" ? 0 : Number(formValue),
       min_purchase: minPurchase,
       max_uses: maxUses,
       is_active: formActive,
@@ -300,9 +302,11 @@ const Coupons = () => {
                     )}
                   </TableCell>
                   <TableCell className="font-medium">
-                    {c.discount_type === "percentage"
-                      ? `${c.discount_value}%`
-                      : `$${c.discount_value.toFixed(2)}`}
+                    {c.discount_type === "free_shipping"
+                      ? "Envío gratis"
+                      : c.discount_type === "percentage"
+                        ? `${c.discount_value}%`
+                        : `Bs${c.discount_value.toFixed(2)}`}
                   </TableCell>
                   <TableCell className="hidden md:table-cell">
                     {c.min_purchase > 0 ? `$${c.min_purchase.toFixed(2)}` : "—"}
@@ -394,10 +398,12 @@ const Coupons = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="percentage">Porcentaje (%)</SelectItem>
-                    <SelectItem value="fixed">Monto fijo ($)</SelectItem>
+                    <SelectItem value="fixed">Monto fijo (Bs)</SelectItem>
+                    <SelectItem value="free_shipping">Envío gratis</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+              {formType !== "free_shipping" && (
               <div>
                 <Label htmlFor="coupon-value">Valor *</Label>
                 <Input
@@ -411,6 +417,7 @@ const Coupons = () => {
                   className="mt-1.5"
                 />
               </div>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
