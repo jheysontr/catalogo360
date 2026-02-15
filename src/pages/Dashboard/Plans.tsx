@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-/* ─── Constants ──────────────────────────────────── */
+/* ─── Types ──────────────────────────────────── */
 
 interface PlanDef {
   id: string;
@@ -29,38 +29,6 @@ interface PlanDef {
   features: string[];
   recommended?: boolean;
 }
-
-const PLANS: PlanDef[] = [
-  {
-    id: "standard",
-    name: "Estándar",
-    monthly: 7.5,
-    annual: 4.5,
-    maxProducts: 60,
-    features: [
-      "Hasta 60 productos",
-      "Soporte por WhatsApp",
-      "Estadísticas básicas",
-      "Diseño responsive",
-    ],
-  },
-  {
-    id: "pro",
-    name: "Pro",
-    monthly: 10.5,
-    annual: 6.3,
-    maxProducts: 200,
-    recommended: true,
-    features: [
-      "Todo del Plan Estándar",
-      "Hasta 200 productos",
-      "Soporte 24/7",
-      "Estadísticas avanzadas",
-      "Linkbox gratuito",
-      "Gestión inteligente inventario",
-    ],
-  },
-];
 
 interface PaymentRecord {
   id: string;
@@ -83,6 +51,7 @@ const Plans = () => {
   const { toast } = useToast();
 
   const [loading, setLoading] = useState(true);
+  const [plans, setPlans] = useState<PlanDef[]>([]);
   const [productCount, setProductCount] = useState(0);
   const [annual, setAnnual] = useState(false);
   const [confirmPlan, setConfirmPlan] = useState<PlanDef | null>(null);
@@ -101,25 +70,39 @@ const Plans = () => {
     const load = async () => {
       setLoading(true);
 
+      // Fetch plans from DB
+      const { data: dbPlans } = await supabase.from("pricing_plans").select("*").order("monthly_price");
+      const mappedPlans: PlanDef[] = (dbPlans || []).map((p: any, i: number) => ({
+        id: p.id,
+        name: p.name,
+        monthly: p.monthly_price,
+        annual: p.annual_price,
+        maxProducts: p.max_products,
+        features: Array.isArray(p.features) ? p.features : [],
+        recommended: i === (dbPlans || []).length - 1, // last (most expensive) = recommended
+      }));
+      setPlans(mappedPlans);
+
       // Compute trial end (7 days from account creation)
       const created = new Date(user.created_at);
       const end = new Date(created);
       end.setDate(end.getDate() + 7);
       setTrialEnd(end.toISOString());
 
-      // Check if trial expired → default to standard
-      if (new Date() > end) {
-        setCurrentPlan("standard");
-      }
-
-      // Get product count
+      // Check current plan from store
       const { data: stores } = await supabase
         .from("stores")
-        .select("id")
+        .select("id, plan_id")
         .eq("user_id", user.id)
         .limit(1);
 
       if (stores?.[0]) {
+        if (stores[0].plan_id) {
+          setCurrentPlan(stores[0].plan_id);
+        } else if (new Date() > end) {
+          setCurrentPlan("none");
+        }
+
         const { count } = await supabase
           .from("products")
           .select("id", { count: "exact", head: true })
@@ -133,16 +116,33 @@ const Plans = () => {
     load();
   }, [user]);
 
-  const activePlanDef = PLANS.find((p) => p.id === currentPlan);
+  const activePlanDef = plans.find((p) => p.id === currentPlan);
   const maxProducts = activePlanDef?.maxProducts ?? 60;
   const isTrial = currentPlan === "trial";
 
   const handleChangePlan = async () => {
-    if (!confirmPlan) return;
+    if (!confirmPlan || !user) return;
     setChanging(true);
 
-    // Simulate plan change (in production: Stripe checkout / update subscription)
-    await new Promise((r) => setTimeout(r, 1200));
+    // Update store's plan_id in the database
+    const { data: stores } = await supabase
+      .from("stores")
+      .select("id")
+      .eq("user_id", user.id)
+      .limit(1);
+
+    if (stores?.[0]) {
+      const { error } = await supabase
+        .from("stores")
+        .update({ plan_id: confirmPlan.id })
+        .eq("id", stores[0].id);
+
+      if (error) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+        setChanging(false);
+        return;
+      }
+    }
 
     setCurrentPlan(confirmPlan.id);
     setChanging(false);
@@ -227,7 +227,7 @@ const Plans = () => {
 
       {/* Plan cards */}
       <div className="grid gap-6 sm:grid-cols-2">
-        {PLANS.map((plan) => {
+        {plans.map((plan) => {
           const isActive = currentPlan === plan.id;
           const price = annual ? plan.annual : plan.monthly;
 
