@@ -5,22 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter,
+  Sheet, SheetContent, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
 import {
   Search, ShoppingCart, Share2, Info, Plus, Minus, X, Loader2,
   Store as StoreIcon, Facebook, Instagram, Mail, MapPin, Phone, ExternalLink,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useCart, getFinalPrice } from "@/lib/CartContext";
+import CartModal from "@/components/Cart/CartModal";
 
 /* ─── Types ─── */
 interface StoreData {
@@ -55,14 +55,10 @@ interface Category {
   icon: string | null;
 }
 
-interface CartItem {
-  product: Product;
-  quantity: number;
-}
-
 const StoreFront = () => {
   const { slug } = useParams<{ slug: string }>();
   const { toast } = useToast();
+  const { items: cart, addToCart, removeFromCart, updateQuantity, cartTotal, itemCount } = useCart();
 
   const [store, setStore] = useState<StoreData | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -70,25 +66,12 @@ const StoreFront = () => {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
-  // Filters
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
 
-  // Cart
-  const [cart, setCart] = useState<CartItem[]>([]);
   const [cartOpen, setCartOpen] = useState(false);
-
-  // Checkout
   const [checkoutOpen, setCheckoutOpen] = useState(false);
-  const [customerName, setCustomerName] = useState("");
-  const [customerEmail, setCustomerEmail] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [customerAddress, setCustomerAddress] = useState("");
-  const [customerNote, setCustomerNote] = useState("");
-  const [submitting, setSubmitting] = useState(false);
-
-  // Info modal
   const [infoOpen, setInfoOpen] = useState(false);
 
   /* ── Fetch store data ── */
@@ -122,7 +105,6 @@ const StoreFront = () => {
     load();
   }, [slug]);
 
-  /* ── Derived ── */
   const primaryColor = store?.primary_color || "#2a9d8f";
   const secondaryColor = store?.secondary_color || "#264653";
   const socialMedia = (store?.social_media ?? {}) as Record<string, string>;
@@ -134,115 +116,13 @@ const StoreFront = () => {
     switch (sortBy) {
       case "price_high": items.sort((a, b) => b.price - a.price); break;
       case "price_low": items.sort((a, b) => a.price - b.price); break;
-      default: break; // newest (already sorted)
+      default: break;
     }
     return items;
   }, [products, search, activeCategory, sortBy]);
 
-  const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
-  const cartTotal = cart.reduce((sum, i) => {
-    const p = i.product;
-    const price = p.on_sale && p.discount_percent ? p.price * (1 - p.discount_percent / 100) : p.price;
-    return sum + price * i.quantity;
-  }, 0);
-
-  const getFinalPrice = (p: Product) =>
-    p.on_sale && p.discount_percent ? p.price * (1 - p.discount_percent / 100) : p.price;
-
   const getCategoryName = (catId: string | null) =>
     categories.find((c) => c.id === catId)?.name ?? null;
-
-  /* ── Cart actions ── */
-  const addToCart = (product: Product) => {
-    setCart((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id);
-      if (existing) {
-        if (existing.quantity >= product.stock) {
-          toast({ title: "Stock máximo alcanzado", variant: "destructive" });
-          return prev;
-        }
-        return prev.map((i) => i.product.id === product.id ? { ...i, quantity: i.quantity + 1 } : i);
-      }
-      return [...prev, { product, quantity: 1 }];
-    });
-    toast({ title: `${product.name} agregado al carrito` });
-  };
-
-  const updateQuantity = (productId: string, delta: number) => {
-    setCart((prev) =>
-      prev.map((i) => {
-        if (i.product.id !== productId) return i;
-        const newQty = i.quantity + delta;
-        if (newQty <= 0) return i;
-        if (newQty > i.product.stock) return i;
-        return { ...i, quantity: newQty };
-      })
-    );
-  };
-
-  const removeFromCart = (productId: string) => {
-    setCart((prev) => prev.filter((i) => i.product.id !== productId));
-  };
-
-  /* ── Checkout ── */
-  const handleCheckout = async () => {
-    if (!store || cart.length === 0) return;
-    if (!customerName.trim() || customerName.trim().length < 3) {
-      toast({ title: "Error", description: "Ingresa tu nombre completo (min 3 caracteres)", variant: "destructive" }); return;
-    }
-    if (!customerEmail.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
-      toast({ title: "Error", description: "Ingresa un email válido", variant: "destructive" }); return;
-    }
-    if (!customerPhone.trim() || customerPhone.trim().length < 7) {
-      toast({ title: "Error", description: "Ingresa un teléfono válido", variant: "destructive" }); return;
-    }
-
-    setSubmitting(true);
-
-    const items = cart.map((i) => ({
-      product_id: i.product.id,
-      name: i.product.name,
-      price: getFinalPrice(i.product),
-      quantity: i.quantity,
-    }));
-
-    // Save order
-    await supabase.from("orders").insert({
-      store_id: store.id,
-      customer_name: customerName.trim(),
-      customer_email: customerEmail.trim(),
-      customer_phone: customerPhone.trim(),
-      items: items as any,
-      total_price: cartTotal,
-      status: "pending",
-    });
-
-    // Build WhatsApp message
-    const itemLines = cart.map(
-      (i) => `📦 ${i.product.name} x${i.quantity} — $${(getFinalPrice(i.product) * i.quantity).toFixed(2)}`
-    ).join("\n");
-
-    const msg = encodeURIComponent(
-      `Hola! Me gustaría realizar el siguiente pedido:\n\n${cart.map(
-        (i) => `📦 ${i.product.name} x${i.quantity}`
-      ).join("\n")}\n\n💰 Total: $${cartTotal.toFixed(2)}\n\n👤 Nombre: ${customerName.trim()}\n📧 Email: ${customerEmail.trim()}\n📱 Teléfono: ${customerPhone.trim()}${customerAddress ? `\n📍 Dirección: ${customerAddress.trim()}` : ""}${customerNote ? `\n📝 Nota: ${customerNote.trim()}` : ""}`
-    );
-
-    const whatsappNumber = socialMedia?.whatsapp?.replace(/\D/g, "") || "";
-    const waUrl = whatsappNumber
-      ? `https://wa.me/${whatsappNumber}?text=${msg}`
-      : `https://wa.me/?text=${msg}`;
-
-    setSubmitting(false);
-    setCheckoutOpen(false);
-    setCartOpen(false);
-    setCart([]);
-    setCustomerName(""); setCustomerEmail(""); setCustomerPhone("");
-    setCustomerAddress(""); setCustomerNote("");
-
-    toast({ title: "¡Pedido enviado!" });
-    window.open(waUrl, "_blank");
-  };
 
   const handleShare = async () => {
     const url = window.location.href;
@@ -254,7 +134,6 @@ const StoreFront = () => {
     }
   };
 
-  /* ── Loading / 404 ── */
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -274,7 +153,7 @@ const StoreFront = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background" style={{ "--store-primary": primaryColor, "--store-secondary": secondaryColor } as React.CSSProperties}>
+    <div className="min-h-screen bg-background">
       {/* ── BANNER & HEADER ── */}
       <div className="relative">
         <div
@@ -331,15 +210,12 @@ const StoreFront = () => {
           </Select>
         </div>
 
-        {/* Category tabs */}
         {categories.length > 0 && (
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
             <button
               onClick={() => setActiveCategory("all")}
               className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                activeCategory === "all"
-                  ? "text-white shadow-md"
-                  : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                activeCategory === "all" ? "text-white shadow-md" : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
               }`}
               style={activeCategory === "all" ? { backgroundColor: primaryColor } : undefined}
             >
@@ -350,9 +226,7 @@ const StoreFront = () => {
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
                 className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                  activeCategory === cat.id
-                    ? "text-white shadow-md"
-                    : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
+                  activeCategory === cat.id ? "text-white shadow-md" : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                 }`}
                 style={activeCategory === cat.id ? { backgroundColor: primaryColor } : undefined}
               >
@@ -381,19 +255,14 @@ const StoreFront = () => {
                 <Card key={p.id} className="group overflow-hidden transition-shadow hover:shadow-lg">
                   <div className="relative aspect-square overflow-hidden bg-muted">
                     {p.image_url ? (
-                      <img
-                        src={p.image_url}
-                        alt={p.name}
-                        className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
-                        loading="lazy"
-                      />
+                      <img src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center">
                         <StoreIcon className="h-12 w-12 text-muted-foreground/30" />
                       </div>
                     )}
                     {p.on_sale && (
-                      <Badge className="absolute left-2 top-2 bg-red-500 text-white hover:bg-red-600">¡En oferta!</Badge>
+                      <Badge className="absolute left-2 top-2 bg-destructive text-destructive-foreground hover:bg-destructive/90">¡En oferta!</Badge>
                     )}
                   </div>
                   <CardContent className="space-y-2 p-4">
@@ -402,7 +271,7 @@ const StoreFront = () => {
                     <div className="flex items-baseline gap-2">
                       {p.on_sale && p.discount_percent ? (
                         <>
-                          <span className="text-xl font-bold" style={{ color: "#e63946" }}>${finalPrice.toFixed(2)}</span>
+                          <span className="text-xl font-bold text-destructive">${finalPrice.toFixed(2)}</span>
                           <span className="text-sm text-muted-foreground line-through">${p.price.toFixed(2)}</span>
                         </>
                       ) : (
@@ -434,9 +303,9 @@ const StoreFront = () => {
         style={{ backgroundColor: primaryColor }}
       >
         <ShoppingCart className="h-6 w-6" />
-        {cartCount > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-xs font-bold text-white">
-            {cartCount}
+        {itemCount > 0 && (
+          <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-xs font-bold text-destructive-foreground">
+            {itemCount}
           </span>
         )}
       </button>
@@ -446,7 +315,7 @@ const StoreFront = () => {
         <SheetContent className="flex w-full flex-col sm:max-w-md">
           <SheetHeader>
             <SheetTitle className="flex items-center gap-2">
-              <ShoppingCart className="h-5 w-5" /> Tu carrito ({cartCount})
+              <ShoppingCart className="h-5 w-5" /> Tu carrito ({itemCount})
             </SheetTitle>
           </SheetHeader>
 
@@ -476,14 +345,14 @@ const StoreFront = () => {
                         </p>
                         <div className="mt-1 flex items-center gap-2">
                           <button
-                            onClick={() => updateQuantity(item.product.id, -1)}
+                            onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
                             className="flex h-6 w-6 items-center justify-center rounded border text-foreground hover:bg-accent"
                           >
                             <Minus className="h-3 w-3" />
                           </button>
                           <span className="text-sm font-medium">{item.quantity}</span>
                           <button
-                            onClick={() => updateQuantity(item.product.id, 1)}
+                            onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
                             className="flex h-6 w-6 items-center justify-center rounded border text-foreground hover:bg-accent"
                           >
                             <Plus className="h-3 w-3" />
@@ -518,48 +387,13 @@ const StoreFront = () => {
       </Sheet>
 
       {/* ── CHECKOUT MODAL ── */}
-      <Dialog open={checkoutOpen} onOpenChange={setCheckoutOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Completar pedido</DialogTitle>
-            <DialogDescription>Ingresa tus datos para enviar el pedido por WhatsApp</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-2">
-            <div>
-              <Label htmlFor="cust-name">Nombre completo *</Label>
-              <Input id="cust-name" value={customerName} onChange={(e) => setCustomerName(e.target.value)} placeholder="Tu nombre completo" className="mt-1.5" />
-            </div>
-            <div>
-              <Label htmlFor="cust-email">Email *</Label>
-              <Input id="cust-email" type="email" value={customerEmail} onChange={(e) => setCustomerEmail(e.target.value)} placeholder="tu@email.com" className="mt-1.5" />
-            </div>
-            <div>
-              <Label htmlFor="cust-phone">Teléfono *</Label>
-              <Input id="cust-phone" value={customerPhone} onChange={(e) => setCustomerPhone(e.target.value)} placeholder="+591 12345678" className="mt-1.5" />
-            </div>
-            <div>
-              <Label htmlFor="cust-address">Dirección (opcional)</Label>
-              <Input id="cust-address" value={customerAddress} onChange={(e) => setCustomerAddress(e.target.value)} placeholder="Tu dirección de entrega" className="mt-1.5" />
-            </div>
-            <div>
-              <Label htmlFor="cust-note">Nota de pedido (opcional)</Label>
-              <Textarea id="cust-note" value={customerNote} onChange={(e) => setCustomerNote(e.target.value)} placeholder="Instrucciones especiales..." className="mt-1.5" rows={2} />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setCheckoutOpen(false)}>Cancelar</Button>
-            <Button
-              onClick={handleCheckout}
-              disabled={submitting}
-              className="gap-2 text-white"
-              style={{ backgroundColor: primaryColor }}
-            >
-              {submitting && <Loader2 className="h-4 w-4 animate-spin" />}
-              Confirmar y enviar a WhatsApp
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <CartModal
+        open={checkoutOpen}
+        onOpenChange={setCheckoutOpen}
+        storeId={store.id}
+        storePhone={socialMedia?.whatsapp || ""}
+        primaryColor={primaryColor}
+      />
 
       {/* ── INFO MODAL ── */}
       <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
@@ -601,7 +435,6 @@ const StoreFront = () => {
       {/* ── FOOTER ── */}
       <footer className="mt-12 border-t" style={{ backgroundColor: secondaryColor }}>
         <div className="container grid gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-3">
-          {/* Social */}
           <div>
             <h4 className="mb-3 text-sm font-semibold text-white/90">Redes Sociales</h4>
             <div className="flex gap-3">
@@ -622,16 +455,12 @@ const StoreFront = () => {
               )}
             </div>
           </div>
-
-          {/* Info */}
           <div>
             <h4 className="mb-3 text-sm font-semibold text-white/90">Información</h4>
             {store.description && <p className="text-sm text-white/60">{store.description}</p>}
             {store.email && <p className="mt-2 text-sm text-white/60">{store.email}</p>}
             {store.address && <p className="mt-1 text-sm text-white/60">{store.address}</p>}
           </div>
-
-          {/* Copyright */}
           <div className="flex items-end">
             <p className="text-xs text-white/40">
               © {new Date().getFullYear()} {store.store_name}. Todos los derechos reservados.
