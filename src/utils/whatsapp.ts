@@ -15,8 +15,8 @@ export interface CartItem {
 
 export interface CustomerInfo {
   name: string;
-  email: string;
   phone: string;
+  email?: string;
   address?: string;
   note?: string;
 }
@@ -45,8 +45,7 @@ export function generateWhatsAppUrl(
     `💰 Total: $${total.toFixed(2)}`,
     "",
     `👤 Nombre: ${customerInfo.name}`,
-    `📧 Email: ${customerInfo.email}`,
-    `📱 Teléfono: ${customerInfo.phone}`,
+    `📱 WhatsApp: ${customerInfo.phone}`,
     customerInfo.address ? `📍 Dirección: ${customerInfo.address}` : "",
     customerInfo.note ? `📝 Nota: ${customerInfo.note}` : "",
   ]

@@ -127,10 +127,30 @@ const StoreSettings = () => {
     }
     setSaving(true);
 
+    if (!storeSlug.trim() || storeSlug.trim().length < 3) {
+      toast.error("La URL debe tener al menos 3 caracteres");
+      return;
+    }
+
+    // Check slug uniqueness
+    const { data: slugCheck } = await supabase
+      .from("stores")
+      .select("id")
+      .eq("store_slug", storeSlug.trim())
+      .neq("id", store.id)
+      .limit(1);
+
+    if (slugCheck && slugCheck.length > 0) {
+      toast.error("Esta URL ya está en uso, elige otra");
+      setSaving(false);
+      return;
+    }
+
     const { error } = await supabase
       .from("stores")
       .update({
         store_name: storeName.trim(),
+        store_slug: storeSlug.trim(),
         description: description.trim() || null,
         email: email.trim() || null,
         address: address.trim() || null,
@@ -242,12 +262,20 @@ const StoreSettings = () => {
                 />
               </div>
 
-              {/* Slug (read-only) */}
+              {/* Slug (editable) */}
               <div>
-                <Label>URL de tu tienda</Label>
-                <div className="mt-1.5 flex items-center rounded-md border bg-muted px-3 py-2 text-sm text-muted-foreground">
-                  gocatalog.com/<span className="font-medium text-foreground">{storeSlug}</span>
+                <Label htmlFor="s-slug">URL de tu tienda</Label>
+                <div className="mt-1.5 flex items-center gap-0 rounded-md border bg-muted overflow-hidden">
+                  <span className="px-3 py-2 text-sm text-muted-foreground whitespace-nowrap">gocatalog.com/</span>
+                  <Input
+                    id="s-slug"
+                    value={storeSlug}
+                    onChange={(e) => setStoreSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                    className="border-0 bg-transparent shadow-none focus-visible:ring-0 font-medium"
+                    placeholder="mi-tienda"
+                  />
                 </div>
+                <p className="mt-1 text-xs text-muted-foreground">Solo letras minúsculas, números y guiones</p>
               </div>
 
               {/* Description */}
