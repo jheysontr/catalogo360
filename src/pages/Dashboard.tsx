@@ -196,7 +196,7 @@ const Dashboard = () => {
                   <CardContent className="space-y-3">
                     <div>
                       <p className="font-semibold text-foreground">{store?.store_name ?? "Cargando..."}</p>
-                      <p className="text-xs text-muted-foreground">gocatalog.com/{store?.store_slug ?? "..."}</p>
+                      <p className="text-xs text-muted-foreground">catalogo360.online/{store?.store_slug ?? "..."}</p>
                     </div>
                     <div className="flex gap-2">
                       {store && (

@@ -287,7 +287,7 @@ const StoreSettings = () => {
               <div>
                 <Label htmlFor="s-slug">URL de tu tienda</Label>
                 <div className="mt-1.5 flex items-center gap-0 rounded-md border bg-muted overflow-hidden">
-                  <span className="px-3 py-2 text-sm text-muted-foreground whitespace-nowrap">gocatalog.com/</span>
+                  <span className="px-3 py-2 text-sm text-muted-foreground whitespace-nowrap">catalogo360.online/</span>
                   <Input
                     id="s-slug"
                     value={storeSlug}
