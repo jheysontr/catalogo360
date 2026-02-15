@@ -12,6 +12,7 @@ interface CartContextValue {
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, newQuantity: number) => void;
   clearCart: () => void;
+  setStoreId: (storeId: string) => void;
   cartTotal: number;
   itemCount: number;
 }
@@ -19,6 +20,7 @@ interface CartContextValue {
 const CartContext = createContext<CartContextValue | null>(null);
 
 const STORAGE_KEY = "cataloghub_cart";
+const STORE_KEY = "cataloghub_cart_store";
 
 function loadCart(): CartItem[] {
   try {
@@ -31,12 +33,26 @@ function loadCart(): CartItem[] {
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [items, setItems] = useState<CartItem[]>(loadCart);
+  const [currentStoreId, setCurrentStoreId] = useState<string | null>(
+    () => localStorage.getItem(STORE_KEY)
+  );
   const { toast } = useToast();
 
   // Persist to localStorage
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items]);
+
+  const setStoreId = useCallback((storeId: string) => {
+    const savedStoreId = localStorage.getItem(STORE_KEY);
+    if (savedStoreId && savedStoreId !== storeId) {
+      // Different store — clear cart
+      setItems([]);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
+    }
+    setCurrentStoreId(storeId);
+    localStorage.setItem(STORE_KEY, storeId);
+  }, []);
 
   const addToCart = useCallback((product: CartProduct, quantity = 1) => {
     setItems((prev) => {
@@ -89,7 +105,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, cartTotal, itemCount }}>
+    <CartContext.Provider value={{ items, addToCart, removeFromCart, updateQuantity, clearCart, setStoreId, cartTotal, itemCount }}>
       {children}
     </CartContext.Provider>
   );
