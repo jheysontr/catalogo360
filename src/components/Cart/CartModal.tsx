@@ -23,6 +23,7 @@ interface CartModalProps {
   storeName?: string;
   primaryColor: string;
   currencySymbol?: string;
+  onOrderComplete?: () => void;
 }
 
 const METHOD_ICONS: Record<string, React.ReactNode> = {
@@ -37,7 +38,7 @@ const METHOD_LABELS: Record<string, string> = {
   national: "Envío nacional",
 };
 
-const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primaryColor, currencySymbol = "$" }: CartModalProps) => {
+const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primaryColor, currencySymbol = "$", onOrderComplete }: CartModalProps) => {
   const { toast } = useToast();
   const { items, cartTotal, clearCart } = useCart();
 
@@ -336,6 +337,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
 
     toast({ title: "¡Pedido enviado!" });
     window.open(waUrl, "_blank");
+    onOrderComplete?.();
   };
 
   return (
