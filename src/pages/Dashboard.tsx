@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import {
   Package, Store, ShoppingCart, BarChart3, CreditCard, Settings,
-  ExternalLink, Plus, Eye, Menu, X, LogOut, ChevronRight, FolderOpen,
+  ExternalLink, Plus, Eye, Menu, X, LogOut, ChevronRight, FolderOpen, Ticket,
 } from "lucide-react";
 import Products from "@/pages/Dashboard/Products";
 import StoreSettings from "@/pages/Dashboard/StoreSettings";
@@ -15,6 +15,7 @@ import Orders from "@/pages/Dashboard/Orders";
 import Plans from "@/pages/Dashboard/Plans";
 import Analytics from "@/pages/Dashboard/Analytics";
 import Categories from "@/pages/Dashboard/Categories";
+import Coupons from "@/pages/Dashboard/Coupons";
 
 interface StoreData {
   id: string;
@@ -26,6 +27,7 @@ const sidebarLinks = [
   { label: "Mi Tienda", icon: Store, id: "store" },
   { label: "Productos", icon: Package, id: "products" },
   { label: "Categorías", icon: FolderOpen, id: "categories" },
+  { label: "Cupones", icon: Ticket, id: "coupons" },
   { label: "Órdenes", icon: ShoppingCart, id: "orders" },
   { label: "Estadísticas", icon: BarChart3, id: "stats" },
   { label: "Planes", icon: CreditCard, id: "plans" },
@@ -166,6 +168,8 @@ const Dashboard = () => {
             <Products />
           ) : activeSection === "categories" ? (
             <Categories />
+          ) : activeSection === "coupons" ? (
+            <Coupons />
           ) : activeSection === "settings" ? (
             <StoreSettings />
           ) : activeSection === "orders" ? (
