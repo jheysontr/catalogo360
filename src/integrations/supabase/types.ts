@@ -400,7 +400,9 @@ export type Database = {
           description: string | null
           email: string | null
           id: string
+          is_active: boolean
           logo_url: string | null
+          plan_id: string | null
           primary_color: string | null
           secondary_color: string | null
           shipping_config: Json | null
@@ -418,7 +420,9 @@ export type Database = {
           description?: string | null
           email?: string | null
           id?: string
+          is_active?: boolean
           logo_url?: string | null
+          plan_id?: string | null
           primary_color?: string | null
           secondary_color?: string | null
           shipping_config?: Json | null
@@ -436,7 +440,9 @@ export type Database = {
           description?: string | null
           email?: string | null
           id?: string
+          is_active?: boolean
           logo_url?: string | null
+          plan_id?: string | null
           primary_color?: string | null
           secondary_color?: string | null
           shipping_config?: Json | null
@@ -444,6 +450,35 @@ export type Database = {
           store_name?: string
           store_slug?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stores_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
         Relationships: []
@@ -455,9 +490,16 @@ export type Database = {
     Functions: {
       generate_tracking_number: { Args: never; Returns: string }
       generate_unique_slug: { Args: { base_name: string }; Returns: string }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -584,6 +626,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const
