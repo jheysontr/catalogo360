@@ -293,11 +293,13 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor, curr
       ? `\n🏷️ Cupón: ${appliedCoupon.code} (-${currencySymbol}${couponDiscount.toFixed(2)})`
       : "";
 
+    const trackingUrl = `${window.location.origin}/track?q=${encodeURIComponent(trackingNumber)}`;
+
     const zoneName = shippingMethod === "local" && shippingConfig?.local_zones && selectedZoneIndex >= 0
       ? ` (${shippingConfig.local_zones[selectedZoneIndex].name})`
       : "";
     const shippingNote = hasShipping && shippingMethod
-      ? `\n📦 Envío: ${METHOD_LABELS[shippingMethod]}${zoneName}${shippingCost > 0 ? ` (${currencySymbol}${shippingCost.toFixed(2)})` : " (Gratis)"}${shippingMethod !== "pickup" ? `\n📍 ${shipAddress.trim()}, ${shipCity.trim()}` : ""}\n🔍 Rastreo: ${trackingNumber}`
+      ? `\n📦 Envío: ${METHOD_LABELS[shippingMethod]}${zoneName}${shippingCost > 0 ? ` (${currencySymbol}${shippingCost.toFixed(2)})` : " (Gratis)"}${shippingMethod !== "pickup" ? `\n📍 ${shipAddress.trim()}, ${shipCity.trim()}` : ""}\n🔍 Rastreo: ${trackingNumber}\n📋 Seguimiento: ${trackingUrl}`
       : "";
 
     const waUrl = generateWhatsAppUrl(
