@@ -21,6 +21,7 @@ export interface CustomerInfo {
 
 export interface OrderMessageData {
   storePhone: string;
+  storeName?: string;
   cartItems: CartItem[];
   customer: CustomerInfo;
   currencySymbol?: string;
@@ -49,9 +50,12 @@ export function getFinalPrice(p: CartProduct): number {
 export function generateWhatsAppUrl(data: OrderMessageData): string {
   const cs = data.currencySymbol || "$";
 
-  // Header
+  const header = data.storeName
+    ? `🛒 *NUEVO PEDIDO — ${data.storeName.toUpperCase()}*`
+    : "🛒 *NUEVO PEDIDO*";
+
   const lines: string[] = [
-    "🛒 *NUEVO PEDIDO*",
+    header,
     "━━━━━━━━━━━━━━━━━━",
   ];
 
