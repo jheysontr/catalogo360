@@ -4,10 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
-import { Loader2, MapPin, Truck, Package } from "lucide-react";
+import { Loader2, MapPin, Truck, Package, Tag, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/lib/CartContext";
 import { getFinalPrice, generateWhatsAppUrl } from "@/utils/whatsapp";
@@ -52,6 +53,13 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
   const [shipPostalCode, setShipPostalCode] = useState("");
   const [shipPhone, setShipPhone] = useState("");
 
+  // Coupons
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<{
+    id: string; code: string; discount_type: string; discount_value: number;
+  } | null>(null);
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+
   // Load shipping config when modal opens
   useEffect(() => {
     if (!open || !storeId) return;
@@ -79,6 +87,60 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
     })();
   }, [open, storeId]);
 
+  // Reset coupon when modal closes
+  useEffect(() => {
+    if (!open) {
+      setAppliedCoupon(null);
+      setCouponCode("");
+    }
+  }, [open]);
+
+  const validateCoupon = async () => {
+    const code = couponCode.trim().toUpperCase();
+    if (!code) return;
+    setValidatingCoupon(true);
+    const { data, error } = await supabase
+      .from("coupons")
+      .select("*")
+      .eq("store_id", storeId)
+      .eq("code", code)
+      .eq("is_active", true)
+      .limit(1);
+
+    if (error || !data?.length) {
+      toast({ title: "Cupón inválido", description: "El código no existe o no está activo", variant: "destructive" });
+      setValidatingCoupon(false);
+      return;
+    }
+    const c = data[0];
+    // Check expiry
+    if (c.expires_at && new Date(c.expires_at) < new Date()) {
+      toast({ title: "Cupón expirado", variant: "destructive" });
+      setValidatingCoupon(false);
+      return;
+    }
+    // Check max uses
+    if (c.max_uses && c.used_count >= c.max_uses) {
+      toast({ title: "Cupón agotado", variant: "destructive" });
+      setValidatingCoupon(false);
+      return;
+    }
+    // Check min purchase
+    if (c.min_purchase && cartTotal < Number(c.min_purchase)) {
+      toast({ title: "Compra mínima no alcanzada", description: `Mínimo $${Number(c.min_purchase).toFixed(2)}`, variant: "destructive" });
+      setValidatingCoupon(false);
+      return;
+    }
+    setAppliedCoupon({ id: c.id, code: c.code, discount_type: c.discount_type, discount_value: Number(c.discount_value) });
+    toast({ title: "¡Cupón aplicado!", description: `Descuento: ${c.discount_type === "percentage" ? `${c.discount_value}%` : `$${Number(c.discount_value).toFixed(2)}`}` });
+    setValidatingCoupon(false);
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+  };
+
   const availableMethods = shippingConfig
     ? [
         ...(shippingConfig.pickup_enabled ? ["pickup"] : []),
@@ -89,6 +151,15 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
 
   const hasShipping = availableMethods.length > 0;
 
+  // Calculate coupon discount
+  const couponDiscount = appliedCoupon
+    ? appliedCoupon.discount_type === "percentage"
+      ? cartTotal * (appliedCoupon.discount_value / 100)
+      : Math.min(appliedCoupon.discount_value, cartTotal)
+    : 0;
+
+  const subtotalAfterCoupon = cartTotal - couponDiscount;
+
   // Calculate shipping cost
   const getShippingCost = () => {
     if (!shippingConfig || !shippingMethod) return 0;
@@ -98,15 +169,14 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
     if (shippingMethod === "local") cost = shippingConfig.local_cost || 0;
     if (shippingMethod === "national") cost = shippingConfig.national_cost || 0;
 
-    // Free shipping threshold
-    if (shippingConfig.free_shipping_threshold > 0 && cartTotal >= shippingConfig.free_shipping_threshold) {
+    if (shippingConfig.free_shipping_threshold > 0 && subtotalAfterCoupon >= shippingConfig.free_shipping_threshold) {
       return 0;
     }
     return cost;
   };
 
   const shippingCost = getShippingCost();
-  const grandTotal = cartTotal + shippingCost;
+  const grandTotal = subtotalAfterCoupon + shippingCost;
 
   const getEstimatedDate = () => {
     if (!shippingConfig || !shippingMethod) return null;
@@ -203,6 +273,18 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
       });
     }
 
+    // Increment coupon used_count
+    if (appliedCoupon) {
+      const { data: couponData } = await supabase.from("coupons").select("used_count").eq("id", appliedCoupon.id).single();
+      if (couponData) {
+        await supabase.from("coupons").update({ used_count: couponData.used_count + 1 }).eq("id", appliedCoupon.id);
+      }
+    }
+
+    const couponNote = appliedCoupon
+      ? `\n🏷️ Cupón: ${appliedCoupon.code} (-$${couponDiscount.toFixed(2)})`
+      : "";
+
     const shippingNote = hasShipping && shippingMethod
       ? `\n📦 Envío: ${METHOD_LABELS[shippingMethod]}${shippingCost > 0 ? ` ($${shippingCost.toFixed(2)})` : " (Gratis)"}${shippingMethod !== "pickup" ? `\n📍 ${shipAddress.trim()}, ${shipCity.trim()}` : ""}\n🔍 Rastreo: ${trackingNumber}`
       : "";
@@ -215,7 +297,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
         email: email.trim(),
         phone: phone.trim(),
         address: shippingMethod === "pickup" ? undefined : shipAddress.trim() || undefined,
-        note: (note.trim() + shippingNote) || undefined,
+        note: (note.trim() + couponNote + shippingNote) || undefined,
       },
       grandTotal
     );
@@ -374,27 +456,71 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor }: Ca
             <Textarea id="cust-note" value={note} onChange={(e) => setNote(e.target.value)} placeholder="Instrucciones especiales..." className="mt-1.5" rows={2} />
           </div>
 
-          {/* Price breakdown */}
-          {hasShipping && (
-            <>
-              <Separator />
-              <div className="space-y-1.5 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-medium">${cartTotal.toFixed(2)}</span>
+          {/* Coupon Code */}
+          <Separator />
+          <div>
+            <Label className="text-sm font-semibold">Cupón de descuento</Label>
+            {appliedCoupon ? (
+              <div className="mt-2 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/30 p-2.5">
+                <Tag className="h-4 w-4 text-green-600" />
+                <div className="flex-1">
+                  <span className="text-sm font-medium text-green-700 dark:text-green-400">{appliedCoupon.code}</span>
+                  <span className="ml-2 text-xs text-green-600 dark:text-green-500">
+                    {appliedCoupon.discount_type === "percentage"
+                      ? `-${appliedCoupon.discount_value}%`
+                      : `-$${appliedCoupon.discount_value.toFixed(2)}`}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Envío</span>
-                  <span className="font-medium">{shippingCost > 0 ? `$${shippingCost.toFixed(2)}` : "Gratis"}</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between text-base font-bold">
-                  <span>Total</span>
-                  <span style={{ color: primaryColor }}>${grandTotal.toFixed(2)}</span>
-                </div>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={removeCoupon}>
+                  <X className="h-3.5 w-3.5" />
+                </Button>
               </div>
-            </>
-          )}
+            ) : (
+              <div className="mt-2 flex gap-2">
+                <Input
+                  value={couponCode}
+                  onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                  placeholder="Código de cupón"
+                  className="flex-1"
+                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), validateCoupon())}
+                />
+                <Button
+                  variant="outline"
+                  onClick={validateCoupon}
+                  disabled={validatingCoupon || !couponCode.trim()}
+                  className="shrink-0"
+                >
+                  {validatingCoupon ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aplicar"}
+                </Button>
+              </div>
+            )}
+          </div>
+
+          {/* Price breakdown */}
+          <Separator />
+          <div className="space-y-1.5 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Subtotal</span>
+              <span className="font-medium">${cartTotal.toFixed(2)}</span>
+            </div>
+            {appliedCoupon && (
+              <div className="flex justify-between text-green-600">
+                <span>Cupón ({appliedCoupon.code})</span>
+                <span className="font-medium">-${couponDiscount.toFixed(2)}</span>
+              </div>
+            )}
+            {hasShipping && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Envío</span>
+                <span className="font-medium">{shippingCost > 0 ? `$${shippingCost.toFixed(2)}` : "Gratis"}</span>
+              </div>
+            )}
+            <Separator />
+            <div className="flex justify-between text-base font-bold">
+              <span>Total</span>
+              <span style={{ color: primaryColor }}>${grandTotal.toFixed(2)}</span>
+            </div>
+          </div>
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
