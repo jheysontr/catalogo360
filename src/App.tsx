@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
+import { CartProvider } from "@/lib/CartContext";
 import Footer from "@/components/Footer";
 import PrivateRoute from "@/components/PrivateRoute";
 import Landing from "./pages/Landing";
@@ -47,10 +48,12 @@ const AppLayout = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
-      <Toaster position="top-right" />
-      <BrowserRouter>
-        <AppLayout />
-      </BrowserRouter>
+      <CartProvider>
+        <Toaster position="top-right" />
+        <BrowserRouter>
+          <AppLayout />
+        </BrowserRouter>
+      </CartProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
