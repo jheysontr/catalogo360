@@ -9,7 +9,7 @@ import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
-import Store from "./pages/Store";
+import StoreFront from "./pages/StoreFront";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -17,10 +17,11 @@ const queryClient = new QueryClient();
 const AppLayout = () => {
   const location = useLocation();
   const isDashboard = location.pathname.startsWith("/dashboard");
+  const isStoreFront = location.pathname.startsWith("/store/");
 
   return (
     <div className="flex min-h-screen flex-col">
-      {!isDashboard && <Navbar />}
+      {!isDashboard && !isStoreFront && <Navbar />}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Landing />} />
@@ -34,11 +35,11 @@ const AppLayout = () => {
               </PrivateRoute>
             }
           />
-          <Route path="/store/:slug" element={<Store />} />
+          <Route path="/store/:slug" element={<StoreFront />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {!isDashboard && <Footer />}
+      {!isDashboard && !isStoreFront && <Footer />}
     </div>
   );
 };
