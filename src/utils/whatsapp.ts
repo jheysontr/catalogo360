@@ -16,8 +16,27 @@ export interface CartItem {
 export interface CustomerInfo {
   name: string;
   phone: string;
-  email?: string;
   address?: string;
+}
+
+export interface OrderMessageData {
+  storePhone: string;
+  cartItems: CartItem[];
+  customer: CustomerInfo;
+  currencySymbol?: string;
+  subtotal: number;
+  coupon?: { code: string; discount: number };
+  shipping?: {
+    method: string;
+    methodLabel: string;
+    zoneName?: string;
+    cost: number;
+    address?: string;
+    city?: string;
+  };
+  grandTotal: number;
+  trackingNumber?: string;
+  trackingUrl?: string;
   note?: string;
 }
 
@@ -27,33 +46,69 @@ export function getFinalPrice(p: CartProduct): number {
     : p.price;
 }
 
-export function generateWhatsAppUrl(
-  storePhone: string,
-  cartItems: CartItem[],
-  customerInfo: CustomerInfo,
-  total: number,
-  currencySymbol: string = "$"
-): string {
-  const itemLines = cartItems
-    .map((i) => `📦 ${i.product.name} x${i.quantity}`)
-    .join("\n");
+export function generateWhatsAppUrl(data: OrderMessageData): string {
+  const cs = data.currencySymbol || "$";
 
-  const msg = [
-    "Hola! Me gustaría realizar el siguiente pedido:",
-    "",
-    itemLines,
-    "",
-    `💰 Total: ${currencySymbol}${total.toFixed(2)}`,
-    "",
-    `👤 Nombre: ${customerInfo.name}`,
-    `📱 WhatsApp: ${customerInfo.phone}`,
-    customerInfo.address ? `📍 Dirección: ${customerInfo.address}` : "",
-    customerInfo.note ? `📝 Nota: ${customerInfo.note}` : "",
-  ]
-    .filter(Boolean)
-    .join("\n");
+  // Header
+  const lines: string[] = [
+    "🛒 *NUEVO PEDIDO*",
+    "━━━━━━━━━━━━━━━━━━",
+  ];
 
-  const phone = storePhone.replace(/\D/g, "");
+  // Items with individual prices
+  data.cartItems.forEach((i) => {
+    const unitPrice = getFinalPrice(i.product);
+    const lineTotal = unitPrice * i.quantity;
+    lines.push(
+      `▪️ ${i.product.name}`,
+      `   ${i.quantity} x ${cs}${unitPrice.toFixed(2)} = ${cs}${lineTotal.toFixed(2)}`
+    );
+  });
+
+  // Totals section
+  lines.push("", "━━━━━━━━━━━━━━━━━━");
+  lines.push(`   Subtotal: ${cs}${data.subtotal.toFixed(2)}`);
+
+  if (data.coupon) {
+    lines.push(`🏷️ Cupón (${data.coupon.code}): -${cs}${data.coupon.discount.toFixed(2)}`);
+  }
+
+  if (data.shipping) {
+    const shippingLabel = data.shipping.methodLabel + (data.shipping.zoneName ? ` — ${data.shipping.zoneName}` : "");
+    lines.push(
+      `📦 Envío (${shippingLabel}): ${data.shipping.cost > 0 ? cs + data.shipping.cost.toFixed(2) : "Gratis"}`
+    );
+  }
+
+  lines.push(`💰 *Total: ${cs}${data.grandTotal.toFixed(2)}*`);
+
+  // Customer info
+  lines.push("", "━━━━━━━━━━━━━━━━━━", "👤 *Datos del cliente*");
+  lines.push(`   Nombre: ${data.customer.name}`);
+  lines.push(`   WhatsApp: ${data.customer.phone}`);
+
+  if (data.shipping && data.shipping.method !== "pickup" && data.shipping.address) {
+    lines.push(
+      `   Dirección: ${data.shipping.address}${data.shipping.city ? `, ${data.shipping.city}` : ""}`
+    );
+  }
+
+  // Tracking
+  if (data.trackingNumber) {
+    lines.push("", "🔍 *Seguimiento*");
+    lines.push(`   Rastreo: ${data.trackingNumber}`);
+    if (data.trackingUrl) {
+      lines.push(`   Ver estado: ${data.trackingUrl}`);
+    }
+  }
+
+  // Note
+  if (data.note) {
+    lines.push("", `📝 Nota: ${data.note}`);
+  }
+
+  const msg = lines.join("\n");
+  const phone = data.storePhone.replace(/\D/g, "");
   return phone
     ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
     : `https://wa.me/?text=${encodeURIComponent(msg)}`;

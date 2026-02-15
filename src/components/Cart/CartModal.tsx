@@ -289,32 +289,42 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, primaryColor, curr
       }
     }
 
-    const couponNote = appliedCoupon
-      ? `\n🏷️ Cupón: ${appliedCoupon.code} (-${currencySymbol}${couponDiscount.toFixed(2)})`
-      : "";
-
-    const trackingUrl = `${window.location.origin}/track?q=${encodeURIComponent(trackingNumber)}`;
+    const trackingUrl = hasShipping && shippingMethod
+      ? `${window.location.origin}/track?q=${encodeURIComponent(trackingNumber)}`
+      : undefined;
 
     const zoneName = shippingMethod === "local" && shippingConfig?.local_zones && selectedZoneIndex >= 0
-      ? ` (${shippingConfig.local_zones[selectedZoneIndex].name})`
-      : "";
-    const shippingNote = hasShipping && shippingMethod
-      ? `\n📦 Envío: ${METHOD_LABELS[shippingMethod]}${zoneName}${shippingCost > 0 ? ` (${currencySymbol}${shippingCost.toFixed(2)})` : " (Gratis)"}${shippingMethod !== "pickup" ? `\n📍 ${shipAddress.trim()}, ${shipCity.trim()}` : ""}\n🔍 Rastreo: ${trackingNumber}\n📋 Seguimiento: ${trackingUrl}`
-      : "";
+      ? shippingConfig.local_zones[selectedZoneIndex].name
+      : undefined;
 
-    const waUrl = generateWhatsAppUrl(
+    const waUrl = generateWhatsAppUrl({
       storePhone,
-      items,
-      {
+      cartItems: items,
+      customer: {
         name: name.trim(),
-        email: "",
         phone: phone.trim(),
         address: shippingMethod === "pickup" ? undefined : shipAddress.trim() || undefined,
-        note: (note.trim() + couponNote + shippingNote) || undefined,
       },
+      currencySymbol,
+      subtotal: cartTotal,
+      coupon: appliedCoupon
+        ? { code: appliedCoupon.code, discount: couponDiscount }
+        : undefined,
+      shipping: hasShipping && shippingMethod
+        ? {
+            method: shippingMethod,
+            methodLabel: METHOD_LABELS[shippingMethod],
+            zoneName,
+            cost: shippingCost,
+            address: shippingMethod === "pickup" ? undefined : shipAddress.trim(),
+            city: shippingMethod === "pickup" ? undefined : shipCity.trim(),
+          }
+        : undefined,
       grandTotal,
-      currencySymbol
-    );
+      trackingNumber: hasShipping && shippingMethod ? trackingNumber : undefined,
+      trackingUrl,
+      note: note.trim() || undefined,
+    });
 
     setSubmitting(false);
     onOpenChange(false);
