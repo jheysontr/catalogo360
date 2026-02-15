@@ -270,31 +270,37 @@ const StoreFront = () => {
                       </div>
                     )}
                     {p.on_sale && (
-                      <Badge className="absolute left-2 top-2 bg-destructive text-destructive-foreground hover:bg-destructive/90">¡En oferta!</Badge>
+                      <Badge className="absolute left-1.5 top-1.5 text-[10px] sm:left-2 sm:top-2 sm:text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90">¡Oferta!</Badge>
                     )}
                   </div>
-                  <CardContent className="space-y-2 p-4">
-                    {catName && <Badge variant="outline" className="text-xs">{catName}</Badge>}
-                    <h3 className="truncate text-base font-semibold text-foreground">{p.name}</h3>
-                    <div className="flex items-baseline gap-2">
+                  <CardContent className="space-y-1.5 p-2.5 sm:space-y-2 sm:p-4">
+                    {catName && <Badge variant="outline" className="text-[10px] sm:text-xs">{catName}</Badge>}
+                    <h3 className="truncate text-sm font-semibold text-foreground sm:text-base">{p.name}</h3>
+                    <div className="flex items-baseline gap-1.5 sm:gap-2">
                       {p.on_sale && p.discount_percent ? (
                         <>
-                          <span className="text-xl font-bold text-destructive">{currencySymbol}{finalPrice.toFixed(2)}</span>
-                          <span className="text-sm text-muted-foreground line-through">{currencySymbol}{p.price.toFixed(2)}</span>
+                          <span className="text-base font-bold text-destructive sm:text-xl">{currencySymbol}{finalPrice.toFixed(2)}</span>
+                          <span className="text-[10px] text-muted-foreground line-through sm:text-sm">{currencySymbol}{p.price.toFixed(2)}</span>
                         </>
                       ) : (
-                        <span className="text-xl font-bold" style={{ color: primaryColor }}>{currencySymbol}{p.price.toFixed(2)}</span>
+                        <span className="text-base font-bold sm:text-xl" style={{ color: primaryColor }}>{currencySymbol}{p.price.toFixed(2)}</span>
                       )}
                     </div>
-                    <p className={`text-xs ${p.stock < 5 ? "font-medium text-destructive" : "text-muted-foreground"}`}>
-                      Stock: {p.stock} unidades
+                    <p className={`text-[10px] sm:text-xs ${p.stock < 5 ? "font-medium text-destructive" : "text-muted-foreground"}`}>
+                      Stock: {p.stock}
                     </p>
                     <Button
-                      className="w-full gap-2 text-white transition-transform group-hover:scale-[1.02]"
+                      className="w-full gap-1.5 text-xs text-white sm:gap-2 sm:text-sm"
+                      size="sm"
                       style={{ backgroundColor: primaryColor }}
-                      onClick={() => addToCart(p)}
+                      onClick={() => {
+                        addToCart(p);
+                        toast({ title: "✓ Agregado", description: p.name, duration: 1500 });
+                      }}
                     >
-                      <ShoppingCart className="h-4 w-4" /> Agregar al carrito
+                      <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                      <span className="sm:hidden">Agregar</span>
+                      <span className="hidden sm:inline">Agregar al carrito</span>
                     </Button>
                   </CardContent>
                 </Card>
