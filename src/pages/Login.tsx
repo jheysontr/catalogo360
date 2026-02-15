@@ -1,20 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/lib/AuthContext";
 import toast from "react-hot-toast";
 import { Package, Eye, EyeOff } from "lucide-react";
 
+const REMEMBER_KEY = "cataloghub_remembered_email";
+
 const Login = () => {
-  const [email, setEmail] = useState("");
+  const { isAuthenticated, loading: authLoading } = useAuth();
+  const [email, setEmail] = useState(() => localStorage.getItem(REMEMBER_KEY) || "");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [remember, setRemember] = useState(false);
+  const [remember, setRemember] = useState(() => !!localStorage.getItem(REMEMBER_KEY));
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isAuthenticated, authLoading, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,6 +39,12 @@ const Login = () => {
         toast.error(error.message);
       }
     } else {
+      // Persist or clear remembered email
+      if (remember) {
+        localStorage.setItem(REMEMBER_KEY, email);
+      } else {
+        localStorage.removeItem(REMEMBER_KEY);
+      }
       toast.success("¡Bienvenido de vuelta!");
       navigate("/dashboard");
     }
