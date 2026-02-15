@@ -401,6 +401,7 @@ export type Database = {
           email: string | null
           id: string
           is_active: boolean
+          linkbox_config: Json | null
           logo_url: string | null
           plan_id: string | null
           primary_color: string | null
@@ -421,6 +422,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_active?: boolean
+          linkbox_config?: Json | null
           logo_url?: string | null
           plan_id?: string | null
           primary_color?: string | null
@@ -441,6 +443,7 @@ export type Database = {
           email?: string | null
           id?: string
           is_active?: boolean
+          linkbox_config?: Json | null
           logo_url?: string | null
           plan_id?: string | null
           primary_color?: string | null
