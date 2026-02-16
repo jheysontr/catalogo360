@@ -19,6 +19,7 @@ import {
   Palette, Type, Layout,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import LinkboxPreview from "@/components/LinkboxPreview";
 
 interface LinkItem {
   id: string;
@@ -96,6 +97,10 @@ const Linkbox = () => {
   const { toast } = useToast();
   const [storeId, setStoreId] = useState<string | null>(null);
   const [storeSlug, setStoreSlug] = useState<string | null>(null);
+  const [storeName, setStoreName] = useState("");
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [primaryColor, setPrimaryColor] = useState("#2a9d8f");
+  const [secondaryColor, setSecondaryColor] = useState("#264653");
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [config, setConfig] = useState<LinkboxConfig>({
@@ -123,12 +128,16 @@ const Linkbox = () => {
     (async () => {
       const { data } = await supabase
         .from("stores")
-        .select("id, store_slug, linkbox_config")
+        .select("id, store_slug, store_name, logo_url, primary_color, secondary_color, linkbox_config")
         .eq("user_id", user.id)
         .limit(1);
       if (data?.[0]) {
         setStoreId(data[0].id);
         setStoreSlug(data[0].store_slug);
+        setStoreName(data[0].store_name);
+        setLogoUrl(data[0].logo_url);
+        setPrimaryColor(data[0].primary_color || "#2a9d8f");
+        setSecondaryColor(data[0].secondary_color || "#264653");
         if (data[0].linkbox_config && typeof data[0].linkbox_config === "object") {
           setConfig((prev) => ({ ...prev, ...(data[0].linkbox_config as LinkboxConfig) }));
         }
@@ -260,7 +269,9 @@ const Linkbox = () => {
   }
 
   return (
-    <div>
+    <div className="flex gap-8">
+      {/* Editor column */}
+      <div className="min-w-0 flex-1">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground">Linkbox</h1>
@@ -552,6 +563,22 @@ const Linkbox = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      </div>
+
+      {/* Live preview column */}
+      <div className="hidden w-[320px] shrink-0 xl:block">
+        <div className="sticky top-6">
+          <p className="mb-3 text-center text-xs font-medium text-muted-foreground">Vista previa en vivo</p>
+          <LinkboxPreview
+            storeName={storeName}
+            logoUrl={logoUrl}
+            primaryColor={primaryColor}
+            secondaryColor={secondaryColor}
+            config={config}
+            links={links}
+          />
+        </div>
+      </div>
     </div>
   );
 };
