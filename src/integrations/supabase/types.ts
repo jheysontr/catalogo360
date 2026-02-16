@@ -325,6 +325,166 @@ export type Database = {
         }
         Relationships: []
       }
+      referral_config: {
+        Row: {
+          commission_type: string
+          commission_value: number
+          created_at: string
+          id: string
+          is_active: boolean
+          max_commission_orders: number
+          referral_discount_type: string
+          referral_discount_value: number
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          commission_type?: string
+          commission_value?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_commission_orders?: number
+          referral_discount_type?: string
+          referral_discount_value?: number
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          commission_type?: string
+          commission_value?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          max_commission_orders?: number
+          referral_discount_type?: string
+          referral_discount_value?: number
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referral_config_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          commission_amount: number
+          created_at: string
+          id: string
+          order_count: number
+          referred_email: string | null
+          referred_order_id: string | null
+          referrer_code: string
+          referrer_email: string
+          referrer_name: string
+          referrer_phone: string | null
+          status: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          commission_amount?: number
+          created_at?: string
+          id?: string
+          order_count?: number
+          referred_email?: string | null
+          referred_order_id?: string | null
+          referrer_code: string
+          referrer_email?: string
+          referrer_name?: string
+          referrer_phone?: string | null
+          status?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          commission_amount?: number
+          created_at?: string
+          id?: string
+          order_count?: number
+          referred_email?: string | null
+          referred_order_id?: string | null
+          referrer_code?: string
+          referrer_email?: string
+          referrer_name?: string
+          referrer_phone?: string | null
+          status?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_order_id_fkey"
+            columns: ["referred_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          referral_code: string
+          store_id: string
+          total_earned: number
+          total_referrals: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+          referral_code: string
+          store_id: string
+          total_earned?: number
+          total_referrals?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
+          referral_code?: string
+          store_id?: string
+          total_earned?: number
+          total_referrals?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shipments: {
         Row: {
           address: string | null

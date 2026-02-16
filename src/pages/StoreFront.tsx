@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,6 +64,8 @@ interface Category {
 
 const StoreFront = () => {
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get("ref") || "";
   const { toast } = useToast();
   const { items: cart, addToCart, removeFromCart, updateQuantity, cartTotal, itemCount, setStoreId } = useCart();
 
@@ -507,6 +509,7 @@ const StoreFront = () => {
         storeName={store.store_name}
         primaryColor={primaryColor}
         currencySymbol={currencySymbol}
+        referralCode={referralCode}
         onOrderComplete={() => {
           setCartOpen(false);
           setActiveCategory("all");
