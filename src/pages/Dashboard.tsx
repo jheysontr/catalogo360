@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Package, Store, ShoppingCart, BarChart3, CreditCard, Settings,
   ExternalLink, Plus, Eye, Menu, X, LogOut, ChevronRight, FolderOpen, Ticket,
-  Truck, Link2,
+  Truck, Link2, Users,
 } from "lucide-react";
 import SalesCalculator from "@/components/SalesCalculator";
 import Products from "@/pages/Dashboard/Products";
@@ -21,6 +21,7 @@ import Coupons from "@/pages/Dashboard/Coupons";
 
 import Shipments from "@/pages/Dashboard/Shipments";
 import Linkbox from "@/pages/Dashboard/Linkbox";
+import Referrals from "@/pages/Dashboard/Referrals";
 
 interface StoreData {
   id: string;
@@ -36,6 +37,7 @@ const sidebarLinks = [
   { label: "Órdenes", icon: ShoppingCart, id: "orders" },
   { label: "Envíos", icon: Truck, id: "shipments" },
   { label: "Linkbox", icon: Link2, id: "linkbox" },
+  { label: "Referencias", icon: Users, id: "referrals" },
   { label: "Estadísticas", icon: BarChart3, id: "stats" },
   { label: "Planes", icon: CreditCard, id: "plans" },
   { label: "Configuración", icon: Settings, id: "settings" },
@@ -174,6 +176,8 @@ const Dashboard = () => {
             <Shipments />
           ) : activeSection === "linkbox" ? (
             <Linkbox />
+          ) : activeSection === "referrals" ? (
+            <Referrals />
           ) : activeSection === "settings" ? (
             <StoreSettings />
           ) : activeSection === "orders" ? (
