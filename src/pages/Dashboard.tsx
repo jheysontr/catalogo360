@@ -141,24 +141,39 @@ const Dashboard = () => {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {sidebarLinks.filter((link) => {
+          {sidebarLinks.map((link) => {
             const moduleKey = Object.entries(MODULE_SIDEBAR_MAP).find(([, sid]) => sid === link.id)?.[0];
-            if (moduleKey) return enabledModules[moduleKey] === true;
-            return true;
-          }).map((link) => (
-            <button
-              key={link.id}
-              onClick={() => { setActiveSection(link.id); setSidebarOpen(false); }}
-              className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
-                activeSection === link.id
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
-              }`}
-            >
-              <link.icon className="h-4 w-4" />
-              {link.label}
-            </button>
-          ))}
+            const isLocked = moduleKey ? enabledModules[moduleKey] !== true : false;
+
+            return (
+              <button
+                key={link.id}
+                onClick={() => {
+                  if (isLocked) {
+                    setActiveSection("plans");
+                  } else {
+                    setActiveSection(link.id);
+                  }
+                  setSidebarOpen(false);
+                }}
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  isLocked
+                    ? "text-muted-foreground/50 hover:bg-accent/50"
+                    : activeSection === link.id
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                }`}
+              >
+                <link.icon className="h-4 w-4" />
+                <span className="flex-1 text-left">{link.label}</span>
+                {isLocked && (
+                  <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
+                    PRO
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </nav>
 
         <div className="border-t p-4">
