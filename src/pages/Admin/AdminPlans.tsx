@@ -16,6 +16,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Plus, Pencil, Trash2, Loader2 } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 
 interface PlanRow {
@@ -27,7 +28,13 @@ interface PlanRow {
   max_stores: number;
   features: string[];
   store_count: number;
+  enabled_modules: Record<string, boolean>;
 }
+
+const AVAILABLE_MODULES = [
+  { key: "linkbox", label: "Linkbox" },
+  { key: "referrals", label: "Sistema de Referencias" },
+];
 
 const emptyForm = {
   name: "",
@@ -36,6 +43,7 @@ const emptyForm = {
   max_products: "",
   max_stores: "1",
   features: "",
+  enabled_modules: { referrals: false, linkbox: false } as Record<string, boolean>,
 };
 
 const AdminPlans = () => {
@@ -68,6 +76,7 @@ const AdminPlans = () => {
     const mapped = (plansRes.data || []).map((p: any) => ({
       ...p,
       features: Array.isArray(p.features) ? p.features : [],
+      enabled_modules: (p.enabled_modules && typeof p.enabled_modules === "object") ? p.enabled_modules : {},
       store_count: planCounts[p.id] || 0,
     }));
 
@@ -92,6 +101,7 @@ const AdminPlans = () => {
       max_products: String(plan.max_products),
       max_stores: String(plan.max_stores),
       features: plan.features.join("\n"),
+      enabled_modules: { ...emptyForm.enabled_modules, ...plan.enabled_modules },
     });
     setDialogOpen(true);
   };
@@ -110,6 +120,7 @@ const AdminPlans = () => {
       max_products: parseInt(form.max_products) || 10,
       max_stores: parseInt(form.max_stores) || 1,
       features: form.features.split("\n").map((f) => f.trim()).filter(Boolean),
+      enabled_modules: form.enabled_modules,
     };
 
     let error;
@@ -180,6 +191,7 @@ const AdminPlans = () => {
                 <TableHead>Anual</TableHead>
                 <TableHead>Máx. Productos</TableHead>
                 <TableHead>Máx. Tiendas</TableHead>
+                <TableHead>Módulos</TableHead>
                 <TableHead>Tiendas asignadas</TableHead>
                 <TableHead className="text-right">Acciones</TableHead>
               </TableRow>
@@ -192,6 +204,16 @@ const AdminPlans = () => {
                   <TableCell>${plan.annual_price}</TableCell>
                   <TableCell>{plan.max_products}</TableCell>
                   <TableCell>{plan.max_stores}</TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {AVAILABLE_MODULES.filter(m => plan.enabled_modules[m.key]).map(m => (
+                        <Badge key={m.key} variant="default" className="text-xs">{m.label}</Badge>
+                      ))}
+                      {AVAILABLE_MODULES.every(m => !plan.enabled_modules[m.key]) && (
+                        <span className="text-xs text-muted-foreground">Ninguno</span>
+                      )}
+                    </div>
+                  </TableCell>
                   <TableCell>
                     <Badge variant="secondary">{plan.store_count}</Badge>
                   </TableCell>
@@ -256,6 +278,23 @@ const AdminPlans = () => {
                 onChange={(e) => updateField("features", e.target.value)}
                 placeholder={"Hasta 200 productos\nSoporte 24/7\nEstadísticas avanzadas"}
               />
+            </div>
+            <div className="space-y-3">
+              <Label>Módulos habilitados</Label>
+              {AVAILABLE_MODULES.map((mod) => (
+                <div key={mod.key} className="flex items-center justify-between rounded-md border p-3">
+                  <span className="text-sm font-medium">{mod.label}</span>
+                  <Switch
+                    checked={form.enabled_modules[mod.key] || false}
+                    onCheckedChange={(checked) =>
+                      setForm((prev) => ({
+                        ...prev,
+                        enabled_modules: { ...prev.enabled_modules, [mod.key]: checked },
+                      }))
+                    }
+                  />
+                </div>
+              ))}
             </div>
           </div>
           <DialogFooter className="gap-2 sm:gap-0">
