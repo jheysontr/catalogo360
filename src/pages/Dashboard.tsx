@@ -30,10 +30,12 @@ interface StoreData {
   plan_id: string | null;
 }
 
-// Modules that require plan feature flags
 const MODULE_SIDEBAR_MAP: Record<string, string> = {
   linkbox: "linkbox",
   referrals: "referrals",
+  coupons: "coupons",
+  shipments: "shipments",
+  analytics: "stats",
 };
 
 const sidebarLinks = [
