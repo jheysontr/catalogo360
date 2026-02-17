@@ -27,7 +27,14 @@ interface StoreData {
   id: string;
   store_name: string;
   store_slug: string;
+  plan_id: string | null;
 }
+
+// Modules that require plan feature flags
+const MODULE_SIDEBAR_MAP: Record<string, string> = {
+  linkbox: "linkbox",
+  referrals: "referrals",
+};
 
 const sidebarLinks = [
   { label: "Mi Tienda", icon: Store, id: "store" },
@@ -52,6 +59,7 @@ const Dashboard = () => {
   const [productCount, setProductCount] = useState(0);
   const [orderCount, setOrderCount] = useState(0);
   const [lastOrder, setLastOrder] = useState<{ customer_name: string; items: any } | null>(null);
+  const [enabledModules, setEnabledModules] = useState<Record<string, boolean>>({});
 
   const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuario";
 
@@ -61,13 +69,25 @@ const Dashboard = () => {
     const fetchData = async () => {
       const { data: stores } = await supabase
         .from("stores")
-        .select("id, store_name, store_slug")
+        .select("id, store_name, store_slug, plan_id")
         .eq("user_id", user.id)
         .limit(1);
 
       if (stores && stores.length > 0) {
         const s = stores[0];
         setStore(s);
+
+        // Fetch plan enabled_modules
+        if (s.plan_id) {
+          const { data: planData } = await supabase
+            .from("pricing_plans")
+            .select("enabled_modules")
+            .eq("id", s.plan_id)
+            .single();
+          if (planData?.enabled_modules && typeof planData.enabled_modules === "object") {
+            setEnabledModules(planData.enabled_modules as Record<string, boolean>);
+          }
+        }
 
         const { count: pCount } = await supabase
           .from("products")
@@ -119,7 +139,11 @@ const Dashboard = () => {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {sidebarLinks.map((link) => (
+          {sidebarLinks.filter((link) => {
+            const moduleKey = Object.entries(MODULE_SIDEBAR_MAP).find(([, sid]) => sid === link.id)?.[0];
+            if (moduleKey) return enabledModules[moduleKey] === true;
+            return true;
+          }).map((link) => (
             <button
               key={link.id}
               onClick={() => { setActiveSection(link.id); setSidebarOpen(false); }}

@@ -203,6 +203,7 @@ export type Database = {
         Row: {
           annual_price: number
           created_at: string
+          enabled_modules: Json
           features: Json
           id: string
           max_products: number
@@ -214,6 +215,7 @@ export type Database = {
         Insert: {
           annual_price?: number
           created_at?: string
+          enabled_modules?: Json
           features?: Json
           id?: string
           max_products?: number
@@ -225,6 +227,7 @@ export type Database = {
         Update: {
           annual_price?: number
           created_at?: string
+          enabled_modules?: Json
           features?: Json
           id?: string
           max_products?: number
