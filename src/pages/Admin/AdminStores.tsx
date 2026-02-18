@@ -13,8 +13,9 @@ import {
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
-import { Store, Search, Eye, Ban, CheckCircle, Trash2, CreditCard } from "lucide-react";
+import { Store, Search, Eye, Ban, CheckCircle, Trash2, CreditCard, QrCode, Download } from "lucide-react";
 import toast from "react-hot-toast";
+import { QRCodeSVG } from "qrcode.react";
 
 interface StoreRow {
   id: string;
@@ -41,6 +42,7 @@ const AdminStores = () => {
   const [selectedStore, setSelectedStore] = useState<StoreRow | null>(null);
   const [planDialogOpen, setPlanDialogOpen] = useState(false);
   const [selectedPlanId, setSelectedPlanId] = useState<string>("");
+  const [qrStore, setQrStore] = useState<StoreRow | null>(null);
   const [productCounts, setProductCounts] = useState<Record<string, number>>({});
   const [orderCounts, setOrderCounts] = useState<Record<string, number>>({});
 
@@ -215,6 +217,14 @@ const AdminStores = () => {
                         <Button
                           size="icon"
                           variant="ghost"
+                          title="Código QR"
+                          onClick={() => setQrStore(store)}
+                        >
+                          <QrCode className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
                           title="Ver tienda"
                           onClick={() => window.open(`/store/${store.store_slug}`, "_blank")}
                         >
@@ -287,6 +297,54 @@ const AdminStores = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setPlanDialogOpen(false)}>Cancelar</Button>
             <Button onClick={assignPlan}>Guardar</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!qrStore} onOpenChange={(open) => !open && setQrStore(null)}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-center">{qrStore?.store_name}</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div id="qr-container" className="rounded-xl border bg-white p-4">
+              <QRCodeSVG
+                value={`${window.location.origin}/store/${qrStore?.store_slug}`}
+                size={200}
+                level="H"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground text-center break-all">
+              {window.location.origin}/store/{qrStore?.store_slug}
+            </p>
+          </div>
+          <DialogFooter className="sm:justify-center">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const svg = document.querySelector("#qr-container svg") as SVGSVGElement;
+                if (!svg) return;
+                const serializer = new XMLSerializer();
+                const svgStr = serializer.serializeToString(svg);
+                const canvas = document.createElement("canvas");
+                canvas.width = 400; canvas.height = 400;
+                const ctx = canvas.getContext("2d")!;
+                const img = new Image();
+                img.onload = () => {
+                  ctx.fillStyle = "#fff";
+                  ctx.fillRect(0, 0, 400, 400);
+                  ctx.drawImage(img, 0, 0, 400, 400);
+                  const a = document.createElement("a");
+                  a.download = `${qrStore?.store_slug}-qr.png`;
+                  a.href = canvas.toDataURL("image/png");
+                  a.click();
+                };
+                img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgStr)));
+              }}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Descargar PNG
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
