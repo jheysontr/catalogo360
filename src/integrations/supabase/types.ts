@@ -199,6 +199,134 @@ export type Database = {
           },
         ]
       }
+      platform_referral_config: {
+        Row: {
+          commission_type: string
+          commission_value: number
+          created_at: string
+          id: string
+          is_active: boolean
+          min_plan_price: number
+          updated_at: string
+          welcome_message: string | null
+        }
+        Insert: {
+          commission_type?: string
+          commission_value?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          min_plan_price?: number
+          updated_at?: string
+          welcome_message?: string | null
+        }
+        Update: {
+          commission_type?: string
+          commission_value?: number
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          min_plan_price?: number
+          updated_at?: string
+          welcome_message?: string | null
+        }
+        Relationships: []
+      }
+      platform_referrals: {
+        Row: {
+          commission_amount: number
+          created_at: string
+          id: string
+          plan_name: string | null
+          plan_price: number
+          referred_email: string
+          referred_store_name: string | null
+          referred_user_id: string | null
+          referrer_code: string
+          referrer_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          commission_amount?: number
+          created_at?: string
+          id?: string
+          plan_name?: string | null
+          plan_price?: number
+          referred_email?: string
+          referred_store_name?: string | null
+          referred_user_id?: string | null
+          referrer_code: string
+          referrer_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          commission_amount?: number
+          created_at?: string
+          id?: string
+          plan_name?: string | null
+          plan_price?: number
+          referred_email?: string
+          referred_store_name?: string | null
+          referred_user_id?: string | null
+          referrer_code?: string
+          referrer_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "platform_referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "platform_referrers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      platform_referrers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_active: boolean
+          name: string
+          phone: string | null
+          referral_code: string
+          total_earned: number
+          total_referrals: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_active?: boolean
+          name: string
+          phone?: string | null
+          referral_code: string
+          total_earned?: number
+          total_referrals?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          phone?: string | null
+          referral_code?: string
+          total_earned?: number
+          total_referrals?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       pricing_plans: {
         Row: {
           annual_price: number
