@@ -4,19 +4,21 @@ import { useAuth } from "@/lib/AuthContext";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { Button } from "@/components/ui/button";
 import {
-  Store, CreditCard, BarChart3, Shield, LogOut, Menu, X, Users, Activity,
+  Store, CreditCard, BarChart3, Shield, LogOut, Menu, X, Users, Activity, Gift,
 } from "lucide-react";
 import AdminStores from "@/pages/Admin/AdminStores";
 import AdminPlans from "@/pages/Admin/AdminPlans";
 import AdminMetrics from "@/pages/Admin/AdminMetrics";
 import AdminUsers from "@/pages/Admin/AdminUsers";
 import AdminActivity from "@/pages/Admin/AdminActivity";
+import AdminPlatformReferrals from "@/pages/Admin/AdminPlatformReferrals";
 
 const sidebarLinks = [
   { label: "Métricas", icon: BarChart3, id: "metrics" },
   { label: "Tiendas", icon: Store, id: "stores" },
   { label: "Usuarios", icon: Users, id: "users" },
   { label: "Planes", icon: CreditCard, id: "plans" },
+  { label: "Afiliados", icon: Gift, id: "platform-referrals" },
   { label: "Actividad", icon: Activity, id: "activity" },
 ];
 
@@ -120,6 +122,7 @@ const Admin = () => {
           {activeSection === "stores" && <AdminStores />}
           {activeSection === "users" && <AdminUsers />}
           {activeSection === "plans" && <AdminPlans />}
+          {activeSection === "platform-referrals" && <AdminPlatformReferrals />}
           {activeSection === "activity" && <AdminActivity />}
         </main>
       </div>

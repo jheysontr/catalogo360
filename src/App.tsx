@@ -15,6 +15,7 @@ import LinkboxPage from "./pages/LinkboxPage";
 import NotFound from "./pages/NotFound";
 import TrackOrder from "./pages/TrackOrder";
 import Admin from "./pages/Admin";
+import AffiliatePage from "./pages/AffiliatePage";
 
 const queryClient = new QueryClient();
 
@@ -25,9 +26,10 @@ const AppLayout = () => {
   const isLinkbox = location.pathname.startsWith("/linkbox/");
   const isTrack = location.pathname.startsWith("/track");
   const isAdmin = location.pathname.startsWith("/admin");
+  const isAffiliate = location.pathname.startsWith("/affiliate/");
   return (
     <div className="flex min-h-screen flex-col">
-      {!isDashboard && !isStoreFront && !isLinkbox && !isTrack && !isAdmin && <Navbar />}
+      {!isDashboard && !isStoreFront && !isLinkbox && !isTrack && !isAdmin && !isAffiliate && <Navbar />}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Landing />} />
@@ -44,6 +46,7 @@ const AppLayout = () => {
           <Route path="/store/:slug" element={<StoreFront />} />
           <Route path="/linkbox/:slug" element={<LinkboxPage />} />
           <Route path="/track" element={<TrackOrder />} />
+          <Route path="/affiliate/:code" element={<AffiliatePage />} />
           <Route
             path="/admin"
             element={
@@ -55,7 +58,7 @@ const AppLayout = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {!isDashboard && !isStoreFront && !isLinkbox && !isTrack && !isAdmin && <Footer />}
+      {!isDashboard && !isStoreFront && !isLinkbox && !isTrack && !isAdmin && !isAffiliate && <Footer />}
     </div>
   );
 };
