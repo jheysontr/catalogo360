@@ -8,8 +8,10 @@ import { Progress } from "@/components/ui/progress";
 import {
   Package, Store, ShoppingCart, BarChart3, CreditCard, Settings,
   ExternalLink, Plus, Eye, Menu, X, LogOut, ChevronRight, FolderOpen, Ticket,
-  Truck, Link2, Users,
+  Truck, Link2, Users, QrCode, Download,
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import SalesCalculator from "@/components/SalesCalculator";
 import Products from "@/pages/Dashboard/Products";
 import StoreSettings from "@/pages/Dashboard/StoreSettings";
@@ -62,6 +64,9 @@ const Dashboard = () => {
   const [orderCount, setOrderCount] = useState(0);
   const [lastOrder, setLastOrder] = useState<{ customer_name: string; items: any } | null>(null);
   const [enabledModules, setEnabledModules] = useState<Record<string, boolean>>({});
+  const [qrOpen, setQrOpen] = useState(false);
+
+
 
   const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuario";
 
@@ -245,13 +250,18 @@ const Dashboard = () => {
                       <p className="font-semibold text-foreground">{store?.store_name ?? "Cargando..."}</p>
                       <p className="text-xs text-muted-foreground">catalogo360.online/{store?.store_slug ?? "..."}</p>
                     </div>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {store && (
-                        <Button asChild size="sm" variant="outline" className="gap-1.5">
-                          <a href={`/store/${store.store_slug}`} target="_blank" rel="noopener noreferrer">
-                            <Eye className="h-3.5 w-3.5" /> Ver mi tienda
-                          </a>
-                        </Button>
+                        <>
+                          <Button asChild size="sm" variant="outline" className="gap-1.5">
+                            <a href={`/store/${store.store_slug}`} target="_blank" rel="noopener noreferrer">
+                              <Eye className="h-3.5 w-3.5" /> Ver mi tienda
+                            </a>
+                          </Button>
+                          <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setQrOpen(true)}>
+                            <QrCode className="h-3.5 w-3.5" /> Código QR
+                          </Button>
+                        </>
                       )}
                       <Button size="sm" variant="secondary" className="gap-1.5" onClick={() => setActiveSection("settings")}>
                         <Settings className="h-3.5 w-3.5" /> Personalizar
@@ -330,6 +340,55 @@ const Dashboard = () => {
           )}
         </main>
       </div>
+
+      {/* QR Dialog */}
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-center">{store?.store_name}</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div id="dashboard-qr-container" className="rounded-xl border bg-white p-4">
+              <QRCodeSVG
+                value={`${window.location.origin}/store/${store?.store_slug}`}
+                size={200}
+                level="H"
+              />
+            </div>
+            <p className="text-xs text-muted-foreground text-center break-all">
+              {window.location.origin}/store/{store?.store_slug}
+            </p>
+          </div>
+          <DialogFooter className="sm:justify-center">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const svg = document.querySelector("#dashboard-qr-container svg") as SVGSVGElement;
+                if (!svg) return;
+                const serializer = new XMLSerializer();
+                const svgStr = serializer.serializeToString(svg);
+                const canvas = document.createElement("canvas");
+                canvas.width = 400; canvas.height = 400;
+                const ctx = canvas.getContext("2d")!;
+                const img = new Image();
+                img.onload = () => {
+                  ctx.fillStyle = "#fff";
+                  ctx.fillRect(0, 0, 400, 400);
+                  ctx.drawImage(img, 0, 0, 400, 400);
+                  const a = document.createElement("a");
+                  a.download = `${store?.store_slug}-qr.png`;
+                  a.href = canvas.toDataURL("image/png");
+                  a.click();
+                };
+                img.src = "data:image/svg+xml;base64," + btoa(unescape(encodeURIComponent(svgStr)));
+              }}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Descargar PNG
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
