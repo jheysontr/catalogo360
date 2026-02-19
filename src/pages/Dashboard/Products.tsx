@@ -26,11 +26,16 @@ import {
 } from "@/components/ui/pagination";
 import {
   Plus, Search, MoreVertical, Pencil, Copy, Trash2, ImagePlus, Package, Loader2,
-  LayoutGrid, List,
+  LayoutGrid, List, X,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 /* ─── Types ──────────────────────────────────────── */
+
+interface ProductAttribute {
+  name: string;
+  values: string[];
+}
 
 interface Product {
   id: string;
@@ -43,6 +48,7 @@ interface Product {
   discount_percent: number | null;
   category_id: string | null;
   store_id: string;
+  attributes: unknown;
 }
 
 interface Category {
@@ -88,6 +94,8 @@ const Products = () => {
   // SEO fields
   const [formSlug, setFormSlug] = useState("");
   const [formMetaDesc, setFormMetaDesc] = useState("");
+  // Attributes
+  const [formAttributes, setFormAttributes] = useState<ProductAttribute[]>([]);
 
   /* ── Fetch store ── */
   useEffect(() => {
@@ -174,6 +182,7 @@ const Products = () => {
     setFormName(""); setFormDescription(""); setFormCategory(""); setFormPrice("");
     setFormStock(""); setFormOnSale(false); setFormDiscount(""); setFormImageFile(null);
     setFormImagePreview(null); setEditingProduct(null); setFormSlug(""); setFormMetaDesc("");
+    setFormAttributes([]);
   };
 
   const openAddModal = () => { resetForm(); setModalOpen(true); };
@@ -191,6 +200,8 @@ const Products = () => {
     setFormImageFile(null);
     setFormSlug(generateSlug(product.name));
     setFormMetaDesc(product.description?.slice(0, 160) ?? "");
+    const attrs = product.attributes;
+    setFormAttributes(Array.isArray(attrs) ? (attrs as ProductAttribute[]) : []);
     setModalOpen(true);
   };
 
@@ -257,6 +268,11 @@ const Products = () => {
       if (uploaded) imageUrl = uploaded;
     }
 
+    // Filter out empty attributes
+    const cleanAttributes = formAttributes
+      .filter(a => a.name.trim() && a.values.some(v => v.trim()))
+      .map(a => ({ name: a.name.trim(), values: a.values.filter(v => v.trim()) }));
+
     const payload = {
       name: formName.trim(),
       description: formDescription.trim() || null,
@@ -267,6 +283,7 @@ const Products = () => {
       discount_percent: formOnSale ? Number(formDiscount) || 0 : 0,
       image_url: imageUrl,
       store_id: storeId,
+      attributes: cleanAttributes.length > 0 ? cleanAttributes : null,
     };
 
     if (editingProduct) {
@@ -292,10 +309,16 @@ const Products = () => {
   /* ── Actions ── */
   const handleDuplicate = async (product: Product) => {
     if (!storeId) return;
-    const { id, ...rest } = product;
     const { error } = await supabase.from("products").insert({
-      ...rest,
       name: `${product.name} (copia)`,
+      description: product.description,
+      price: product.price,
+      stock: product.stock,
+      image_url: product.image_url,
+      on_sale: product.on_sale,
+      discount_percent: product.discount_percent,
+      category_id: product.category_id,
+      attributes: product.attributes as any,
       store_id: storeId,
     });
     if (error) toast({ title: "Error", description: "Error al duplicar", variant: "destructive" });
@@ -720,7 +743,103 @@ const Products = () => {
               )}
             </div>
 
-            {/* 4. SEO */}
+            {/* 4. Atributos */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-foreground">Atributos (opcional)</h3>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setFormAttributes([...formAttributes, { name: "", values: [""] }])}
+                  className="gap-1"
+                >
+                  <Plus className="h-3.5 w-3.5" /> Agregar atributo
+                </Button>
+              </div>
+              {formAttributes.length === 0 && (
+                <p className="text-xs text-muted-foreground">Agrega atributos como Color, Talla, Material, etc.</p>
+              )}
+              {formAttributes.map((attr, attrIdx) => (
+                <div key={attrIdx} className="rounded-lg border p-3 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Nombre (ej: Color, Talla)"
+                      value={attr.name}
+                      onChange={(e) => {
+                        const updated = [...formAttributes];
+                        updated[attrIdx] = { ...updated[attrIdx], name: e.target.value };
+                        setFormAttributes(updated);
+                      }}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-destructive hover:text-destructive"
+                      onClick={() => setFormAttributes(formAttributes.filter((_, i) => i !== attrIdx))}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {attr.values.map((val, valIdx) => (
+                      <div key={valIdx} className="flex items-center gap-1">
+                        <Input
+                          placeholder="Valor"
+                          value={val}
+                          onChange={(e) => {
+                            const updated = [...formAttributes];
+                            const newValues = [...updated[attrIdx].values];
+                            newValues[valIdx] = e.target.value;
+                            updated[attrIdx] = { ...updated[attrIdx], values: newValues };
+                            setFormAttributes(updated);
+                          }}
+                          className="w-28"
+                        />
+                        {attr.values.length > 1 && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
+                            onClick={() => {
+                              const updated = [...formAttributes];
+                              updated[attrIdx] = {
+                                ...updated[attrIdx],
+                                values: updated[attrIdx].values.filter((_, i) => i !== valIdx),
+                              };
+                              setFormAttributes(updated);
+                            }}
+                          >
+                            <X className="h-3 w-3" />
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="h-9 gap-1"
+                      onClick={() => {
+                        const updated = [...formAttributes];
+                        updated[attrIdx] = {
+                          ...updated[attrIdx],
+                          values: [...updated[attrIdx].values, ""],
+                        };
+                        setFormAttributes(updated);
+                      }}
+                    >
+                      <Plus className="h-3 w-3" /> Valor
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* 5. SEO */}
             <div className="space-y-4">
               <h3 className="text-sm font-semibold text-foreground">SEO (opcional)</h3>
               <div>
