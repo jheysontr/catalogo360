@@ -89,6 +89,9 @@ const StoreFront = () => {
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>({});
+  const [detailQty, setDetailQty] = useState(1);
 
   /* ── Fetch store data ── */
   useEffect(() => {
@@ -150,6 +153,26 @@ const StoreFront = () => {
       await navigator.clipboard.writeText(url);
       toast({ title: "¡Enlace copiado!" });
     }
+  };
+
+  const openProductDetail = (product: Product) => {
+    setSelectedProduct(product);
+    setDetailQty(1);
+    const attrs: Record<string, string> = {};
+    if (Array.isArray(product.attributes)) {
+      (product.attributes as ProductAttribute[]).forEach((attr) => {
+        if (attr.values.length > 0) attrs[attr.name] = attr.values[0];
+      });
+    }
+    setSelectedAttrs(attrs);
+  };
+
+  const handleAddFromDetail = () => {
+    if (!selectedProduct) return;
+    const hasAttrs = Array.isArray(selectedProduct.attributes) && (selectedProduct.attributes as ProductAttribute[]).length > 0;
+    addToCart(selectedProduct, detailQty, hasAttrs ? selectedAttrs : undefined);
+    toast({ title: "✓ Agregado", description: selectedProduct.name, duration: 1500 });
+    setSelectedProduct(null);
   };
 
   if (loading) {
@@ -302,7 +325,7 @@ const StoreFront = () => {
 
               if (viewMode === "list") {
                 return (
-                  <Card key={p.id} className="group overflow-hidden transition-shadow hover:shadow-lg">
+                  <Card key={p.id} className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-lg" onClick={() => openProductDetail(p)}>
                     <div className="flex">
                       <div className="relative h-32 w-32 flex-shrink-0 overflow-hidden bg-muted sm:h-40 sm:w-40">
                         {p.image_url ? (
@@ -352,14 +375,11 @@ const StoreFront = () => {
                             size="sm"
                             style={{ backgroundColor: primaryColor }}
                             onClick={(e) => {
-                              addToCart(p);
-                              toast({ title: "✓ Agregado", description: p.name, duration: 1500 });
-                              const btn = e.currentTarget;
-                              btn.classList.add("animate-scale-in");
-                              setTimeout(() => btn.classList.remove("animate-scale-in"), 200);
+                              e.stopPropagation();
+                              openProductDetail(p);
                             }}
                           >
-                            <ShoppingCart className="h-3.5 w-3.5" /> Agregar
+                            <ShoppingCart className="h-3.5 w-3.5" /> Ver
                           </Button>
                         </div>
                       </CardContent>
@@ -369,7 +389,7 @@ const StoreFront = () => {
               }
 
               return (
-                <Card key={p.id} className="group overflow-hidden transition-shadow hover:shadow-lg">
+                <Card key={p.id} className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-lg" onClick={() => openProductDetail(p)}>
                   <div className="relative aspect-square overflow-hidden bg-muted">
                     {p.image_url ? (
                       <img src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
@@ -410,22 +430,6 @@ const StoreFront = () => {
                     <p className={`text-[10px] sm:text-xs ${p.stock < 5 ? "font-medium text-destructive" : "text-muted-foreground"}`}>
                       Stock: {p.stock}
                     </p>
-                    <Button
-                      className="w-full gap-1.5 text-xs text-white transition-all duration-150 sm:gap-2 sm:text-sm active:scale-90 active:brightness-110"
-                      size="sm"
-                      style={{ backgroundColor: primaryColor }}
-                      onClick={(e) => {
-                        addToCart(p);
-                        toast({ title: "✓ Agregado", description: p.name, duration: 1500 });
-                        const btn = e.currentTarget;
-                        btn.classList.add("animate-scale-in");
-                        setTimeout(() => btn.classList.remove("animate-scale-in"), 200);
-                      }}
-                    >
-                      <ShoppingCart className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-                      <span className="sm:hidden">Agregar</span>
-                      <span className="hidden sm:inline">Agregar al carrito</span>
-                    </Button>
                   </CardContent>
                 </Card>
               );
@@ -465,10 +469,11 @@ const StoreFront = () => {
           ) : (
             <>
               <div className="flex-1 space-y-3 overflow-y-auto py-4">
-                {cart.map((item) => {
+                {cart.map((item, idx) => {
                   const price = getFinalPrice(item.product);
+                  const cartKey = `${item.product.id}-${idx}`;
                   return (
-                    <div key={item.product.id} className="flex gap-3 rounded-lg border p-3">
+                    <div key={cartKey} className="flex gap-3 rounded-lg border p-3">
                       {item.product.image_url ? (
                         <img src={item.product.image_url} alt={item.product.name} className="h-16 w-16 rounded-md object-cover" />
                       ) : (
@@ -478,26 +483,31 @@ const StoreFront = () => {
                       )}
                       <div className="flex flex-1 flex-col">
                         <p className="text-sm font-medium text-foreground">{item.product.name}</p>
+                        {item.selectedAttributes && Object.keys(item.selectedAttributes).length > 0 && (
+                          <p className="text-[10px] text-muted-foreground">
+                            {Object.entries(item.selectedAttributes).map(([k, v]) => `${k}: ${v}`).join(" · ")}
+                          </p>
+                        )}
                         <p className="text-sm font-semibold" style={{ color: primaryColor }}>
                           {currencySymbol}{(price * item.quantity).toFixed(2)}
                         </p>
                         <div className="mt-1 flex items-center gap-2">
                           <button
-                            onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
+                            onClick={() => updateQuantity(item.product.id, item.quantity - 1, item.selectedAttributes)}
                             className="flex h-6 w-6 items-center justify-center rounded border text-foreground hover:bg-accent"
                           >
                             <Minus className="h-3 w-3" />
                           </button>
                           <span className="text-sm font-medium">{item.quantity}</span>
                           <button
-                            onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                            onClick={() => updateQuantity(item.product.id, item.quantity + 1, item.selectedAttributes)}
                             className="flex h-6 w-6 items-center justify-center rounded border text-foreground hover:bg-accent"
                           >
                             <Plus className="h-3 w-3" />
                           </button>
                         </div>
                       </div>
-                      <button onClick={() => removeFromCart(item.product.id)} className="self-start text-muted-foreground hover:text-destructive">
+                      <button onClick={() => removeFromCart(item.product.id, item.selectedAttributes)} className="self-start text-muted-foreground hover:text-destructive">
                         <X className="h-4 w-4" />
                       </button>
                     </div>
@@ -542,7 +552,124 @@ const StoreFront = () => {
         }}
       />
 
-      {/* ── INFO MODAL ── */}
+      {/* ── PRODUCT DETAIL DIALOG ── */}
+      <Dialog open={!!selectedProduct} onOpenChange={(open) => !open && setSelectedProduct(null)}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md p-0">
+          {selectedProduct && (() => {
+            const sp = selectedProduct;
+            const spFinalPrice = getFinalPrice(sp);
+            const spCatName = getCategoryName(sp.category_id);
+            const spAttrs = Array.isArray(sp.attributes) ? (sp.attributes as ProductAttribute[]) : [];
+            return (
+              <>
+                {/* Image */}
+                <div className="relative aspect-square w-full overflow-hidden bg-muted">
+                  {sp.image_url ? (
+                    <img src={sp.image_url} alt={sp.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <StoreIcon className="h-16 w-16 text-muted-foreground/30" />
+                    </div>
+                  )}
+                  {sp.on_sale && (
+                    <Badge className="absolute left-3 top-3 bg-destructive text-destructive-foreground hover:bg-destructive/90">¡Oferta!</Badge>
+                  )}
+                </div>
+
+                <div className="space-y-4 p-5">
+                  <DialogHeader className="space-y-1">
+                    {spCatName && <Badge variant="outline" className="w-fit text-xs">{spCatName}</Badge>}
+                    <DialogTitle className="text-xl">{sp.name}</DialogTitle>
+                    <DialogDescription className="sr-only">Detalles del producto {sp.name}</DialogDescription>
+                  </DialogHeader>
+
+                  {/* Price */}
+                  <div className="flex items-baseline gap-2">
+                    {sp.on_sale && sp.discount_percent ? (
+                      <>
+                        <span className="text-2xl font-bold text-destructive">{currencySymbol}{spFinalPrice.toFixed(2)}</span>
+                        <span className="text-sm text-muted-foreground line-through">{currencySymbol}{sp.price.toFixed(2)}</span>
+                        <Badge variant="secondary" className="text-xs">-{sp.discount_percent}%</Badge>
+                      </>
+                    ) : (
+                      <span className="text-2xl font-bold" style={{ color: primaryColor }}>{currencySymbol}{sp.price.toFixed(2)}</span>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  {sp.description && (
+                    <p className="text-sm text-muted-foreground leading-relaxed">{sp.description}</p>
+                  )}
+
+                  {/* Attributes selectors */}
+                  {spAttrs.length > 0 && (
+                    <div className="space-y-3">
+                      {spAttrs.map((attr) => (
+                        <div key={attr.name} className="space-y-1.5">
+                          <label className="text-sm font-medium text-foreground">{attr.name}</label>
+                          <div className="flex flex-wrap gap-2">
+                            {attr.values.map((val) => {
+                              const isSelected = selectedAttrs[attr.name] === val;
+                              return (
+                                <button
+                                  key={val}
+                                  onClick={() => setSelectedAttrs((prev) => ({ ...prev, [attr.name]: val }))}
+                                  className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-all ${
+                                    isSelected
+                                      ? "border-transparent text-white shadow-sm"
+                                      : "border-border text-foreground hover:border-muted-foreground"
+                                  }`}
+                                  style={isSelected ? { backgroundColor: primaryColor } : undefined}
+                                >
+                                  {val}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Stock */}
+                  <p className={`text-xs ${sp.stock < 5 ? "font-medium text-destructive" : "text-muted-foreground"}`}>
+                    {sp.stock < 5 ? `¡Solo quedan ${sp.stock}!` : `Stock disponible: ${sp.stock}`}
+                  </p>
+
+                  {/* Quantity + Add to cart */}
+                  <div className="flex items-center gap-3 pt-2">
+                    <div className="flex items-center rounded-lg border">
+                      <button
+                        onClick={() => setDetailQty((q) => Math.max(1, q - 1))}
+                        className="flex h-10 w-10 items-center justify-center text-foreground hover:bg-accent transition-colors rounded-l-lg"
+                      >
+                        <Minus className="h-4 w-4" />
+                      </button>
+                      <span className="flex h-10 w-10 items-center justify-center text-sm font-semibold">{detailQty}</span>
+                      <button
+                        onClick={() => setDetailQty((q) => Math.min(sp.stock, q + 1))}
+                        className="flex h-10 w-10 items-center justify-center text-foreground hover:bg-accent transition-colors rounded-r-lg"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </button>
+                    </div>
+                    <Button
+                      className="flex-1 gap-2 text-white transition-all duration-150 active:scale-95"
+                      size="lg"
+                      style={{ backgroundColor: primaryColor }}
+                      onClick={handleAddFromDetail}
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      Agregar al carrito
+                    </Button>
+                  </div>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>

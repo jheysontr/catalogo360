@@ -8,9 +8,9 @@ export { getFinalPrice };
 
 interface CartContextValue {
   items: CartItem[];
-  addToCart: (product: CartProduct, quantity?: number) => void;
-  removeFromCart: (productId: string) => void;
-  updateQuantity: (productId: string, newQuantity: number) => void;
+  addToCart: (product: CartProduct, quantity?: number, selectedAttributes?: Record<string, string>) => void;
+  removeFromCart: (productId: string, selectedAttributes?: Record<string, string>) => void;
+  updateQuantity: (productId: string, newQuantity: number, selectedAttributes?: Record<string, string>) => void;
   clearCart: () => void;
   setStoreId: (storeId: string) => void;
   cartTotal: number;
@@ -54,39 +54,49 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(STORE_KEY, storeId);
   }, []);
 
-  const addToCart = useCallback((product: CartProduct, quantity = 1) => {
+  const getCartKey = (productId: string, attrs?: Record<string, string>) => {
+    if (!attrs || Object.keys(attrs).length === 0) return productId;
+    const sorted = Object.entries(attrs).sort(([a], [b]) => a.localeCompare(b));
+    return `${productId}__${sorted.map(([k, v]) => `${k}:${v}`).join("_")}`;
+  };
+
+  const matchItem = (item: CartItem, productId: string, attrs?: Record<string, string>) => {
+    return getCartKey(item.product.id, item.selectedAttributes) === getCartKey(productId, attrs);
+  };
+
+  const addToCart = useCallback((product: CartProduct, quantity = 1, selectedAttributes?: Record<string, string>) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id);
+      const existing = prev.find((i) => matchItem(i, product.id, selectedAttributes));
       if (existing) {
         if (existing.quantity + quantity > product.stock) {
           toast({ title: "Stock máximo alcanzado", variant: "destructive" });
           return prev;
         }
         return prev.map((i) =>
-          i.product.id === product.id ? { ...i, quantity: i.quantity + quantity } : i
+          matchItem(i, product.id, selectedAttributes) ? { ...i, quantity: i.quantity + quantity } : i
         );
       }
       if (quantity > product.stock) {
         toast({ title: "Stock máximo alcanzado", variant: "destructive" });
         return prev;
       }
-      return [...prev, { product, quantity }];
+      return [...prev, { product, quantity, selectedAttributes }];
     });
     toast({ title: `${product.name} agregado al carrito` });
   }, [toast]);
 
-  const removeFromCart = useCallback((productId: string) => {
-    setItems((prev) => prev.filter((i) => i.product.id !== productId));
+  const removeFromCart = useCallback((productId: string, selectedAttributes?: Record<string, string>) => {
+    setItems((prev) => prev.filter((i) => !matchItem(i, productId, selectedAttributes)));
   }, []);
 
-  const updateQuantity = useCallback((productId: string, newQuantity: number) => {
+  const updateQuantity = useCallback((productId: string, newQuantity: number, selectedAttributes?: Record<string, string>) => {
     if (newQuantity <= 0) {
-      setItems((prev) => prev.filter((i) => i.product.id !== productId));
+      setItems((prev) => prev.filter((i) => !matchItem(i, productId, selectedAttributes)));
       return;
     }
     setItems((prev) =>
       prev.map((i) => {
-        if (i.product.id !== productId) return i;
+        if (!matchItem(i, productId, selectedAttributes)) return i;
         if (newQuantity > i.product.stock) return i;
         return { ...i, quantity: newQuantity };
       })

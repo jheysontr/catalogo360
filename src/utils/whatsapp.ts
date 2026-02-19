@@ -11,6 +11,7 @@ export interface CartProduct {
 export interface CartItem {
   product: CartProduct;
   quantity: number;
+  selectedAttributes?: Record<string, string>;
 }
 
 export interface CustomerInfo {
@@ -63,8 +64,11 @@ export function generateWhatsAppUrl(data: OrderMessageData): string {
   data.cartItems.forEach((i) => {
     const unitPrice = getFinalPrice(i.product);
     const lineTotal = unitPrice * i.quantity;
+    const attrText = i.selectedAttributes && Object.keys(i.selectedAttributes).length > 0
+      ? ` (${Object.entries(i.selectedAttributes).map(([k, v]) => `${k}: ${v}`).join(", ")})`
+      : "";
     lines.push(
-      `▪️ ${i.product.name}`,
+      `▪️ ${i.product.name}${attrText}`,
       `   ${i.quantity} x ${cs}${unitPrice.toFixed(2)} = ${cs}${lineTotal.toFixed(2)}`
     );
   });
