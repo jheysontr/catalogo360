@@ -44,6 +44,11 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
   COP: "$", PEN: "S/", UYU: "$U", BRL: "R$", PYG: "₲", GBP: "£",
 };
 
+interface ProductAttribute {
+  name: string;
+  values: string[];
+}
+
 interface Product {
   id: string;
   name: string;
@@ -54,6 +59,7 @@ interface Product {
   on_sale: boolean;
   discount_percent: number | null;
   category_id: string | null;
+  attributes: unknown;
 }
 
 interface Category {
@@ -317,6 +323,15 @@ const StoreFront = () => {
                           {p.description && (
                             <p className="line-clamp-2 text-xs text-muted-foreground">{p.description}</p>
                           )}
+                          {Array.isArray(p.attributes) && (p.attributes as ProductAttribute[]).length > 0 && (
+                            <div className="flex flex-wrap gap-1">
+                              {(p.attributes as ProductAttribute[]).map((attr, i) => (
+                                <span key={i} className="text-[10px] text-muted-foreground">
+                                  {attr.name}: {attr.values.join(", ")}
+                                </span>
+                              ))}
+                            </div>
+                          )}
                           <div className="flex items-baseline gap-1.5">
                             {p.on_sale && p.discount_percent ? (
                               <>
@@ -372,6 +387,15 @@ const StoreFront = () => {
                     <h3 className="truncate text-sm font-semibold text-foreground sm:text-base">{p.name}</h3>
                     {p.description && (
                       <p className="line-clamp-2 text-[10px] text-muted-foreground sm:text-xs">{p.description}</p>
+                    )}
+                    {Array.isArray(p.attributes) && (p.attributes as ProductAttribute[]).length > 0 && (
+                      <div className="flex flex-wrap gap-1">
+                        {(p.attributes as ProductAttribute[]).map((attr, i) => (
+                          <span key={i} className="text-[9px] sm:text-[10px] text-muted-foreground">
+                            {attr.name}: {attr.values.join(", ")}
+                          </span>
+                        ))}
+                      </div>
                     )}
                     <div className="flex items-baseline gap-1.5 sm:gap-2">
                       {p.on_sale && p.discount_percent ? (
