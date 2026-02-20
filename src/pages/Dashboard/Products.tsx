@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/pagination";
 import {
   Plus, Search, MoreVertical, Pencil, Copy, Trash2, ImagePlus, Package, Loader2,
-  LayoutGrid, List, X,
+  LayoutGrid, List, X, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -44,6 +44,7 @@ interface Product {
   price: number;
   stock: number;
   image_url: string | null;
+  extra_images: unknown;
   on_sale: boolean;
   discount_percent: number | null;
   category_id: string | null;
@@ -91,6 +92,9 @@ const Products = () => {
   const [formDiscount, setFormDiscount] = useState("");
   const [formImageFile, setFormImageFile] = useState<File | null>(null);
   const [formImagePreview, setFormImagePreview] = useState<string | null>(null);
+  // Extra images (gallery)
+  const [formExtraImages, setFormExtraImages] = useState<string[]>([]);
+  const [formExtraFiles, setFormExtraFiles] = useState<File[]>([]);
   // SEO fields
   const [formSlug, setFormSlug] = useState("");
   const [formMetaDesc, setFormMetaDesc] = useState("");
@@ -182,7 +186,7 @@ const Products = () => {
     setFormName(""); setFormDescription(""); setFormCategory(""); setFormPrice("");
     setFormStock(""); setFormOnSale(false); setFormDiscount(""); setFormImageFile(null);
     setFormImagePreview(null); setEditingProduct(null); setFormSlug(""); setFormMetaDesc("");
-    setFormAttributes([]);
+    setFormAttributes([]); setFormExtraImages([]); setFormExtraFiles([]);
   };
 
   const openAddModal = () => { resetForm(); setModalOpen(true); };
@@ -202,6 +206,9 @@ const Products = () => {
     setFormMetaDesc(product.description?.slice(0, 160) ?? "");
     const attrs = product.attributes;
     setFormAttributes(Array.isArray(attrs) ? (attrs as ProductAttribute[]) : []);
+    const extras = product.extra_images;
+    setFormExtraImages(Array.isArray(extras) ? (extras as string[]) : []);
+    setFormExtraFiles([]);
     setModalOpen(true);
   };
 
@@ -224,7 +231,7 @@ const Products = () => {
 
   const uploadImage = async (file: File): Promise<string | null> => {
     const ext = file.name.split(".").pop();
-    const path = `${storeId}/${Date.now()}.${ext}`;
+    const path = `${storeId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
     const { error } = await supabase.storage.from("products").upload(path, file);
     if (error) {
       toast({ title: "Error", description: "Error al subir imagen", variant: "destructive" });
@@ -232,6 +239,36 @@ const Products = () => {
     }
     const { data: urlData } = supabase.storage.from("products").getPublicUrl(path);
     return urlData.publicUrl;
+  };
+
+  const handleExtraImageAdd = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    if (formExtraImages.length + files.length > 5) {
+      toast({ title: "Máximo 5 imágenes adicionales", variant: "destructive" });
+      return;
+    }
+    const valid = ["image/jpeg", "image/png", "image/webp"];
+    for (const f of files) {
+      if (f.size > 5 * 1024 * 1024) { toast({ title: "Imagen muy grande (máx 5MB)", variant: "destructive" }); return; }
+      if (!valid.includes(f.type)) { toast({ title: "Solo JPG, PNG o WebP", variant: "destructive" }); return; }
+    }
+    setFormExtraFiles((prev) => [...prev, ...files]);
+    const previews = files.map((f) => URL.createObjectURL(f));
+    setFormExtraImages((prev) => [...prev, ...previews]);
+    e.target.value = "";
+  };
+
+  const removeExtraImage = (idx: number) => {
+    setFormExtraImages((prev) => prev.filter((_, i) => i !== idx));
+    // Only remove from pending files if it's a new file (not already uploaded URL)
+    setFormExtraFiles((prev) => {
+      const alreadyUploadedCount = formExtraImages.filter((img) => img.startsWith("http")).length;
+      if (idx >= alreadyUploadedCount) {
+        const fileIdx = idx - alreadyUploadedCount;
+        return prev.filter((_, i) => i !== fileIdx);
+      }
+      return prev;
+    });
   };
 
   /* ── Save product ── */
@@ -268,6 +305,15 @@ const Products = () => {
       if (uploaded) imageUrl = uploaded;
     }
 
+    // Upload pending extra image files
+    const alreadyUploadedExtras = formExtraImages.filter((img) => img.startsWith("http"));
+    const uploadedNewExtras: string[] = [];
+    for (const file of formExtraFiles) {
+      const url = await uploadImage(file);
+      if (url) uploadedNewExtras.push(url);
+    }
+    const finalExtraImages = [...alreadyUploadedExtras, ...uploadedNewExtras];
+
     // Filter out empty attributes
     const cleanAttributes = formAttributes
       .filter(a => a.name.trim() && a.values.some(v => v.trim()))
@@ -284,6 +330,7 @@ const Products = () => {
       image_url: imageUrl,
       store_id: storeId,
       attributes: cleanAttributes.length > 0 ? cleanAttributes : null,
+      extra_images: finalExtraImages,
     };
 
     if (editingProduct) {
@@ -319,6 +366,7 @@ const Products = () => {
       discount_percent: product.discount_percent,
       category_id: product.category_id,
       attributes: product.attributes as any,
+      extra_images: (product.extra_images as any) ?? [],
       store_id: storeId,
     });
     if (error) toast({ title: "Error", description: "Error al duplicar", variant: "destructive" });
@@ -661,6 +709,39 @@ const Products = () => {
                 <span className="text-xs text-muted-foreground">JPG, PNG, WebP (máx 5MB). Se redimensionará a 500x500px</span>
                 <input type="file" accept=".jpg,.jpeg,.png,.webp" className="hidden" onChange={handleImageChange} />
               </label>
+            </div>
+
+            {/* 1b. Galería de imágenes adicionales */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-semibold">Imágenes adicionales <span className="text-xs font-normal text-muted-foreground">({formExtraImages.length}/5)</span></Label>
+                {formExtraImages.length < 5 && (
+                  <label className="cursor-pointer">
+                    <span className="inline-flex items-center gap-1 rounded-md border border-input bg-background px-2.5 py-1.5 text-xs font-medium hover:bg-accent transition-colors">
+                      <Plus className="h-3 w-3" /> Agregar foto
+                    </span>
+                    <input type="file" accept=".jpg,.jpeg,.png,.webp" multiple className="hidden" onChange={handleExtraImageAdd} />
+                  </label>
+                )}
+              </div>
+              {formExtraImages.length === 0 ? (
+                <p className="text-xs text-muted-foreground">Agrega hasta 5 fotos adicionales para mostrar en la galería del producto.</p>
+              ) : (
+                <div className="flex flex-wrap gap-2">
+                  {formExtraImages.map((src, idx) => (
+                    <div key={idx} className="relative h-20 w-20 overflow-hidden rounded-lg border">
+                      <img src={src} alt={`Extra ${idx + 1}`} className="h-full w-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => removeExtraImage(idx)}
+                        className="absolute right-0.5 top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* 2. Información básica */}
