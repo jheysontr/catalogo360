@@ -17,7 +17,7 @@ import {
 import {
   Search, ShoppingCart, Share2, Info, Plus, Minus, X, Loader2,
   Store as StoreIcon, Facebook, Instagram, Mail, MapPin, Phone, ExternalLink,
-  LayoutGrid, List,
+  LayoutGrid, List, ChevronLeft, ChevronRight,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCart, getFinalPrice } from "@/lib/CartContext";
@@ -56,6 +56,7 @@ interface Product {
   price: number;
   stock: number;
   image_url: string | null;
+  extra_images: unknown;
   on_sale: boolean;
   discount_percent: number | null;
   category_id: string | null;
@@ -92,6 +93,7 @@ const StoreFront = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>({});
   const [detailQty, setDetailQty] = useState(1);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   /* ── Fetch store data ── */
   useEffect(() => {
@@ -158,6 +160,7 @@ const StoreFront = () => {
   const openProductDetail = (product: Product) => {
     setSelectedProduct(product);
     setDetailQty(1);
+    setGalleryIndex(0);
     const attrs: Record<string, string> = {};
     if (Array.isArray(product.attributes)) {
       (product.attributes as ProductAttribute[]).forEach((attr) => {
@@ -560,12 +563,15 @@ const StoreFront = () => {
             const spFinalPrice = getFinalPrice(sp);
             const spCatName = getCategoryName(sp.category_id);
             const spAttrs = Array.isArray(sp.attributes) ? (sp.attributes as ProductAttribute[]) : [];
+            const extraImgs = Array.isArray(sp.extra_images) ? (sp.extra_images as string[]) : [];
+            const allImages = [sp.image_url, ...extraImgs].filter(Boolean) as string[];
+            const activeImg = allImages[galleryIndex] ?? null;
             return (
               <>
-                {/* Image */}
-                <div className="relative aspect-square w-full overflow-hidden bg-muted">
-                  {sp.image_url ? (
-                    <img src={sp.image_url} alt={sp.name} className="h-full w-full object-cover" />
+                {/* Gallery */}
+                <div className="relative aspect-square w-full overflow-hidden bg-muted select-none">
+                  {activeImg ? (
+                    <img src={activeImg} alt={sp.name} className="h-full w-full object-cover transition-opacity duration-200" />
                   ) : (
                     <div className="flex h-full w-full items-center justify-center">
                       <StoreIcon className="h-16 w-16 text-muted-foreground/30" />
@@ -574,7 +580,40 @@ const StoreFront = () => {
                   {sp.on_sale && (
                     <Badge className="absolute left-3 top-3 bg-destructive text-destructive-foreground hover:bg-destructive/90">¡Oferta!</Badge>
                   )}
+                  {allImages.length > 1 && (
+                    <>
+                      <button
+                        onClick={() => setGalleryIndex((i) => (i - 1 + allImages.length) % allImages.length)}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </button>
+                      <button
+                        onClick={() => setGalleryIndex((i) => (i + 1) % allImages.length)}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </button>
+                    </>
+                  )}
                 </div>
+
+                {/* Thumbnails */}
+                {allImages.length > 1 && (
+                  <div className="flex gap-2 overflow-x-auto px-5 pt-3 pb-0 scrollbar-hide">
+                    {allImages.map((img, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setGalleryIndex(idx)}
+                        className={`shrink-0 h-14 w-14 overflow-hidden rounded-md border-2 transition-all ${
+                          galleryIndex === idx ? "border-primary shadow-md" : "border-transparent opacity-60 hover:opacity-100"
+                        }`}
+                      >
+                        <img src={img} alt={`Foto ${idx + 1}`} className="h-full w-full object-cover" />
+                      </button>
+                    ))}
+                  </div>
+                )}
 
                 <div className="space-y-4 p-5">
                   <DialogHeader className="space-y-1">
