@@ -64,11 +64,23 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return getCartKey(item.product.id, item.selectedAttributes) === getCartKey(productId, attrs);
   };
 
+  /** Returns the effective stock for selected attributes using variant_stock */
+  const getEffectiveStock = (product: CartProduct, attrs?: Record<string, string>): number => {
+    const vs = product.variant_stock;
+    if (!vs || !attrs || Object.keys(attrs).length === 0) return product.stock;
+    const stocks = Object.entries(attrs).map(([attrName, val]) => {
+      const key = `${attrName}||${val}`;
+      return vs[key] !== undefined ? vs[key] : product.stock;
+    });
+    return stocks.length > 0 ? Math.min(...stocks) : product.stock;
+  };
+
   const addToCart = useCallback((product: CartProduct, quantity = 1, selectedAttributes?: Record<string, string>) => {
     setItems((prev) => {
+      const effectiveStock = getEffectiveStock(product, selectedAttributes);
       const existing = prev.find((i) => matchItem(i, product.id, selectedAttributes));
       if (existing) {
-        if (existing.quantity + quantity > product.stock) {
+        if (existing.quantity + quantity > effectiveStock) {
           toast({ title: "Stock máximo alcanzado", variant: "destructive" });
           return prev;
         }
@@ -76,7 +88,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
           matchItem(i, product.id, selectedAttributes) ? { ...i, quantity: i.quantity + quantity } : i
         );
       }
-      if (quantity > product.stock) {
+      if (quantity > effectiveStock) {
         toast({ title: "Stock máximo alcanzado", variant: "destructive" });
         return prev;
       }
@@ -97,7 +109,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setItems((prev) =>
       prev.map((i) => {
         if (!matchItem(i, productId, selectedAttributes)) return i;
-        if (newQuantity > i.product.stock) return i;
+        const effectiveStock = getEffectiveStock(i.product, selectedAttributes);
+        if (newQuantity > effectiveStock) return i;
         return { ...i, quantity: newQuantity };
       })
     );

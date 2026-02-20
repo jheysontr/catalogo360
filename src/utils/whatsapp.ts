@@ -6,6 +6,8 @@ export interface CartProduct {
   image_url: string | null;
   on_sale: boolean;
   discount_percent: number | null;
+  /** variant_stock: key = "AttrName||Value", value = stock number */
+  variant_stock?: Record<string, number>;
 }
 
 export interface CartItem {

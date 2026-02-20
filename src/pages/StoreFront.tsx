@@ -57,6 +57,7 @@ interface Product {
   stock: number;
   image_url: string | null;
   extra_images: unknown;
+  variant_stock?: unknown;
   on_sale: boolean;
   discount_percent: number | null;
   category_id: string | null;
@@ -170,12 +171,35 @@ const StoreFront = () => {
     setSelectedAttrs(attrs);
   };
 
+  /** Cast StoreFront Product to CartProduct (safe coerce of variant_stock) */
+  const toCartProduct = (p: Product) => ({
+    ...p,
+    variant_stock: (p.variant_stock && typeof p.variant_stock === "object" && !Array.isArray(p.variant_stock))
+      ? p.variant_stock as Record<string, number>
+      : undefined,
+  });
+
   const handleAddFromDetail = () => {
     if (!selectedProduct) return;
     const hasAttrs = Array.isArray(selectedProduct.attributes) && (selectedProduct.attributes as ProductAttribute[]).length > 0;
-    addToCart(selectedProduct, detailQty, hasAttrs ? selectedAttrs : undefined);
+    addToCart(toCartProduct(selectedProduct), detailQty, hasAttrs ? selectedAttrs : undefined);
     toast({ title: "✓ Agregado", description: selectedProduct.name, duration: 1500 });
     setSelectedProduct(null);
+  };
+
+  /** Returns the effective stock for the currently selected attributes.
+   *  Falls back to product.stock when no variant_stock is defined. */
+  const getVariantStock = (product: Product, attrs: Record<string, string>): number => {
+    const vs = product.variant_stock;
+    if (!vs || typeof vs !== "object" || Array.isArray(vs)) return product.stock;
+    const vsMap = vs as Record<string, number>;
+    if (Object.keys(vsMap).length === 0) return product.stock;
+    // Find the minimum stock among all selected attribute values
+    const stocks: number[] = Object.entries(attrs).map(([attrName, val]) => {
+      const key = `${attrName}||${val}`;
+      return vsMap[key] !== undefined ? vsMap[key] : product.stock;
+    });
+    return stocks.length > 0 ? Math.min(...stocks) : product.stock;
   };
 
   if (loading) {
@@ -324,7 +348,7 @@ const StoreFront = () => {
           <div className={viewMode === "grid" ? "grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4" : "flex flex-col gap-3"}>
             {filteredProducts.map((p) => {
               const catName = getCategoryName(p.category_id);
-              const finalPrice = getFinalPrice(p);
+              const finalPrice = getFinalPrice(toCartProduct(p));
 
               if (viewMode === "list") {
                 return (
@@ -560,12 +584,14 @@ const StoreFront = () => {
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md p-0">
           {selectedProduct && (() => {
             const sp = selectedProduct;
-            const spFinalPrice = getFinalPrice(sp);
+            const spFinalPrice = getFinalPrice(toCartProduct(sp));
             const spCatName = getCategoryName(sp.category_id);
             const spAttrs = Array.isArray(sp.attributes) ? (sp.attributes as ProductAttribute[]) : [];
             const extraImgs = Array.isArray(sp.extra_images) ? (sp.extra_images as string[]) : [];
             const allImages = [sp.image_url, ...extraImgs].filter(Boolean) as string[];
             const activeImg = allImages[galleryIndex] ?? null;
+            const effectiveStock = getVariantStock(sp, selectedAttrs);
+            const variantOutOfStock = effectiveStock <= 0;
             return (
               <>
                 {/* Gallery */}
@@ -643,36 +669,56 @@ const StoreFront = () => {
                   {/* Attributes selectors */}
                   {spAttrs.length > 0 && (
                     <div className="space-y-3">
-                      {spAttrs.map((attr) => (
-                        <div key={attr.name} className="space-y-1.5">
-                          <label className="text-sm font-medium text-foreground">{attr.name}</label>
-                          <div className="flex flex-wrap gap-2">
-                            {attr.values.map((val) => {
-                              const isSelected = selectedAttrs[attr.name] === val;
-                              return (
-                                <button
-                                  key={val}
-                                  onClick={() => setSelectedAttrs((prev) => ({ ...prev, [attr.name]: val }))}
-                                  className={`rounded-lg border px-3 py-1.5 text-sm font-medium transition-all ${
-                                    isSelected
-                                      ? "border-transparent text-white shadow-sm"
-                                      : "border-border text-foreground hover:border-muted-foreground"
-                                  }`}
-                                  style={isSelected ? { backgroundColor: primaryColor } : undefined}
-                                >
-                                  {val}
-                                </button>
-                              );
-                            })}
+                      {spAttrs.map((attr) => {
+                        const vs = sp.variant_stock;
+                        const vsMap = (vs && typeof vs === "object" && !Array.isArray(vs)) ? vs as Record<string, number> : {};
+                        const hasVariantStock = Object.keys(vsMap).length > 0;
+                        return (
+                          <div key={attr.name} className="space-y-1.5">
+                            <label className="text-sm font-medium text-foreground">{attr.name}</label>
+                            <div className="flex flex-wrap gap-2">
+                              {attr.values.map((val) => {
+                                const isSelected = selectedAttrs[attr.name] === val;
+                                const vKey = `${attr.name}||${val}`;
+                                const vStock = vsMap[vKey];
+                                const vOutOfStock = hasVariantStock && vStock !== undefined && vStock <= 0;
+                                return (
+                                  <button
+                                    key={val}
+                                    onClick={() => {
+                                      if (!vOutOfStock) setSelectedAttrs((prev) => ({ ...prev, [attr.name]: val }));
+                                    }}
+                                    disabled={vOutOfStock}
+                                    className={`relative rounded-lg border px-3 py-1.5 text-sm font-medium transition-all ${
+                                      vOutOfStock
+                                        ? "border-border text-muted-foreground opacity-40 cursor-not-allowed line-through"
+                                        : isSelected
+                                          ? "border-transparent text-white shadow-sm"
+                                          : "border-border text-foreground hover:border-muted-foreground"
+                                    }`}
+                                    style={isSelected && !vOutOfStock ? { backgroundColor: primaryColor } : undefined}
+                                  >
+                                    {val}
+                                    {hasVariantStock && vStock !== undefined && vStock > 0 && vStock <= 5 && (
+                                      <span className="ml-1.5 text-[10px] font-normal opacity-70">({vStock})</span>
+                                    )}
+                                  </button>
+                                );
+                              })}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
 
                   {/* Stock */}
-                  <p className={`text-xs ${sp.stock < 5 ? "font-medium text-destructive" : "text-muted-foreground"}`}>
-                    {sp.stock < 5 ? `¡Solo quedan ${sp.stock}!` : `Stock disponible: ${sp.stock}`}
+                  <p className={`text-xs ${effectiveStock < 5 ? "font-medium text-destructive" : "text-muted-foreground"}`}>
+                    {variantOutOfStock
+                      ? "❌ Variante sin stock"
+                      : effectiveStock < 5
+                        ? `¡Solo quedan ${effectiveStock}!`
+                        : `Stock disponible: ${effectiveStock}`}
                   </p>
 
                   {/* Quantity + Add to cart */}
@@ -680,26 +726,29 @@ const StoreFront = () => {
                     <div className="flex items-center rounded-lg border">
                       <button
                         onClick={() => setDetailQty((q) => Math.max(1, q - 1))}
-                        className="flex h-10 w-10 items-center justify-center text-foreground hover:bg-accent transition-colors rounded-l-lg"
+                        disabled={variantOutOfStock}
+                        className="flex h-10 w-10 items-center justify-center text-foreground hover:bg-accent transition-colors rounded-l-lg disabled:opacity-40"
                       >
                         <Minus className="h-4 w-4" />
                       </button>
                       <span className="flex h-10 w-10 items-center justify-center text-sm font-semibold">{detailQty}</span>
                       <button
-                        onClick={() => setDetailQty((q) => Math.min(sp.stock, q + 1))}
-                        className="flex h-10 w-10 items-center justify-center text-foreground hover:bg-accent transition-colors rounded-r-lg"
+                        onClick={() => setDetailQty((q) => Math.min(effectiveStock, q + 1))}
+                        disabled={variantOutOfStock || detailQty >= effectiveStock}
+                        className="flex h-10 w-10 items-center justify-center text-foreground hover:bg-accent transition-colors rounded-r-lg disabled:opacity-40"
                       >
                         <Plus className="h-4 w-4" />
                       </button>
                     </div>
                     <Button
-                      className="flex-1 gap-2 text-white transition-all duration-150 active:scale-95"
+                      className="flex-1 gap-2 text-white transition-all duration-150 active:scale-95 disabled:opacity-60"
                       size="lg"
-                      style={{ backgroundColor: primaryColor }}
+                      style={{ backgroundColor: variantOutOfStock ? undefined : primaryColor }}
                       onClick={handleAddFromDetail}
+                      disabled={variantOutOfStock}
                     >
                       <ShoppingCart className="h-4 w-4" />
-                      Agregar al carrito
+                      {variantOutOfStock ? "Sin stock" : "Agregar al carrito"}
                     </Button>
                   </div>
                 </div>
