@@ -103,6 +103,8 @@ const Products = () => {
   const [formAttributes, setFormAttributes] = useState<ProductAttribute[]>([]);
   // variant_stock: key = "AttrName||Value", value = stock number
   const [formVariantStock, setFormVariantStock] = useState<Record<string, number>>({});
+  // variant_prices: key = "AttrName||Value", value = price override (optional)
+  const [formVariantPrices, setFormVariantPrices] = useState<Record<string, number>>({});
 
   /* ── Fetch store ── */
   useEffect(() => {
@@ -189,7 +191,7 @@ const Products = () => {
     setFormName(""); setFormDescription(""); setFormCategory(""); setFormPrice("");
     setFormStock(""); setFormOnSale(false); setFormDiscount(""); setFormImageFile(null);
     setFormImagePreview(null); setEditingProduct(null); setFormSlug(""); setFormMetaDesc("");
-    setFormAttributes([]); setFormExtraImages([]); setFormExtraFiles([]); setFormVariantStock({});
+    setFormAttributes([]); setFormExtraImages([]); setFormExtraFiles([]); setFormVariantStock({}); setFormVariantPrices({});
   };
 
   const openAddModal = () => { resetForm(); setModalOpen(true); };
@@ -214,6 +216,8 @@ const Products = () => {
     setFormExtraFiles([]);
     const vs = product.variant_stock;
     setFormVariantStock((vs && typeof vs === "object" && !Array.isArray(vs)) ? (vs as Record<string, number>) : {});
+    const vp = (product as any).variant_prices;
+    setFormVariantPrices((vp && typeof vp === "object" && !Array.isArray(vp)) ? (vp as Record<string, number>) : {});
     setModalOpen(true);
   };
 
@@ -324,13 +328,17 @@ const Products = () => {
       .filter(a => a.name.trim() && a.values.some(v => v.trim()))
       .map(a => ({ name: a.name.trim(), values: a.values.filter(v => v.trim()) }));
 
-    // Clean variant_stock: only keep keys matching active attribute values
+    // Clean variant_stock & variant_prices: only keep keys matching active attribute values
     const cleanVariantStock: Record<string, number> = {};
+    const cleanVariantPrices: Record<string, number> = {};
     for (const attr of cleanAttributes) {
       for (const val of attr.values) {
         const key = `${attr.name}||${val}`;
         if (formVariantStock[key] !== undefined && formVariantStock[key] >= 0) {
           cleanVariantStock[key] = formVariantStock[key];
+        }
+        if (formVariantPrices[key] !== undefined && formVariantPrices[key] > 0) {
+          cleanVariantPrices[key] = formVariantPrices[key];
         }
       }
     }
@@ -354,6 +362,7 @@ const Products = () => {
       attributes: cleanAttributes.length > 0 ? cleanAttributes : null,
       extra_images: finalExtraImages,
       variant_stock: cleanVariantStock,
+      variant_prices: cleanVariantPrices,
     };
 
     if (editingProduct) {
@@ -391,6 +400,7 @@ const Products = () => {
       attributes: product.attributes as any,
       extra_images: (product.extra_images as any) ?? [],
       variant_stock: (product.variant_stock as any) ?? {},
+      variant_prices: ((product as any).variant_prices as any) ?? {},
       store_id: storeId,
     });
     if (error) toast({ title: "Error", description: "Error al duplicar", variant: "destructive" });
@@ -905,16 +915,17 @@ const Products = () => {
                     </Button>
                   </div>
                   {/* Header row */}
-                  <div className="grid grid-cols-[1fr_100px_auto] gap-2 items-center">
+                  <div className="grid grid-cols-[1fr_80px_80px_auto] gap-2 items-center">
                     <span className="text-xs font-medium text-muted-foreground">Valor</span>
                     <span className="text-xs font-medium text-muted-foreground">Stock</span>
+                    <span className="text-xs font-medium text-muted-foreground">Precio ($)</span>
                     <span />
                   </div>
                   <div className="space-y-2">
                     {attr.values.map((val, valIdx) => {
                       const vsKey = `${attr.name}||${val}`;
                       return (
-                        <div key={valIdx} className="grid grid-cols-[1fr_100px_auto] gap-2 items-center">
+                        <div key={valIdx} className="grid grid-cols-[1fr_80px_80px_auto] gap-2 items-center">
                           <Input
                             placeholder="Ej: Rojo, Talla S..."
                             value={val}
@@ -926,9 +937,17 @@ const Products = () => {
                               newValues[valIdx] = e.target.value;
                               updated[attrIdx] = { ...updated[attrIdx], values: newValues };
                               setFormAttributes(updated);
-                              // Rename key in variant_stock
+                              // Rename keys in variant_stock & variant_prices
                               if (oldKey !== newKey) {
                                 setFormVariantStock((prev) => {
+                                  const next = { ...prev };
+                                  if (next[oldKey] !== undefined) {
+                                    next[newKey] = next[oldKey];
+                                    delete next[oldKey];
+                                  }
+                                  return next;
+                                });
+                                setFormVariantPrices((prev) => {
                                   const next = { ...prev };
                                   if (next[oldKey] !== undefined) {
                                     next[newKey] = next[oldKey];
@@ -955,6 +974,23 @@ const Products = () => {
                             }}
                             className="text-center"
                           />
+                          <Input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            placeholder="—"
+                            value={formVariantPrices[vsKey] ?? ""}
+                            onChange={(e) => {
+                              const num = e.target.value === "" ? undefined : Math.max(0, Number(e.target.value));
+                              setFormVariantPrices((prev) => {
+                                const next = { ...prev };
+                                if (num === undefined) delete next[vsKey];
+                                else next[vsKey] = num;
+                                return next;
+                              });
+                            }}
+                            className="text-center"
+                          />
                           {attr.values.length > 1 ? (
                             <Button
                               type="button"
@@ -969,6 +1005,11 @@ const Products = () => {
                                 };
                                 setFormAttributes(updated);
                                 setFormVariantStock((prev) => {
+                                  const next = { ...prev };
+                                  delete next[vsKey];
+                                  return next;
+                                });
+                                setFormVariantPrices((prev) => {
                                   const next = { ...prev };
                                   delete next[vsKey];
                                   return next;

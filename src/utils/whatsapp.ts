@@ -8,6 +8,8 @@ export interface CartProduct {
   discount_percent: number | null;
   /** variant_stock: key = "AttrName||Value", value = stock number */
   variant_stock?: Record<string, number>;
+  /** variant_prices: key = "AttrName||Value", value = price override */
+  variant_prices?: Record<string, number>;
 }
 
 export interface CartItem {
@@ -44,10 +46,21 @@ export interface OrderMessageData {
   note?: string;
 }
 
-export function getFinalPrice(p: CartProduct): number {
+export function getFinalPrice(p: CartProduct, selectedAttributes?: Record<string, string>): number {
+  let basePrice = p.price;
+  // Check for variant-specific price override
+  if (p.variant_prices && selectedAttributes) {
+    const prices = Object.entries(selectedAttributes)
+      .map(([attrName, val]) => p.variant_prices![`${attrName}||${val}`])
+      .filter((v): v is number => v !== undefined && v > 0);
+    if (prices.length > 0) {
+      // Use the highest variant price (most specific override)
+      basePrice = Math.max(...prices);
+    }
+  }
   return p.on_sale && p.discount_percent
-    ? p.price * (1 - p.discount_percent / 100)
-    : p.price;
+    ? basePrice * (1 - p.discount_percent / 100)
+    : basePrice;
 }
 
 export function generateWhatsAppUrl(data: OrderMessageData): string {
@@ -64,7 +77,7 @@ export function generateWhatsAppUrl(data: OrderMessageData): string {
 
   // Items with individual prices
   data.cartItems.forEach((i) => {
-    const unitPrice = getFinalPrice(i.product);
+    const unitPrice = getFinalPrice(i.product, i.selectedAttributes);
     const lineTotal = unitPrice * i.quantity;
     const attrText = i.selectedAttributes && Object.keys(i.selectedAttributes).length > 0
       ? ` (${Object.entries(i.selectedAttributes).map(([k, v]) => `${k}: ${v}`).join(", ")})`
