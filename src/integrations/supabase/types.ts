@@ -706,6 +706,7 @@ export type Database = {
           is_active: boolean
           linkbox_config: Json | null
           logo_url: string | null
+          payment_methods: Json
           plan_id: string | null
           primary_color: string | null
           secondary_color: string | null
@@ -727,6 +728,7 @@ export type Database = {
           is_active?: boolean
           linkbox_config?: Json | null
           logo_url?: string | null
+          payment_methods?: Json
           plan_id?: string | null
           primary_color?: string | null
           secondary_color?: string | null
@@ -748,6 +750,7 @@ export type Database = {
           is_active?: boolean
           linkbox_config?: Json | null
           logo_url?: string | null
+          payment_methods?: Json
           plan_id?: string | null
           primary_color?: string | null
           secondary_color?: string | null
