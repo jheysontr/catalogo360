@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Package, Store, ShoppingCart, BarChart3, CreditCard, Settings,
   ExternalLink, Plus, Eye, Menu, X, LogOut, ChevronRight, FolderOpen, Ticket,
-  Truck, Link2, Users, QrCode, Download,
+  Truck, Link2, Users, QrCode, Download, Wallet,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -24,6 +24,7 @@ import Coupons from "@/pages/Dashboard/Coupons";
 import Shipments from "@/pages/Dashboard/Shipments";
 import Linkbox from "@/pages/Dashboard/Linkbox";
 import Referrals from "@/pages/Dashboard/Referrals";
+import PaymentMethods from "@/pages/Dashboard/PaymentMethods";
 
 interface StoreData {
   id: string;
@@ -47,6 +48,7 @@ const sidebarLinks = [
   { label: "Cupones", icon: Ticket, id: "coupons" },
   { label: "Órdenes", icon: ShoppingCart, id: "orders" },
   { label: "Envíos", icon: Truck, id: "shipments" },
+  { label: "Métodos de Pago", icon: Wallet, id: "payment_methods" },
   { label: "Linkbox", icon: Link2, id: "linkbox" },
   { label: "Referencias", icon: Users, id: "referrals" },
   { label: "Estadísticas", icon: BarChart3, id: "stats" },
@@ -224,6 +226,8 @@ const Dashboard = () => {
             <Linkbox />
           ) : activeSection === "referrals" ? (
             <Referrals />
+          ) : activeSection === "payment_methods" ? (
+            <PaymentMethods />
           ) : activeSection === "settings" ? (
             <StoreSettings />
           ) : activeSection === "orders" ? (

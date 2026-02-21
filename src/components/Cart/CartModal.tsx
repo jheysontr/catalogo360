@@ -8,12 +8,13 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
-import { Loader2, MapPin, Truck, Package, Tag, X, Users } from "lucide-react";
+import { Loader2, MapPin, Truck, Package, Tag, X, Users, Banknote, Building2, QrCode } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/lib/CartContext";
 import { getFinalPrice, generateWhatsAppUrl } from "@/utils/whatsapp";
 import { supabase } from "@/integrations/supabase/client";
 import type { ShippingConfigData, LocalZone } from "@/pages/Dashboard/ShippingConfig";
+import type { PaymentMethodsConfig } from "@/pages/Dashboard/PaymentMethods";
 
 interface CartModalProps {
   open: boolean;
@@ -73,13 +74,16 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
   } | null>(null);
   const [validatingRef, setValidatingRef] = useState(false);
 
+  // Payment methods
+  const [paymentConfig, setPaymentConfig] = useState<PaymentMethodsConfig | null>(null);
+  const [selectedPayment, setSelectedPayment] = useState<string>("");
   // Load shipping config when modal opens
   useEffect(() => {
     if (!open || !storeId) return;
     (async () => {
       const { data } = await supabase
         .from("stores")
-        .select("shipping_config")
+        .select("shipping_config, payment_methods")
         .eq("id", storeId)
         .limit(1);
       if (data?.[0]) {
@@ -95,6 +99,20 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
         } else {
           setShippingConfig(null);
           setShippingMethod("");
+        }
+        // Load payment methods
+        const pm = (data[0] as any).payment_methods as Record<string, any> | null;
+        if (pm && typeof pm === "object" && Object.keys(pm).length > 0) {
+          const pmConfig = pm as unknown as PaymentMethodsConfig;
+          setPaymentConfig(pmConfig);
+          // Auto-select first enabled
+          if (pmConfig.cash?.enabled) setSelectedPayment("cash");
+          else if (pmConfig.bank_transfer?.enabled) setSelectedPayment("bank_transfer");
+          else if (pmConfig.qr?.enabled) setSelectedPayment("qr");
+          else setSelectedPayment("");
+        } else {
+          setPaymentConfig(null);
+          setSelectedPayment("");
         }
       }
     })();
@@ -463,6 +481,9 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
       trackingNumber: hasShipping && shippingMethod ? trackingNumber : undefined,
       trackingUrl,
       note: note.trim() || undefined,
+      paymentMethod: selectedPayment && paymentConfig
+        ? (paymentConfig as any)[selectedPayment]?.label || undefined
+        : undefined,
     });
 
     setSubmitting(false);
@@ -645,6 +666,101 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
                   )}
                 </div>
               )}
+            </>
+          )}
+
+          {/* Payment Methods */}
+          {paymentConfig && (
+            <>
+              <Separator />
+              <div>
+                <Label className="text-sm font-semibold">Método de pago</Label>
+                <div className="mt-2 space-y-2">
+                  {paymentConfig.cash?.enabled && (
+                    <label
+                      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
+                        selectedPayment === "cash" ? "border-primary bg-primary/5" : "hover:bg-accent/50"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment-method"
+                        value="cash"
+                        checked={selectedPayment === "cash"}
+                        onChange={() => setSelectedPayment("cash")}
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <Banknote className="h-4 w-4" />
+                          <span className="text-sm font-medium text-foreground">{paymentConfig.cash.label}</span>
+                        </div>
+                        {paymentConfig.cash.instructions && (
+                          <p className="mt-0.5 text-xs text-muted-foreground">{paymentConfig.cash.instructions}</p>
+                        )}
+                      </div>
+                    </label>
+                  )}
+                  {paymentConfig.bank_transfer?.enabled && (
+                    <label
+                      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
+                        selectedPayment === "bank_transfer" ? "border-primary bg-primary/5" : "hover:bg-accent/50"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment-method"
+                        value="bank_transfer"
+                        checked={selectedPayment === "bank_transfer"}
+                        onChange={() => setSelectedPayment("bank_transfer")}
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4" />
+                          <span className="text-sm font-medium text-foreground">{paymentConfig.bank_transfer.label}</span>
+                        </div>
+                        {selectedPayment === "bank_transfer" && paymentConfig.bank_transfer.details && (
+                          <pre className="mt-2 whitespace-pre-wrap rounded-md bg-muted p-2.5 text-xs text-foreground font-mono">
+                            {paymentConfig.bank_transfer.details}
+                          </pre>
+                        )}
+                      </div>
+                    </label>
+                  )}
+                  {paymentConfig.qr?.enabled && (
+                    <label
+                      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
+                        selectedPayment === "qr" ? "border-primary bg-primary/5" : "hover:bg-accent/50"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="payment-method"
+                        value="qr"
+                        checked={selectedPayment === "qr"}
+                        onChange={() => setSelectedPayment("qr")}
+                        className="mt-1"
+                      />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <QrCode className="h-4 w-4" />
+                          <span className="text-sm font-medium text-foreground">{paymentConfig.qr.label}</span>
+                        </div>
+                        {selectedPayment === "qr" && paymentConfig.qr.image_url && (
+                          <div className="mt-2 flex justify-center">
+                            <img
+                              src={paymentConfig.qr.image_url}
+                              alt="QR de pago"
+                              className="h-48 w-48 rounded-lg border object-contain bg-white p-2"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </label>
+                  )}
+                </div>
+              </div>
             </>
           )}
 

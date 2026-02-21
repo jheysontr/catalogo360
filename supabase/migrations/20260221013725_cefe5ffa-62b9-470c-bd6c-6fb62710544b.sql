@@ -1,0 +1,2 @@
+-- Add payment_methods JSONB column to stores
+ALTER TABLE public.stores ADD COLUMN payment_methods jsonb NOT NULL DEFAULT '{"cash": {"enabled": true, "label": "Efectivo", "instructions": ""}, "bank_transfer": {"enabled": false, "label": "Transferencia Bancaria", "details": ""}, "qr": {"enabled": false, "label": "Pago por QR", "image_url": ""}}'::jsonb;

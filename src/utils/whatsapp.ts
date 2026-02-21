@@ -44,6 +44,7 @@ export interface OrderMessageData {
   trackingNumber?: string;
   trackingUrl?: string;
   note?: string;
+  paymentMethod?: string;
 }
 
 export function getFinalPrice(p: CartProduct, selectedAttributes?: Record<string, string>): number {
@@ -104,6 +105,11 @@ export function generateWhatsAppUrl(data: OrderMessageData): string {
   }
 
   lines.push(`💰 *Total: ${cs}${data.grandTotal.toFixed(2)}*`);
+
+  // Payment method
+  if (data.paymentMethod) {
+    lines.push(`💳 Método de pago: ${data.paymentMethod}`);
+  }
 
   // Customer info
   lines.push("", "━━━━━━━━━━━━━━━━━━", "👤 *Datos del cliente*");
