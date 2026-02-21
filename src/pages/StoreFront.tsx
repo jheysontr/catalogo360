@@ -58,6 +58,7 @@ interface Product {
   image_url: string | null;
   extra_images: unknown;
   variant_stock?: unknown;
+  variant_prices?: unknown;
   on_sale: boolean;
   discount_percent: number | null;
   category_id: string | null;
@@ -176,6 +177,9 @@ const StoreFront = () => {
     ...p,
     variant_stock: (p.variant_stock && typeof p.variant_stock === "object" && !Array.isArray(p.variant_stock))
       ? p.variant_stock as Record<string, number>
+      : undefined,
+    variant_prices: (p.variant_prices && typeof p.variant_prices === "object" && !Array.isArray(p.variant_prices))
+      ? p.variant_prices as Record<string, number>
       : undefined,
   });
 
@@ -497,7 +501,7 @@ const StoreFront = () => {
             <>
               <div className="flex-1 space-y-3 overflow-y-auto py-4">
                 {cart.map((item, idx) => {
-                  const price = getFinalPrice(item.product);
+                  const price = getFinalPrice(item.product, item.selectedAttributes);
                   const cartKey = `${item.product.id}-${idx}`;
                   return (
                     <div key={cartKey} className="flex gap-3 rounded-lg border p-3">
@@ -584,7 +588,16 @@ const StoreFront = () => {
         <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md p-0">
           {selectedProduct && (() => {
             const sp = selectedProduct;
-            const spFinalPrice = getFinalPrice(toCartProduct(sp));
+            const spCartProduct = toCartProduct(sp);
+            const spFinalPrice = getFinalPrice(spCartProduct, selectedAttrs);
+            const spBasePrice = spCartProduct.variant_prices
+              ? (() => {
+                  const prices = Object.entries(selectedAttrs)
+                    .map(([k, v]) => spCartProduct.variant_prices![`${k}||${v}`])
+                    .filter((v): v is number => v !== undefined && v > 0);
+                  return prices.length > 0 ? Math.max(...prices) : sp.price;
+                })()
+              : sp.price;
             const spCatName = getCategoryName(sp.category_id);
             const spAttrs = Array.isArray(sp.attributes) ? (sp.attributes as ProductAttribute[]) : [];
             const extraImgs = Array.isArray(sp.extra_images) ? (sp.extra_images as string[]) : [];
@@ -653,11 +666,11 @@ const StoreFront = () => {
                     {sp.on_sale && sp.discount_percent ? (
                       <>
                         <span className="text-2xl font-bold text-destructive">{currencySymbol}{spFinalPrice.toFixed(2)}</span>
-                        <span className="text-sm text-muted-foreground line-through">{currencySymbol}{sp.price.toFixed(2)}</span>
+                        <span className="text-sm text-muted-foreground line-through">{currencySymbol}{spBasePrice.toFixed(2)}</span>
                         <Badge variant="secondary" className="text-xs">-{sp.discount_percent}%</Badge>
                       </>
                     ) : (
-                      <span className="text-2xl font-bold" style={{ color: primaryColor }}>{currencySymbol}{sp.price.toFixed(2)}</span>
+                      <span className="text-2xl font-bold" style={{ color: primaryColor }}>{currencySymbol}{spFinalPrice.toFixed(2)}</span>
                     )}
                   </div>
 

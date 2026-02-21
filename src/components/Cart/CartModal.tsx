@@ -329,7 +329,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
     const orderItems = items.map((i) => ({
       product_id: i.product.id,
       name: i.product.name,
-      price: getFinalPrice(i.product),
+      price: getFinalPrice(i.product, i.selectedAttributes),
       quantity: i.quantity,
     }));
 
