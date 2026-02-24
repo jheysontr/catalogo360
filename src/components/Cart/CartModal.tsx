@@ -297,6 +297,22 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
   const shippingCost = getShippingCost();
   const grandTotal = subtotalAfterDiscounts + shippingCost;
 
+  // Form completeness check
+  const hasPaymentMethods = paymentConfig && (paymentConfig.cash?.enabled || paymentConfig.bank_transfer?.enabled || paymentConfig.qr?.enabled);
+  const isFormComplete = (() => {
+    if (items.length === 0) return false;
+    if (!name.trim() || name.trim().length < 3) return false;
+    if (!phone.trim() || phone.trim().length < 7) return false;
+    if (hasShipping && !shippingMethod) return false;
+    if (hasShipping && shippingMethod === "local" && shippingConfig?.local_zones && shippingConfig.local_zones.length > 0 && selectedZoneIndex < 0) return false;
+    if (hasShipping && shippingMethod && shippingMethod !== "pickup") {
+      if (!shipAddress.trim()) return false;
+      if (!shipCity.trim()) return false;
+    }
+    if (hasPaymentMethods && !selectedPayment) return false;
+    return true;
+  })();
+
   const getEstimatedDate = () => {
     if (!shippingConfig || !shippingMethod) return null;
     let days = 0;
@@ -885,7 +901,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
           <Button
             onClick={handleSubmit}
-            disabled={submitting}
+            disabled={submitting || !isFormComplete}
             className="gap-2 text-white"
             style={{ backgroundColor: primaryColor }}
           >
