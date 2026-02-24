@@ -17,11 +17,12 @@ import {
 import {
   Search, ShoppingCart, Share2, Info, Plus, Minus, X, Loader2,
   Store as StoreIcon, Facebook, Instagram, Mail, MapPin, Phone, ExternalLink,
-  LayoutGrid, List, ChevronLeft, ChevronRight,
+  LayoutGrid, List, ChevronLeft, ChevronRight, Heart,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCart, getFinalPrice } from "@/lib/CartContext";
 import CartModal from "@/components/Cart/CartModal";
+import { useWishlist } from "@/lib/WishlistContext";
 
 /* ─── Types ─── */
 interface StoreData {
@@ -77,6 +78,7 @@ const StoreFront = () => {
   const referralCode = searchParams.get("ref") || "";
   const { toast } = useToast();
   const { items: cart, addToCart, removeFromCart, updateQuantity, cartTotal, itemCount, setStoreId } = useCart();
+  const { addToWishlist, removeFromWishlist, isInWishlist, items: wishlistItems, itemCount: wishlistCount, setStoreId: setWishlistStoreId } = useWishlist();
 
   const [store, setStore] = useState<StoreData | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -89,6 +91,7 @@ const StoreFront = () => {
   const [sortBy, setSortBy] = useState("newest");
 
   const [cartOpen, setCartOpen] = useState(false);
+  const [wishlistOpen, setWishlistOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [infoOpen, setInfoOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -117,6 +120,7 @@ const StoreFront = () => {
       const s = storeData[0] as StoreData;
       setStore(s);
       setStoreId(s.id);
+      setWishlistStoreId(s.id);
 
       const [{ data: prods }, { data: cats }] = await Promise.all([
         supabase.from("products").select("*").eq("store_id", s.id).gt("stock", 0).order("created_at", { ascending: false }),
@@ -189,6 +193,17 @@ const StoreFront = () => {
     addToCart(toCartProduct(selectedProduct), detailQty, hasAttrs ? selectedAttrs : undefined);
     toast({ title: "✓ Agregado", description: selectedProduct.name, duration: 1500 });
     setSelectedProduct(null);
+  };
+
+  const toggleWishlist = (p: Product, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (isInWishlist(p.id)) {
+      removeFromWishlist(p.id);
+      toast({ title: "Eliminado de favoritos", description: p.name, duration: 1500 });
+    } else {
+      addToWishlist({ id: p.id, name: p.name, price: p.price, image_url: p.image_url, on_sale: p.on_sale, discount_percent: p.discount_percent });
+      toast({ title: "❤️ Agregado a favoritos", description: p.name, duration: 1500 });
+    }
   };
 
   /** Returns the effective stock for the currently selected attributes.
@@ -369,6 +384,12 @@ const StoreFront = () => {
                         {p.on_sale && (
                           <Badge className="absolute left-1.5 top-1.5 text-[10px] bg-destructive text-destructive-foreground hover:bg-destructive/90">¡Oferta!</Badge>
                         )}
+                        <button
+                          onClick={(e) => toggleWishlist(p, e)}
+                          className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-all hover:scale-110 hover:bg-white"
+                        >
+                          <Heart className={`h-3.5 w-3.5 transition-colors ${isInWishlist(p.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+                        </button>
                       </div>
                       <CardContent className="flex flex-1 flex-col justify-between p-3 sm:p-4">
                         <div className="space-y-1">
@@ -432,6 +453,12 @@ const StoreFront = () => {
                     {p.on_sale && (
                       <Badge className="absolute left-1.5 top-1.5 text-[10px] sm:left-2 sm:top-2 sm:text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90">¡Oferta!</Badge>
                     )}
+                    <button
+                      onClick={(e) => toggleWishlist(p, e)}
+                      className="absolute right-1.5 top-1.5 sm:right-2 sm:top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-all hover:scale-110 hover:bg-white"
+                    >
+                      <Heart className={`h-4 w-4 transition-colors ${isInWishlist(p.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+                    </button>
                   </div>
                   <CardContent className="space-y-1.5 p-2.5 sm:space-y-2 sm:p-4">
                     {catName && <Badge variant="outline" className="text-[10px] sm:text-xs">{catName}</Badge>}
@@ -469,19 +496,32 @@ const StoreFront = () => {
         )}
       </div>
 
-      {/* ── FLOATING CART BUTTON ── */}
-      <button
-        onClick={() => setCartOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition-transform hover:scale-110"
-        style={{ backgroundColor: primaryColor }}
-      >
-        <ShoppingCart className="h-6 w-6" />
-        {itemCount > 0 && (
-          <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-xs font-bold text-destructive-foreground">
-            {itemCount}
-          </span>
+      {/* ── FLOATING BUTTONS ── */}
+      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+        {wishlistCount > 0 && (
+          <button
+            onClick={() => setWishlistOpen(true)}
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg border transition-transform hover:scale-110"
+          >
+            <Heart className="h-5 w-5 fill-red-500 text-red-500" />
+            <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
+              {wishlistCount}
+            </span>
+          </button>
         )}
-      </button>
+        <button
+          onClick={() => setCartOpen(true)}
+          className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition-transform hover:scale-110"
+          style={{ backgroundColor: primaryColor }}
+        >
+          <ShoppingCart className="h-6 w-6" />
+          {itemCount > 0 && (
+            <span className="absolute -right-1 -top-1 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-xs font-bold text-destructive-foreground">
+              {itemCount}
+            </span>
+          )}
+        </button>
+      </div>
 
       {/* ── CART PANEL ── */}
       <Sheet open={cartOpen} onOpenChange={setCartOpen}>
@@ -565,7 +605,82 @@ const StoreFront = () => {
         </SheetContent>
       </Sheet>
 
-      {/* ── CHECKOUT MODAL ── */}
+      {/* ── WISHLIST PANEL ── */}
+      <Sheet open={wishlistOpen} onOpenChange={setWishlistOpen}>
+        <SheetContent className="flex w-full flex-col sm:max-w-md">
+          <SheetHeader>
+            <SheetTitle className="flex items-center gap-2">
+              <Heart className="h-5 w-5 fill-red-500 text-red-500" /> Favoritos ({wishlistCount})
+            </SheetTitle>
+          </SheetHeader>
+          {wishlistItems.length === 0 ? (
+            <div className="flex flex-1 flex-col items-center justify-center gap-3">
+              <Heart className="h-12 w-12 text-muted-foreground/30" />
+              <p className="text-muted-foreground">Tu lista de deseos está vacía</p>
+            </div>
+          ) : (
+            <div className="flex-1 space-y-3 overflow-y-auto py-4">
+              {wishlistItems.map((item) => {
+                const finalPrice = item.on_sale && item.discount_percent
+                  ? item.price * (1 - item.discount_percent / 100)
+                  : item.price;
+                const product = products.find((p) => p.id === item.id);
+                return (
+                  <div key={item.id} className="flex gap-3 rounded-lg border p-3">
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        className="h-16 w-16 cursor-pointer rounded-md object-cover"
+                        onClick={() => { setWishlistOpen(false); if (product) openProductDetail(product); }}
+                      />
+                    ) : (
+                      <div className="flex h-16 w-16 items-center justify-center rounded-md bg-muted">
+                        <StoreIcon className="h-6 w-6 text-muted-foreground" />
+                      </div>
+                    )}
+                    <div className="flex flex-1 flex-col justify-center">
+                      <p
+                        className="text-sm font-medium text-foreground cursor-pointer hover:underline"
+                        onClick={() => { setWishlistOpen(false); if (product) openProductDetail(product); }}
+                      >
+                        {item.name}
+                      </p>
+                      <div className="flex items-baseline gap-1.5 mt-0.5">
+                        {item.on_sale && item.discount_percent ? (
+                          <>
+                            <span className="text-sm font-bold text-destructive">{currencySymbol}{finalPrice.toFixed(2)}</span>
+                            <span className="text-[10px] text-muted-foreground line-through">{currencySymbol}{item.price.toFixed(2)}</span>
+                          </>
+                        ) : (
+                          <span className="text-sm font-bold" style={{ color: primaryColor }}>{currencySymbol}{item.price.toFixed(2)}</span>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1 items-center justify-center">
+                      <button
+                        onClick={() => { setWishlistOpen(false); if (product) openProductDetail(product); }}
+                        className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-accent transition-colors"
+                        title="Ver producto"
+                      >
+                        <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+                      </button>
+                      <button
+                        onClick={() => removeFromWishlist(item.id)}
+                        className="flex h-8 w-8 items-center justify-center rounded-full hover:bg-destructive/10 transition-colors"
+                        title="Quitar de favoritos"
+                      >
+                        <X className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+
       <CartModal
         open={checkoutOpen}
         onOpenChange={setCheckoutOpen}
@@ -619,6 +734,12 @@ const StoreFront = () => {
                   {sp.on_sale && (
                     <Badge className="absolute left-3 top-3 bg-destructive text-destructive-foreground hover:bg-destructive/90">¡Oferta!</Badge>
                   )}
+                  <button
+                    onClick={() => toggleWishlist(sp)}
+                    className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-all hover:scale-110 hover:bg-white"
+                  >
+                    <Heart className={`h-5 w-5 transition-colors ${isInWishlist(sp.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+                  </button>
                   {allImages.length > 1 && (
                     <>
                       <button
