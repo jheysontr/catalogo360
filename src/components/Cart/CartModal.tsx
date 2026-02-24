@@ -48,6 +48,12 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
   const [phone, setPhone] = useState("");
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const markTouched = (field: string) => setTouched((p) => ({ ...p, [field]: true }));
+
+  const nameInvalid = touched.name && (!name.trim() || name.trim().length < 3);
+  const phoneInvalid = touched.phone && (!phone.trim() || phone.trim().length < 7);
+  const invalidBorder = "border-destructive ring-1 ring-destructive/30";
 
   // Shipping
   const [shippingConfig, setShippingConfig] = useState<ShippingConfigData | null>(null);
@@ -125,6 +131,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
       setCouponCode("");
       setAppliedReferral(null);
       setRefCode(referralCode);
+      setTouched({});
     }
   }, [open, referralCode]);
 
@@ -522,12 +529,14 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
         </DialogHeader>
         <div className="space-y-4 py-2">
           <div>
-            <Label htmlFor="cust-name">Nombre completo *</Label>
-            <Input id="cust-name" value={name} onChange={(e) => setName(e.target.value)} placeholder="Tu nombre completo" className="mt-1.5" />
+            <Label htmlFor="cust-name" className={nameInvalid ? "text-destructive" : ""}>Nombre completo *</Label>
+            <Input id="cust-name" value={name} onChange={(e) => setName(e.target.value)} onBlur={() => markTouched("name")} placeholder="Tu nombre completo" className={`mt-1.5 ${nameInvalid ? invalidBorder : ""}`} />
+            {nameInvalid && <p className="text-xs text-destructive mt-1">Mínimo 3 caracteres</p>}
           </div>
           <div>
-            <Label htmlFor="cust-phone">WhatsApp / Teléfono *</Label>
-            <Input id="cust-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+591 12345678" className="mt-1.5" />
+            <Label htmlFor="cust-phone" className={phoneInvalid ? "text-destructive" : ""}>WhatsApp / Teléfono *</Label>
+            <Input id="cust-phone" value={phone} onChange={(e) => setPhone(e.target.value)} onBlur={() => markTouched("phone")} placeholder="+591 12345678" className={`mt-1.5 ${phoneInvalid ? invalidBorder : ""}`} />
+            {phoneInvalid && <p className="text-xs text-destructive mt-1">Mínimo 7 dígitos</p>}
           </div>
 
           {/* Shipping Method Selection */}
@@ -628,25 +637,29 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
                 <div className="space-y-3 rounded-lg border bg-muted/30 p-3">
                   <p className="text-xs font-semibold text-muted-foreground uppercase">Dirección de envío</p>
                   <div>
-                    <Label htmlFor="ship-address">Calle / Dirección *</Label>
+                    <Label htmlFor="ship-address" className={touched.shipAddress && !shipAddress.trim() ? "text-destructive" : ""}>Calle / Dirección *</Label>
                     <Input
                       id="ship-address"
                       value={shipAddress}
                       onChange={(e) => setShipAddress(e.target.value)}
+                      onBlur={() => markTouched("shipAddress")}
                       placeholder="Av. Principal #123"
-                      className="mt-1"
+                      className={`mt-1 ${touched.shipAddress && !shipAddress.trim() ? invalidBorder : ""}`}
                     />
+                    {touched.shipAddress && !shipAddress.trim() && <p className="text-xs text-destructive mt-1">Requerido</p>}
                   </div>
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <Label htmlFor="ship-city">Ciudad *</Label>
+                      <Label htmlFor="ship-city" className={touched.shipCity && !shipCity.trim() ? "text-destructive" : ""}>Ciudad *</Label>
                       <Input
                         id="ship-city"
                         value={shipCity}
                         onChange={(e) => setShipCity(e.target.value)}
+                        onBlur={() => markTouched("shipCity")}
                         placeholder="Santa Cruz"
-                        className="mt-1"
+                        className={`mt-1 ${touched.shipCity && !shipCity.trim() ? invalidBorder : ""}`}
                       />
+                      {touched.shipCity && !shipCity.trim() && <p className="text-xs text-destructive mt-1">Requerido</p>}
                     </div>
                     <div>
                       <Label htmlFor="ship-postal">Código postal</Label>
