@@ -99,6 +99,14 @@ const StoreFront = () => {
   const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>({});
   const [detailQty, setDetailQty] = useState(1);
   const [galleryIndex, setGalleryIndex] = useState(0);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  /* ── Sticky bar on scroll ── */
+  useEffect(() => {
+    const onScroll = () => setShowStickyBar(window.scrollY > 280);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   /* ── Fetch store data ── */
   useEffect(() => {
@@ -176,7 +184,6 @@ const StoreFront = () => {
     setSelectedAttrs(attrs);
   };
 
-  /** Cast StoreFront Product to CartProduct (safe coerce of variant_stock) */
   const toCartProduct = (p: Product) => ({
     ...p,
     variant_stock: (p.variant_stock && typeof p.variant_stock === "object" && !Array.isArray(p.variant_stock))
@@ -195,6 +202,18 @@ const StoreFront = () => {
     setSelectedProduct(null);
   };
 
+  /** Quick add for products without attributes */
+  const handleQuickAdd = (p: Product, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const hasAttrs = Array.isArray(p.attributes) && (p.attributes as ProductAttribute[]).length > 0;
+    if (hasAttrs) {
+      openProductDetail(p);
+      return;
+    }
+    addToCart(toCartProduct(p), 1);
+    toast({ title: "✓ Agregado", description: p.name, duration: 1500 });
+  };
+
   const toggleWishlist = (p: Product, e?: React.MouseEvent) => {
     e?.stopPropagation();
     if (isInWishlist(p.id)) {
@@ -206,14 +225,11 @@ const StoreFront = () => {
     }
   };
 
-  /** Returns the effective stock for the currently selected attributes.
-   *  Falls back to product.stock when no variant_stock is defined. */
   const getVariantStock = (product: Product, attrs: Record<string, string>): number => {
     const vs = product.variant_stock;
     if (!vs || typeof vs !== "object" || Array.isArray(vs)) return product.stock;
     const vsMap = vs as Record<string, number>;
     if (Object.keys(vsMap).length === 0) return product.stock;
-    // Find the minimum stock among all selected attribute values
     const stocks: number[] = Object.entries(attrs).map(([attrName, val]) => {
       const key = `${attrName}||${val}`;
       return vsMap[key] !== undefined ? vsMap[key] : product.stock;
@@ -239,12 +255,61 @@ const StoreFront = () => {
     );
   }
 
+  const hasSocial = socialMedia?.facebook || socialMedia?.instagram || socialMedia?.tiktok;
+
   return (
     <div className="min-h-screen bg-background">
+      {/* ── STICKY TOP BAR ── */}
+      <div
+        className={`fixed inset-x-0 top-0 z-40 border-b bg-background/95 backdrop-blur-md transition-all duration-300 ${
+          showStickyBar ? "translate-y-0 opacity-100" : "-translate-y-full opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="container flex h-14 items-center justify-between px-4">
+          <div className="flex items-center gap-3 min-w-0">
+            {store.logo_url ? (
+              <img src={store.logo_url} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" />
+            ) : (
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: primaryColor }}>
+                <StoreIcon className="h-4 w-4 text-white" />
+              </div>
+            )}
+            <span className="truncate text-sm font-semibold text-foreground">{store.store_name}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            {wishlistCount > 0 && (
+              <button
+                onClick={() => setWishlistOpen(true)}
+                className="relative flex h-9 w-9 items-center justify-center rounded-full hover:bg-accent transition-colors"
+              >
+                <Heart className="h-5 w-5 fill-red-500 text-red-500" />
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
+                  {wishlistCount}
+                </span>
+              </button>
+            )}
+            <button
+              onClick={() => setCartOpen(true)}
+              className="relative flex h-9 w-9 items-center justify-center rounded-full hover:bg-accent transition-colors"
+            >
+              <ShoppingCart className="h-5 w-5 text-foreground" />
+              {itemCount > 0 && (
+                <span
+                  className="absolute -right-0.5 -top-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-white"
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  {itemCount}
+                </span>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* ── BANNER & HEADER ── */}
       <div className="relative">
         <div
-          className="h-48 w-full bg-cover bg-center sm:h-56 md:h-64"
+          className="h-44 w-full bg-cover bg-center sm:h-56 md:h-64"
           style={{
             backgroundColor: secondaryColor,
             backgroundImage: store.banner_url ? `url(${store.banner_url})` : undefined,
@@ -261,49 +326,33 @@ const StoreFront = () => {
               <StoreIcon className="h-10 w-10 text-white" />
             )}
           </div>
-          <div className="flex flex-1 flex-col items-center gap-2 pb-2 sm:items-start">
+          <div className="flex flex-1 flex-col items-center gap-1.5 pb-2 sm:items-start">
             <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{store.store_name}</h1>
             {store.description && (
-              <p className="max-w-lg text-center text-sm text-muted-foreground sm:text-left">{store.description}</p>
+              <p className="max-w-lg text-center text-sm text-muted-foreground sm:text-left line-clamp-2">{store.description}</p>
             )}
           </div>
           <div className="flex gap-2 pb-2">
             <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setInfoOpen(true)}>
-              <Info className="h-4 w-4" /> Información
+              <Info className="h-4 w-4" /> <span className="hidden sm:inline">Información</span><span className="sm:hidden">Info</span>
             </Button>
             <Button variant="outline" size="sm" className="gap-1.5" onClick={handleShare}>
-              <Share2 className="h-4 w-4" /> Compartir
+              <Share2 className="h-4 w-4" /> <span className="hidden sm:inline">Compartir</span>
             </Button>
           </div>
         </div>
       </div>
 
       {/* ── FILTERS ── */}
-      <div className="container mt-8 space-y-4 px-4">
-        <div className="flex items-center gap-3">
+      <div className="container mt-6 space-y-3 px-4">
+        <div className="flex items-center gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input placeholder="Buscar productos..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-          <div className="flex shrink-0 rounded-lg border sm:hidden">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`flex items-center justify-center p-2.5 transition-colors ${viewMode === "grid" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              <LayoutGrid className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`flex items-center justify-center p-2.5 transition-colors ${viewMode === "list" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
-            >
-              <List className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-        <div className="flex gap-3">
           <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-full sm:w-48">
-              <SelectValue placeholder="Ordenar por" />
+            <SelectTrigger className="w-[130px] shrink-0 sm:w-44">
+              <SelectValue placeholder="Ordenar" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="newest">Más nuevos</SelectItem>
@@ -311,7 +360,7 @@ const StoreFront = () => {
               <SelectItem value="price_low">Menor precio</SelectItem>
             </SelectContent>
           </Select>
-          <div className="hidden shrink-0 rounded-lg border sm:flex">
+          <div className="flex shrink-0 rounded-lg border">
             <button
               onClick={() => setViewMode("grid")}
               className={`flex items-center justify-center p-2 transition-colors ${viewMode === "grid" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
@@ -328,10 +377,10 @@ const StoreFront = () => {
         </div>
 
         {categories.length > 0 && (
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4">
             <button
               onClick={() => setActiveCategory("all")}
-              className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+              className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                 activeCategory === "all" ? "text-white shadow-md" : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
               }`}
               style={activeCategory === "all" ? { backgroundColor: primaryColor } : undefined}
@@ -342,7 +391,7 @@ const StoreFront = () => {
               <button
                 key={cat.id}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
                   activeCategory === cat.id ? "text-white shadow-md" : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
                 }`}
                 style={activeCategory === cat.id ? { backgroundColor: primaryColor } : undefined}
@@ -353,10 +402,16 @@ const StoreFront = () => {
             ))}
           </div>
         )}
+
+        {/* Product count */}
+        <p className="text-xs text-muted-foreground">
+          {filteredProducts.length} {filteredProducts.length === 1 ? "producto" : "productos"}
+          {activeCategory !== "all" && ` en ${getCategoryName(activeCategory) || "categoría"}`}
+        </p>
       </div>
 
       {/* ── PRODUCTS GRID ── */}
-      <div className="container px-4 py-8">
+      <div className="container px-4 pb-8 pt-4">
         {filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-20 text-center">
             <Search className="h-12 w-12 text-muted-foreground/30" />
@@ -364,16 +419,17 @@ const StoreFront = () => {
             <p className="text-sm text-muted-foreground">Intenta con otra búsqueda o categoría</p>
           </div>
         ) : (
-          <div className={viewMode === "grid" ? "grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4" : "flex flex-col gap-3"}>
+          <div className={viewMode === "grid" ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-3"}>
             {filteredProducts.map((p) => {
               const catName = getCategoryName(p.category_id);
               const finalPrice = getFinalPrice(toCartProduct(p));
+              const hasAttrs = Array.isArray(p.attributes) && (p.attributes as ProductAttribute[]).length > 0;
 
               if (viewMode === "list") {
                 return (
                   <Card key={p.id} className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-lg" onClick={() => openProductDetail(p)}>
                     <div className="flex">
-                      <div className="relative h-32 w-32 flex-shrink-0 overflow-hidden bg-muted sm:h-40 sm:w-40">
+                      <div className="relative h-32 w-32 flex-shrink-0 overflow-hidden bg-muted sm:h-36 sm:w-36">
                         {p.image_url ? (
                           <img src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
                         ) : (
@@ -382,7 +438,7 @@ const StoreFront = () => {
                           </div>
                         )}
                         {p.on_sale && (
-                          <Badge className="absolute left-1.5 top-1.5 text-[10px] bg-destructive text-destructive-foreground hover:bg-destructive/90">¡Oferta!</Badge>
+                          <Badge className="absolute left-1.5 top-1.5 text-[10px] bg-destructive text-destructive-foreground hover:bg-destructive/90">-{p.discount_percent}%</Badge>
                         )}
                         <button
                           onClick={(e) => toggleWishlist(p, e)}
@@ -394,18 +450,9 @@ const StoreFront = () => {
                       <CardContent className="flex flex-1 flex-col justify-between p-3 sm:p-4">
                         <div className="space-y-1">
                           {catName && <Badge variant="outline" className="text-[10px] sm:text-xs">{catName}</Badge>}
-                          <h3 className="text-sm font-semibold text-foreground sm:text-base">{p.name}</h3>
+                          <h3 className="text-sm font-semibold text-foreground sm:text-base line-clamp-1">{p.name}</h3>
                           {p.description && (
                             <p className="line-clamp-2 text-xs text-muted-foreground">{p.description}</p>
-                          )}
-                          {Array.isArray(p.attributes) && (p.attributes as ProductAttribute[]).length > 0 && (
-                            <div className="flex flex-wrap gap-1">
-                              {(p.attributes as ProductAttribute[]).map((attr, i) => (
-                                <span key={i} className="text-[10px] text-muted-foreground">
-                                  {attr.name}: {attr.values.join(", ")}
-                                </span>
-                              ))}
-                            </div>
                           )}
                           <div className="flex items-baseline gap-1.5">
                             {p.on_sale && p.discount_percent ? (
@@ -419,19 +466,19 @@ const StoreFront = () => {
                           </div>
                         </div>
                         <div className="mt-2 flex items-center justify-between">
-                          <p className={`text-[10px] sm:text-xs ${p.stock < 5 ? "font-medium text-destructive" : "text-muted-foreground"}`}>
-                            Stock: {p.stock}
-                          </p>
+                          {p.stock < 5 && (
+                            <p className="text-[10px] sm:text-xs font-medium text-destructive">
+                              ¡Quedan {p.stock}!
+                            </p>
+                          )}
                           <Button
-                            className="gap-1.5 text-xs text-white transition-all duration-150 active:scale-90 active:brightness-110"
+                            className="ml-auto gap-1.5 text-xs text-white transition-all duration-150 active:scale-90"
                             size="sm"
                             style={{ backgroundColor: primaryColor }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              openProductDetail(p);
-                            }}
+                            onClick={(e) => handleQuickAdd(p, e)}
                           >
-                            <ShoppingCart className="h-3.5 w-3.5" /> Ver
+                            <ShoppingCart className="h-3.5 w-3.5" />
+                            {hasAttrs ? "Ver opciones" : "Agregar"}
                           </Button>
                         </div>
                       </CardContent>
@@ -450,8 +497,8 @@ const StoreFront = () => {
                         <StoreIcon className="h-12 w-12 text-muted-foreground/30" />
                       </div>
                     )}
-                    {p.on_sale && (
-                      <Badge className="absolute left-1.5 top-1.5 text-[10px] sm:left-2 sm:top-2 sm:text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90">¡Oferta!</Badge>
+                    {p.on_sale && p.discount_percent && (
+                      <Badge className="absolute left-1.5 top-1.5 text-[10px] sm:left-2 sm:top-2 sm:text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90">-{p.discount_percent}%</Badge>
                     )}
                     <button
                       onClick={(e) => toggleWishlist(p, e)}
@@ -459,35 +506,34 @@ const StoreFront = () => {
                     >
                       <Heart className={`h-4 w-4 transition-colors ${isInWishlist(p.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
                     </button>
+                    {/* Quick add button on hover */}
+                    <button
+                      onClick={(e) => handleQuickAdd(p, e)}
+                      className="absolute bottom-2 left-2 right-2 flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium text-white opacity-0 transition-all duration-200 group-hover:opacity-100 sm:text-sm"
+                      style={{ backgroundColor: primaryColor }}
+                    >
+                      <ShoppingCart className="h-3.5 w-3.5" />
+                      {hasAttrs ? "Ver opciones" : "Agregar"}
+                    </button>
                   </div>
-                  <CardContent className="space-y-1.5 p-2.5 sm:space-y-2 sm:p-4">
-                    {catName && <Badge variant="outline" className="text-[10px] sm:text-xs">{catName}</Badge>}
-                    <h3 className="truncate text-sm font-semibold text-foreground sm:text-base">{p.name}</h3>
-                    {p.description && (
-                      <p className="line-clamp-2 text-[10px] text-muted-foreground sm:text-xs">{p.description}</p>
-                    )}
-                    {Array.isArray(p.attributes) && (p.attributes as ProductAttribute[]).length > 0 && (
-                      <div className="flex flex-wrap gap-1">
-                        {(p.attributes as ProductAttribute[]).map((attr, i) => (
-                          <span key={i} className="text-[9px] sm:text-[10px] text-muted-foreground">
-                            {attr.name}: {attr.values.join(", ")}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    <div className="flex items-baseline gap-1.5 sm:gap-2">
+                  <CardContent className="space-y-1 p-2.5 sm:space-y-1.5 sm:p-3">
+                    {catName && <p className="text-[10px] font-medium uppercase tracking-wider sm:text-xs" style={{ color: primaryColor }}>{catName}</p>}
+                    <h3 className="truncate text-sm font-semibold text-foreground">{p.name}</h3>
+                    <div className="flex items-baseline gap-1.5">
                       {p.on_sale && p.discount_percent ? (
                         <>
-                          <span className="text-base font-bold text-destructive sm:text-xl">{currencySymbol}{finalPrice.toFixed(2)}</span>
-                          <span className="text-[10px] text-muted-foreground line-through sm:text-sm">{currencySymbol}{p.price.toFixed(2)}</span>
+                          <span className="text-base font-bold text-destructive sm:text-lg">{currencySymbol}{finalPrice.toFixed(2)}</span>
+                          <span className="text-[10px] text-muted-foreground line-through sm:text-xs">{currencySymbol}{p.price.toFixed(2)}</span>
                         </>
                       ) : (
-                        <span className="text-base font-bold sm:text-xl" style={{ color: primaryColor }}>{currencySymbol}{p.price.toFixed(2)}</span>
+                        <span className="text-base font-bold sm:text-lg" style={{ color: primaryColor }}>{currencySymbol}{p.price.toFixed(2)}</span>
                       )}
                     </div>
-                    <p className={`text-[10px] sm:text-xs ${p.stock < 5 ? "font-medium text-destructive" : "text-muted-foreground"}`}>
-                      Stock: {p.stock}
-                    </p>
+                    {p.stock < 5 && (
+                      <p className="text-[10px] font-medium text-destructive sm:text-xs">
+                        ¡Quedan {p.stock}!
+                      </p>
+                    )}
                   </CardContent>
                 </Card>
               );
@@ -496,12 +542,12 @@ const StoreFront = () => {
         )}
       </div>
 
-      {/* ── FLOATING BUTTONS ── */}
+      {/* ── FLOATING CART BUTTON ── */}
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
         {wishlistCount > 0 && (
           <button
             onClick={() => setWishlistOpen(true)}
-            className="flex h-12 w-12 items-center justify-center rounded-full bg-white shadow-lg border transition-transform hover:scale-110"
+            className="relative flex h-12 w-12 items-center justify-center rounded-full bg-background shadow-lg border transition-transform hover:scale-110"
           >
             <Heart className="h-5 w-5 fill-red-500 text-red-500" />
             <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white">
@@ -511,7 +557,7 @@ const StoreFront = () => {
         )}
         <button
           onClick={() => setCartOpen(true)}
-          className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition-transform hover:scale-110"
+          className="relative flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition-transform hover:scale-110"
           style={{ backgroundColor: primaryColor }}
         >
           <ShoppingCart className="h-6 w-6" />
@@ -536,6 +582,7 @@ const StoreFront = () => {
             <div className="flex flex-1 flex-col items-center justify-center gap-3">
               <ShoppingCart className="h-12 w-12 text-muted-foreground/30" />
               <p className="text-muted-foreground">Tu carrito está vacío</p>
+              <Button variant="outline" size="sm" onClick={() => setCartOpen(false)}>Seguir comprando</Button>
             </div>
           ) : (
             <>
@@ -553,7 +600,7 @@ const StoreFront = () => {
                         </div>
                       )}
                       <div className="flex flex-1 flex-col">
-                        <p className="text-sm font-medium text-foreground">{item.product.name}</p>
+                        <p className="text-sm font-medium text-foreground line-clamp-1">{item.product.name}</p>
                         {item.selectedAttributes && Object.keys(item.selectedAttributes).length > 0 && (
                           <p className="text-[10px] text-muted-foreground">
                             {Object.entries(item.selectedAttributes).map(([k, v]) => `${k}: ${v}`).join(" · ")}
@@ -641,7 +688,7 @@ const StoreFront = () => {
                     )}
                     <div className="flex flex-1 flex-col justify-center">
                       <p
-                        className="text-sm font-medium text-foreground cursor-pointer hover:underline"
+                        className="text-sm font-medium text-foreground cursor-pointer hover:underline line-clamp-1"
                         onClick={() => { setWishlistOpen(false); if (product) openProductDetail(product); }}
                       >
                         {item.name}
@@ -731,8 +778,8 @@ const StoreFront = () => {
                       <StoreIcon className="h-16 w-16 text-muted-foreground/30" />
                     </div>
                   )}
-                  {sp.on_sale && (
-                    <Badge className="absolute left-3 top-3 bg-destructive text-destructive-foreground hover:bg-destructive/90">¡Oferta!</Badge>
+                  {sp.on_sale && sp.discount_percent && (
+                    <Badge className="absolute left-3 top-3 bg-destructive text-destructive-foreground hover:bg-destructive/90">-{sp.discount_percent}%</Badge>
                   )}
                   <button
                     onClick={() => toggleWishlist(sp)}
@@ -755,6 +802,18 @@ const StoreFront = () => {
                         <ChevronRight className="h-4 w-4" />
                       </button>
                     </>
+                  )}
+                  {/* Image dots indicator */}
+                  {allImages.length > 1 && (
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                      {allImages.map((_, idx) => (
+                        <button
+                          key={idx}
+                          onClick={() => setGalleryIndex(idx)}
+                          className={`h-2 w-2 rounded-full transition-all ${galleryIndex === idx ? "bg-white w-4" : "bg-white/50"}`}
+                        />
+                      ))}
+                    </div>
                   )}
                 </div>
 
@@ -900,9 +959,9 @@ const StoreFront = () => {
           </DialogHeader>
           <div className="space-y-3 py-2">
             {store.email && (
-              <div className="flex items-center gap-3 text-sm text-foreground">
+              <a href={`mailto:${store.email}`} className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors">
                 <Mail className="h-4 w-4 text-muted-foreground" /> {store.email}
-              </div>
+              </a>
             )}
             {store.address && (
               <div className="flex items-center gap-3 text-sm text-foreground">
@@ -910,17 +969,22 @@ const StoreFront = () => {
               </div>
             )}
             {socialMedia?.whatsapp && (
-              <div className="flex items-center gap-3 text-sm text-foreground">
+              <a
+                href={`https://api.whatsapp.com/send?phone=${socialMedia.whatsapp.replace(/\D/g, "")}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors"
+              >
                 <Phone className="h-4 w-4 text-muted-foreground" /> {socialMedia.whatsapp}
-              </div>
+              </a>
             )}
             {socialMedia?.facebook && (
-              <a href={socialMedia.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary">
+              <a href={socialMedia.facebook} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors">
                 <Facebook className="h-4 w-4 text-muted-foreground" /> Facebook <ExternalLink className="h-3 w-3" />
               </a>
             )}
             {socialMedia?.instagram && (
-              <a href={socialMedia.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary">
+              <a href={socialMedia.instagram} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 text-sm text-foreground hover:text-primary transition-colors">
                 <Instagram className="h-4 w-4 text-muted-foreground" /> Instagram <ExternalLink className="h-3 w-3" />
               </a>
             )}
@@ -930,34 +994,38 @@ const StoreFront = () => {
 
       {/* ── FOOTER ── */}
       <footer className="mt-12 border-t" style={{ backgroundColor: secondaryColor }}>
-        <div className="container grid gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-3">
-          <div>
-            <h4 className="mb-3 text-sm font-semibold text-white/90">Redes Sociales</h4>
-            <div className="flex gap-3">
-              {socialMedia?.facebook && (
-                <a href={socialMedia.facebook} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white">
-                  <Facebook className="h-5 w-5" />
-                </a>
-              )}
-              {socialMedia?.instagram && (
-                <a href={socialMedia.instagram} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white">
-                  <Instagram className="h-5 w-5" />
-                </a>
-              )}
-              {socialMedia?.tiktok && (
-                <a href={socialMedia.tiktok} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white text-xs font-bold">
-                  TikTok
-                </a>
-              )}
+        <div className="container px-4 py-8">
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
+            <div className="space-y-2">
+              <h4 className="text-sm font-semibold text-white/90">{store.store_name}</h4>
+              {store.description && <p className="max-w-xs text-sm text-white/60">{store.description}</p>}
+              {store.email && <p className="text-sm text-white/60">{store.email}</p>}
+              {store.address && <p className="text-sm text-white/60">{store.address}</p>}
             </div>
+            {hasSocial && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-semibold text-white/90">Redes Sociales</h4>
+                <div className="flex gap-3">
+                  {socialMedia?.facebook && (
+                    <a href={socialMedia.facebook} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors">
+                      <Facebook className="h-5 w-5" />
+                    </a>
+                  )}
+                  {socialMedia?.instagram && (
+                    <a href={socialMedia.instagram} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors">
+                      <Instagram className="h-5 w-5" />
+                    </a>
+                  )}
+                  {socialMedia?.tiktok && (
+                    <a href={socialMedia.tiktok} target="_blank" rel="noopener noreferrer" className="text-white/60 hover:text-white transition-colors text-xs font-bold">
+                      TikTok
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
-          <div>
-            <h4 className="mb-3 text-sm font-semibold text-white/90">Información</h4>
-            {store.description && <p className="text-sm text-white/60">{store.description}</p>}
-            {store.email && <p className="mt-2 text-sm text-white/60">{store.email}</p>}
-            {store.address && <p className="mt-1 text-sm text-white/60">{store.address}</p>}
-          </div>
-          <div className="flex items-end">
+          <div className="mt-6 border-t border-white/10 pt-4">
             <p className="text-xs text-white/40">
               © {new Date().getFullYear()} {store.store_name}. Todos los derechos reservados.
             </p>
