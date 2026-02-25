@@ -41,19 +41,31 @@ const MODULE_SIDEBAR_MAP: Record<string, string> = {
   analytics: "stats",
 };
 
-const sidebarLinks = [
-  { label: "Mi Tienda", icon: Store, id: "store" },
-  { label: "Productos", icon: Package, id: "products" },
-  { label: "Categorías", icon: FolderOpen, id: "categories" },
-  { label: "Cupones", icon: Ticket, id: "coupons" },
-  { label: "Órdenes", icon: ShoppingCart, id: "orders" },
-  { label: "Envíos", icon: Truck, id: "shipments" },
-  { label: "Métodos de Pago", icon: Wallet, id: "payment_methods" },
-  { label: "Linkbox", icon: Link2, id: "linkbox" },
-  { label: "Referencias", icon: Users, id: "referrals" },
-  { label: "Estadísticas", icon: BarChart3, id: "stats" },
-  { label: "Planes", icon: CreditCard, id: "plans" },
-  { label: "Configuración", icon: Settings, id: "settings" },
+type SidebarItem =
+  | { type: "link"; label: string; icon: any; id: string }
+  | { type: "group"; label: string };
+
+const sidebarLinks: SidebarItem[] = [
+  { type: "link", label: "Inicio", icon: Store, id: "store" },
+
+  { type: "group", label: "Catálogo" },
+  { type: "link", label: "Productos", icon: Package, id: "products" },
+  { type: "link", label: "Categorías", icon: FolderOpen, id: "categories" },
+
+  { type: "group", label: "Ventas" },
+  { type: "link", label: "Órdenes", icon: ShoppingCart, id: "orders" },
+  { type: "link", label: "Envíos", icon: Truck, id: "shipments" },
+
+  { type: "group", label: "Marketing" },
+  { type: "link", label: "Cupones", icon: Ticket, id: "coupons" },
+  { type: "link", label: "Referencias", icon: Users, id: "referrals" },
+  { type: "link", label: "Linkbox", icon: Link2, id: "linkbox" },
+
+  { type: "group", label: "Configuración" },
+  { type: "link", label: "Métodos de Pago", icon: Wallet, id: "payment_methods" },
+  { type: "link", label: "Estadísticas", icon: BarChart3, id: "stats" },
+  { type: "link", label: "Planes", icon: CreditCard, id: "plans" },
+  { type: "link", label: "Ajustes", icon: Settings, id: "settings" },
 ];
 
 const Dashboard = () => {
@@ -148,7 +160,16 @@ const Dashboard = () => {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto p-4">
-          {sidebarLinks.map((link) => {
+          {sidebarLinks.map((item, idx) => {
+            if (item.type === "group") {
+              return (
+                <p key={idx} className="mt-5 mb-1 px-3 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+                  {item.label}
+                </p>
+              );
+            }
+
+            const link = item;
             const moduleKey = Object.entries(MODULE_SIDEBAR_MAP).find(([, sid]) => sid === link.id)?.[0];
             const isLocked = moduleKey ? enabledModules[moduleKey] !== true : false;
 
@@ -163,7 +184,7 @@ const Dashboard = () => {
                   }
                   setSidebarOpen(false);
                 }}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
                   isLocked
                     ? "text-muted-foreground/50 hover:bg-accent/50"
                     : activeSection === link.id
