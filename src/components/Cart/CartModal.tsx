@@ -516,8 +516,16 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
     setShipAddress(""); setShipCity(""); setShipPostalCode(""); setShipPhone("");
 
     toast({ title: "¡Pedido enviado!" });
-    window.open(waUrl, "_blank");
     onOrderComplete?.();
+
+    // Use a programmatic <a> click instead of window.open to avoid popup blockers on mobile
+    const link = document.createElement("a");
+    link.href = waUrl;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (

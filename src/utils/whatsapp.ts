@@ -139,6 +139,6 @@ export function generateWhatsAppUrl(data: OrderMessageData): string {
   const msg = lines.join("\n");
   const phone = data.storePhone.replace(/\D/g, "");
   return phone
-    ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
-    : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    ? `https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(msg)}`
+    : `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
 }
