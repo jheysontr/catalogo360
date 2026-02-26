@@ -381,93 +381,6 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
       trackingNumber += chars.charAt(Math.floor(Math.random() * chars.length));
     }
 
-    // Create order
-    const { data: orderData, error: orderError } = await supabase.from("orders").insert({
-      store_id: storeId,
-      customer_name: name.trim(),
-      customer_email: "",
-      customer_phone: phone.trim(),
-      items: orderItems as any,
-      total_price: grandTotal,
-      status: "pending",
-    }).select("id").single();
-
-    if (orderError || !orderData) {
-      toast({ title: "Error", description: "No se pudo crear el pedido", variant: "destructive" });
-      setSubmitting(false);
-      return;
-    }
-
-    // Create shipment if shipping is configured
-    if (hasShipping && shippingMethod) {
-      await supabase.from("shipments").insert({
-        order_id: orderData.id,
-        store_id: storeId,
-        shipping_method: shippingMethod,
-        tracking_number: trackingNumber,
-        cost: shippingCost,
-        address: shippingMethod === "pickup" ? (shippingConfig?.pickup_address || "") : shipAddress.trim(),
-        city: shippingMethod === "pickup" ? "" : shipCity.trim(),
-        postal_code: shippingMethod === "pickup" ? "" : shipPostalCode.trim(),
-        phone: shipPhone.trim() || phone.trim(),
-        status: "pending",
-        estimated_delivery_date: getEstimatedDate(),
-      });
-    }
-
-    // Increment coupon used_count
-    if (appliedCoupon) {
-      const { data: couponData } = await supabase.from("coupons").select("used_count").eq("id", appliedCoupon.id).single();
-      if (couponData) {
-        await supabase.from("coupons").update({ used_count: couponData.used_count + 1 }).eq("id", appliedCoupon.id);
-      }
-    }
-
-    // Track referral commission
-    if (appliedReferral) {
-      const commissionAmount = appliedReferral.commission_type === "percentage"
-        ? grandTotal * (appliedReferral.commission_value / 100)
-        : appliedReferral.commission_value;
-
-      // Count existing referrals from this email
-      const { count } = await supabase
-        .from("referrals")
-        .select("id", { count: "exact", head: true })
-        .eq("store_id", storeId)
-        .eq("referrer_code", appliedReferral.referral_code)
-        .eq("referred_email", phone.trim());
-
-      const orderNum = (count || 0) + 1;
-
-      if (orderNum <= appliedReferral.max_orders) {
-        await supabase.from("referrals").insert({
-          store_id: storeId,
-          referrer_code: appliedReferral.referral_code,
-          referrer_name: appliedReferral.referrer_name,
-          referrer_email: appliedReferral.referrer_email,
-          referred_email: phone.trim(),
-          referred_order_id: orderData.id,
-          commission_amount: commissionAmount,
-          status: "pending",
-          order_count: orderNum,
-        });
-
-        // Update referrer totals
-        const { data: refData } = await supabase
-          .from("referrers")
-          .select("id, total_earned, total_referrals")
-          .eq("store_id", storeId)
-          .eq("referral_code", appliedReferral.referral_code)
-          .single();
-        if (refData) {
-          await supabase.from("referrers").update({
-            total_earned: Number(refData.total_earned) + commissionAmount,
-            total_referrals: refData.total_referrals + 1,
-          }).eq("id", refData.id);
-        }
-      }
-    }
-
     const trackingUrl = hasShipping && shippingMethod
       ? `${window.location.origin}/track?q=${encodeURIComponent(trackingNumber)}`
       : undefined;
@@ -509,23 +422,104 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
         : undefined,
     });
 
+    // IMPORTANT: Open WhatsApp IMMEDIATELY (synchronously) before any async DB calls
+    // This preserves the user gesture context so browsers don't block the popup
+    window.location.href = waUrl;
+
+    // Now do all DB operations in the background — the page is navigating away
+    // but these will still complete
+    try {
+      // Create order
+      const { data: orderData } = await supabase.from("orders").insert({
+        store_id: storeId,
+        customer_name: name.trim(),
+        customer_email: "",
+        customer_phone: phone.trim(),
+        items: orderItems as any,
+        total_price: grandTotal,
+        status: "pending",
+      }).select("id").single();
+
+      if (orderData) {
+        // Create shipment if shipping is configured
+        if (hasShipping && shippingMethod) {
+          await supabase.from("shipments").insert({
+            order_id: orderData.id,
+            store_id: storeId,
+            shipping_method: shippingMethod,
+            tracking_number: trackingNumber,
+            cost: shippingCost,
+            address: shippingMethod === "pickup" ? (shippingConfig?.pickup_address || "") : shipAddress.trim(),
+            city: shippingMethod === "pickup" ? "" : shipCity.trim(),
+            postal_code: shippingMethod === "pickup" ? "" : shipPostalCode.trim(),
+            phone: shipPhone.trim() || phone.trim(),
+            status: "pending",
+            estimated_delivery_date: getEstimatedDate(),
+          });
+        }
+
+        // Increment coupon used_count
+        if (appliedCoupon) {
+          const { data: couponData } = await supabase.from("coupons").select("used_count").eq("id", appliedCoupon.id).single();
+          if (couponData) {
+            await supabase.from("coupons").update({ used_count: couponData.used_count + 1 }).eq("id", appliedCoupon.id);
+          }
+        }
+
+        // Track referral commission
+        if (appliedReferral) {
+          const commissionAmount = appliedReferral.commission_type === "percentage"
+            ? grandTotal * (appliedReferral.commission_value / 100)
+            : appliedReferral.commission_value;
+
+          const { count } = await supabase
+            .from("referrals")
+            .select("id", { count: "exact", head: true })
+            .eq("store_id", storeId)
+            .eq("referrer_code", appliedReferral.referral_code)
+            .eq("referred_email", phone.trim());
+
+          const orderNum = (count || 0) + 1;
+
+          if (orderNum <= appliedReferral.max_orders) {
+            await supabase.from("referrals").insert({
+              store_id: storeId,
+              referrer_code: appliedReferral.referral_code,
+              referrer_name: appliedReferral.referrer_name,
+              referrer_email: appliedReferral.referrer_email,
+              referred_email: phone.trim(),
+              referred_order_id: orderData.id,
+              commission_amount: commissionAmount,
+              status: "pending",
+              order_count: orderNum,
+            });
+
+            const { data: refData } = await supabase
+              .from("referrers")
+              .select("id, total_earned, total_referrals")
+              .eq("store_id", storeId)
+              .eq("referral_code", appliedReferral.referral_code)
+              .single();
+            if (refData) {
+              await supabase.from("referrers").update({
+                total_earned: Number(refData.total_earned) + commissionAmount,
+                total_referrals: refData.total_referrals + 1,
+              }).eq("id", refData.id);
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // DB operations are best-effort since we already redirected to WhatsApp
+      console.error("Error saving order to database:", e);
+    }
+
     setSubmitting(false);
     onOpenChange(false);
     clearCart();
     setName(""); setPhone(""); setNote("");
     setShipAddress(""); setShipCity(""); setShipPostalCode(""); setShipPhone("");
-
-    toast({ title: "¡Pedido enviado!" });
     onOrderComplete?.();
-
-    // Use a programmatic <a> click instead of window.open to avoid popup blockers on mobile
-    const link = document.createElement("a");
-    link.href = waUrl;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   return (
