@@ -24,10 +24,11 @@ import {
 } from "@/components/ui/pagination";
 import {
   Search, ShoppingCart, Eye, MessageCircle, Download, Loader2, Package, Truck,
-  MoreHorizontal, CheckCircle, XCircle, Clock, ThumbsUp,
+  MoreHorizontal, CheckCircle, XCircle, Clock, ThumbsUp, FileText,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Json } from "@/integrations/supabase/types";
+import OrderReceipt from "@/components/OrderReceipt";
 
 interface ShipmentData {
   shipping_method: string;
@@ -154,8 +155,12 @@ const Orders = () => {
 
   const [storeId, setStoreId] = useState<string | null>(null);
   const [storePhone, setStorePhone] = useState<string | null>(null);
+  const [storeData, setStoreData] = useState<{ store_name: string; logo_url?: string | null; address?: string | null; email?: string | null; social_media?: Record<string, string> | null }>({ store_name: "" });
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Receipt
+  const [receiptOrder, setReceiptOrder] = useState<OrderRow | null>(null);
 
   // Filters
   const [search, setSearch] = useState("");
@@ -174,7 +179,7 @@ const Orders = () => {
     if (!user) return;
     supabase
       .from("stores")
-      .select("id, social_media")
+      .select("id, social_media, store_name, logo_url, address, email")
       .eq("user_id", user.id)
       .limit(1)
       .then(({ data }) => {
@@ -182,6 +187,13 @@ const Orders = () => {
           setStoreId(data[0].id);
           const sm = data[0].social_media as Record<string, string> | null;
           setStorePhone(sm?.whatsapp ?? null);
+          setStoreData({
+            store_name: data[0].store_name,
+            logo_url: data[0].logo_url,
+            address: data[0].address,
+            email: data[0].email,
+            social_media: sm,
+          });
         }
       });
   }, [user]);
@@ -432,6 +444,9 @@ const Orders = () => {
                               <DropdownMenuItem onClick={() => downloadDetails(order)}>
                                 <Download className="mr-2 h-3.5 w-3.5" /> Descargar
                               </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => setReceiptOrder(order)}>
+                                <FileText className="mr-2 h-3.5 w-3.5" /> Generar recibo
+                              </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </div>
@@ -604,10 +619,21 @@ const Orders = () => {
               <Button size="sm" variant="outline" className="gap-1.5" onClick={() => downloadDetails(selected)}>
                 <Download className="h-4 w-4" /> Descargar
               </Button>
+              <Button size="sm" variant="outline" className="gap-1.5" onClick={() => { setReceiptOrder(selected); }}>
+                <FileText className="h-4 w-4" /> Recibo
+              </Button>
             </div>
           </DialogContent>
         )}
       </Dialog>
+
+      {/* Receipt dialog */}
+      <OrderReceipt
+        open={!!receiptOrder}
+        onOpenChange={(o) => { if (!o) setReceiptOrder(null); }}
+        order={receiptOrder}
+        store={storeData}
+      />
     </div>
   );
 };
