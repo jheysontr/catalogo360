@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import {
   Package, Store, ShoppingCart, BarChart3, CreditCard, Settings,
   ExternalLink, Plus, Eye, Menu, X, LogOut, ChevronRight, FolderOpen, Ticket,
-  Truck, Link2, Users, QrCode, Download, Wallet,
+  Truck, Link2, Users, QrCode, Download, Wallet, Loader2,
 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -25,6 +25,7 @@ import Shipments from "@/pages/Dashboard/Shipments";
 import Linkbox from "@/pages/Dashboard/Linkbox";
 import Referrals from "@/pages/Dashboard/Referrals";
 import PaymentMethods from "@/pages/Dashboard/PaymentMethods";
+import DashboardHome from "@/pages/Dashboard/DashboardHome";
 
 interface StoreData {
   id: string;
@@ -257,111 +258,18 @@ const Dashboard = () => {
             <Plans />
           ) : activeSection === "stats" ? (
             <Analytics />
+          ) : store ? (
+            <DashboardHome
+              storeId={store.id}
+              storeName={store.store_name}
+              storeSlug={store.store_slug}
+              productCount={productCount}
+              onNavigate={(section) => setActiveSection(section)}
+            />
           ) : (
-            <>
-              <h1 className="font-display text-2xl font-bold text-foreground">Mi Tienda</h1>
-              <p className="mt-1 text-sm text-muted-foreground">Resumen general de tu negocio</p>
-
-              <div className="mt-8 grid gap-6 sm:grid-cols-2">
-                <Card className="transition-shadow hover:shadow-md">
-                  <CardHeader className="flex flex-row items-center gap-3 pb-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                      <Store className="h-5 w-5 text-primary" />
-                    </div>
-                    <CardTitle className="text-base">Tienda</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div>
-                      <p className="font-semibold text-foreground">{store?.store_name ?? "Cargando..."}</p>
-                      <p className="text-xs text-muted-foreground">catalogo360.online/{store?.store_slug ?? "..."}</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {store && (
-                        <>
-                          <Button asChild size="sm" variant="outline" className="gap-1.5">
-                            <a href={`/store/${store.store_slug}`} target="_blank" rel="noopener noreferrer">
-                              <Eye className="h-3.5 w-3.5" /> Ver mi tienda
-                            </a>
-                          </Button>
-                          <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setQrOpen(true)}>
-                            <QrCode className="h-3.5 w-3.5" /> Código QR
-                          </Button>
-                        </>
-                      )}
-                      <Button size="sm" variant="secondary" className="gap-1.5" onClick={() => setActiveSection("settings")}>
-                        <Settings className="h-3.5 w-3.5" /> Personalizar
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="transition-shadow hover:shadow-md">
-                  <CardHeader className="flex flex-row items-center gap-3 pb-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
-                      <Package className="h-5 w-5 text-accent-foreground" />
-                    </div>
-                    <CardTitle className="text-base">Productos</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <p className="text-3xl font-bold text-foreground">{productCount}</p>
-                    <p className="text-xs text-muted-foreground">productos subidos</p>
-                    <div className="flex gap-2">
-                      <Button size="sm" className="gap-1.5" onClick={() => setActiveSection("products")}>
-                        <Plus className="h-3.5 w-3.5" /> Agregar producto
-                      </Button>
-                      <Button size="sm" variant="ghost" className="gap-1.5" onClick={() => setActiveSection("products")}>
-                        Administrar <ChevronRight className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="transition-shadow hover:shadow-md">
-                  <CardHeader className="flex flex-row items-center gap-3 pb-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                      <ShoppingCart className="h-5 w-5 text-primary" />
-                    </div>
-                    <CardTitle className="text-base">Órdenes</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <p className="text-3xl font-bold text-foreground">{orderCount}</p>
-                    <p className="text-xs text-muted-foreground">órdenes recibidas hoy</p>
-                    {lastOrder && (
-                      <p className="text-xs text-muted-foreground">
-                        Última: <span className="font-medium text-foreground">{lastOrder.customer_name}</span>
-                      </p>
-                    )}
-                    <Button size="sm" variant="ghost" className="gap-1.5" onClick={() => setActiveSection("orders")}>
-                      Ver todas las órdenes <ChevronRight className="h-3.5 w-3.5" />
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card className="transition-shadow hover:shadow-md">
-                  <CardHeader className="flex flex-row items-center gap-3 pb-2">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent">
-                      <CreditCard className="h-5 w-5 text-accent-foreground" />
-                    </div>
-                    <CardTitle className="text-base">Plan Actual</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <p className="font-semibold text-foreground">Estándar</p>
-                    <div>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>Productos: {productCount}/{maxProducts}</span>
-                        <span>{Math.round((productCount / maxProducts) * 100)}%</span>
-                      </div>
-                      <Progress value={(productCount / maxProducts) * 100} className="mt-1.5 h-2" />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setActiveSection("plans")}>
-                        Cambiar plan
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </>
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
           )}
         </main>
       </div>
