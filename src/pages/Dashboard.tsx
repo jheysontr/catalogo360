@@ -10,6 +10,8 @@ import {
   ExternalLink, Plus, Eye, Menu, X, LogOut, ChevronRight, FolderOpen, Ticket,
   Truck, Link2, Users, QrCode, Download, Wallet, Loader2,
 } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
+import { useRealtimeOrders } from "@/hooks/useRealtimeOrders";
 import { QRCodeSVG } from "qrcode.react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import SalesCalculator from "@/components/SalesCalculator";
@@ -81,6 +83,8 @@ const Dashboard = () => {
   const [enabledModules, setEnabledModules] = useState<Record<string, boolean>>({});
   const [qrOpen, setQrOpen] = useState(false);
 
+  // Realtime notifications
+  useRealtimeOrders(store?.id ?? null);
 
 
   const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuario";
@@ -227,6 +231,7 @@ const Dashboard = () => {
             </p>
           </div>
           <SalesCalculator />
+          <ThemeToggle />
           <Button variant="ghost" size="icon" onClick={() => setActiveSection("settings")}>
             <Settings className="h-4 w-4" />
           </Button>

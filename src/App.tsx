@@ -2,11 +2,13 @@ import { Toaster } from "react-hot-toast";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import Navbar from "@/components/Navbar";
 import { CartProvider } from "@/lib/CartContext";
 import { WishlistProvider } from "@/lib/WishlistContext";
 import Footer from "@/components/Footer";
 import PrivateRoute from "@/components/PrivateRoute";
+import SplashScreen from "@/components/SplashScreen";
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -17,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import TrackOrder from "./pages/TrackOrder";
 import Admin from "./pages/Admin";
 import AffiliatePage from "./pages/AffiliatePage";
+import { useState, useEffect } from "react";
 
 const queryClient = new QueryClient();
 
@@ -64,19 +67,31 @@ const AppLayout = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <CartProvider>
-        <WishlistProvider>
-          <Toaster position="top-right" />
-          <BrowserRouter>
-            <AppLayout />
-          </BrowserRouter>
-        </WishlistProvider>
-      </CartProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 1400);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <SplashScreen show={showSplash} />
+              <Toaster position="top-right" />
+              <BrowserRouter>
+                <AppLayout />
+              </BrowserRouter>
+            </WishlistProvider>
+          </CartProvider>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </ThemeProvider>
+  );
+};
 
 export default App;
