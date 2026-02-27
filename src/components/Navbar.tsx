@@ -5,6 +5,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect } from "react";
 import type { User } from "@supabase/supabase-js";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const Navbar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -61,6 +62,7 @@ const Navbar = () => {
               </Button>
             </>
           )}
+          <ThemeToggle />
         </div>
 
         {/* Mobile toggle */}

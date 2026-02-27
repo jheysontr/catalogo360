@@ -7,9 +7,11 @@ import { Separator } from "@/components/ui/separator";
 import {
   DollarSign, ShoppingCart, Package, TrendingUp, TrendingDown,
   Eye, ChevronRight, Clock, Users, Loader2, ArrowUpRight,
+  AlertTriangle, Star, BarChart3,
 } from "lucide-react";
 import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
+  BarChart, Bar,
 } from "recharts";
 import type { Json } from "@/integrations/supabase/types";
 
@@ -29,6 +31,14 @@ interface OrderRow {
   total_price: number;
   status: string;
   created_at: string;
+}
+
+interface ProductRow {
+  id: string;
+  name: string;
+  stock: number;
+  image_url: string | null;
+  price: number;
 }
 
 const fmtCurrency = (n: number) => `Bs ${n.toFixed(2)}`;
@@ -58,6 +68,8 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, onNavigate
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [allTimeOrders, setAllTimeOrders] = useState(0);
+  const [lowStockProducts, setLowStockProducts] = useState<ProductRow[]>([]);
+  const [topProducts, setTopProducts] = useState<{ name: string; sold: number }[]>([]);
 
   useEffect(() => {
     if (!storeId) return;
@@ -69,7 +81,7 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, onNavigate
       start.setDate(start.getDate() - 30);
       start.setHours(0, 0, 0, 0);
 
-      const [{ data: recentOrders }, { count: totalCount }] = await Promise.all([
+      const [{ data: recentOrders }, { count: totalCount }, { data: lowStock }] = await Promise.all([
         supabase
           .from("orders")
           .select("id, customer_name, customer_phone, items, total_price, status, created_at")
@@ -80,10 +92,35 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, onNavigate
           .from("orders")
           .select("id", { count: "exact", head: true })
           .eq("store_id", storeId),
+        supabase
+          .from("products")
+          .select("id, name, stock, image_url, price")
+          .eq("store_id", storeId)
+          .lte("stock", 5)
+          .order("stock", { ascending: true })
+          .limit(5),
       ]);
 
       setOrders((recentOrders as OrderRow[]) ?? []);
       setAllTimeOrders(totalCount ?? 0);
+      setLowStockProducts((lowStock as ProductRow[]) ?? []);
+
+      // Calculate top products from order items
+      const allOrders = (recentOrders as OrderRow[]) ?? [];
+      const productSales: Record<string, number> = {};
+      allOrders.forEach((o) => {
+        const items = parseItems(o.items);
+        items.forEach((item) => {
+          const name = item.name || item.product_name || "Producto";
+          productSales[name] = (productSales[name] || 0) + (item.quantity || item.qty || 1);
+        });
+      });
+      const top = Object.entries(productSales)
+        .sort(([, a], [, b]) => b - a)
+        .slice(0, 5)
+        .map(([name, sold]) => ({ name: name.length > 20 ? name.slice(0, 20) + "…" : name, sold }));
+      setTopProducts(top);
+
       setLoading(false);
     };
     load();
@@ -326,6 +363,74 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, onNavigate
             ))}
           </CardContent>
         </Card>
+      </div>
+
+      {/* Top products + Low stock row */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        {/* Top selling products */}
+        {topProducts.length > 0 && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <Star className="h-4 w-4 text-primary" /> Productos más vendidos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-52">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={topProducts} layout="vertical">
+                    <XAxis type="number" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+                    <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} className="fill-muted-foreground" width={100} />
+                    <Tooltip
+                      contentStyle={{
+                        borderRadius: 8,
+                        border: "1px solid hsl(var(--border))",
+                        background: "hsl(var(--card))",
+                        fontSize: 13,
+                      }}
+                      formatter={(value: number) => [`${value} unidades`, "Vendidos"]}
+                    />
+                    <Bar dataKey="sold" fill="hsl(165, 60%, 40%)" radius={[0, 6, 6, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Low stock alert */}
+        {lowStockProducts.length > 0 && (
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base font-semibold">
+                <AlertTriangle className="h-4 w-4 text-destructive" /> Stock bajo
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {lowStockProducts.map((p) => (
+                <div key={p.id} className="flex items-center gap-3 rounded-lg border px-4 py-3">
+                  {p.image_url ? (
+                    <img src={p.image_url} alt={p.name} className="h-10 w-10 shrink-0 rounded-lg object-cover" />
+                  ) : (
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <Package className="h-5 w-5 text-muted-foreground" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground truncate">{p.name}</p>
+                    <p className="text-xs text-muted-foreground">{fmtCurrency(p.price)}</p>
+                  </div>
+                  <Badge variant={p.stock === 0 ? "destructive" : "secondary"} className="shrink-0 text-xs">
+                    {p.stock === 0 ? "Agotado" : `${p.stock} uds`}
+                  </Badge>
+                </div>
+              ))}
+              <Button variant="outline" size="sm" className="w-full gap-1" onClick={() => onNavigate("products")}>
+                Gestionar inventario <ChevronRight className="h-3.5 w-3.5" />
+              </Button>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       {/* Recent orders */}
