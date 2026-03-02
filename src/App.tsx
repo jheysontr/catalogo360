@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import TrackOrder from "./pages/TrackOrder";
 import Admin from "./pages/Admin";
 import AffiliatePage from "./pages/AffiliatePage";
+import Install from "./pages/Install";
 import { useState, useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const AppLayout = () => {
           <Route path="/linkbox/:slug" element={<LinkboxPage />} />
           <Route path="/track" element={<TrackOrder />} />
           <Route path="/affiliate/:code" element={<AffiliatePage />} />
+          <Route path="/install" element={<Install />} />
           <Route
             path="/admin"
             element={
