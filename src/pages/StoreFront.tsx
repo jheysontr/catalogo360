@@ -747,7 +747,7 @@ const StoreFront = () => {
 
       {/* ── PRODUCT DETAIL DIALOG ── */}
       <Dialog open={!!selectedProduct} onOpenChange={(open) => !open && setSelectedProduct(null)}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md p-0">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md p-0 [&>button]:z-50 [&>button]:bg-white/80 [&>button]:backdrop-blur-sm [&>button]:rounded-full [&>button]:shadow-sm [&>button]:hover:bg-white">
           {selectedProduct && (() => {
             const sp = selectedProduct;
             const spCartProduct = toCartProduct(sp);
@@ -783,7 +783,7 @@ const StoreFront = () => {
                   )}
                   <button
                     onClick={() => toggleWishlist(sp)}
-                    className="absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-all hover:scale-110 hover:bg-white"
+                    className="absolute left-3 bottom-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-all hover:scale-110 hover:bg-white z-10"
                   >
                     <Heart className={`h-5 w-5 transition-colors ${isInWishlist(sp.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
                   </button>
