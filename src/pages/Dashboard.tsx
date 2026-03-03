@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useRealtimeOrders } from "@/hooks/useRealtimeOrders";
+import { useAdminCheck } from "@/hooks/useAdminCheck";
+import { Shield } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import SalesCalculator from "@/components/SalesCalculator";
@@ -85,6 +87,7 @@ const Dashboard = () => {
 
   // Realtime notifications
   useRealtimeOrders(store?.id ?? null);
+  const { isAdmin } = useAdminCheck();
 
 
   const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuario";
@@ -209,7 +212,27 @@ const Dashboard = () => {
           })}
         </nav>
 
-        <div className="border-t p-4">
+        <div className="border-t p-4 space-y-1">
+          {store && (
+            <Link
+              to={`/store/${store.store_slug}`}
+              target="_blank"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <Eye className="h-4 w-4" />
+              Ver tienda
+              <ExternalLink className="h-3 w-3 ml-auto" />
+            </Link>
+          )}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <Shield className="h-4 w-4" />
+              Panel Admin
+            </Link>
+          )}
           <button
             onClick={handleLogout}
             className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
@@ -230,7 +253,20 @@ const Dashboard = () => {
               Hola, <span className="font-semibold text-foreground">{userName}</span> 👋
             </p>
           </div>
-          <SalesCalculator />
+         <SalesCalculator />
+          {store && (
+            <>
+              <Button variant="outline" size="sm" asChild>
+                <Link to={`/store/${store.store_slug}`} target="_blank">
+                  <Eye className="h-4 w-4 mr-2" />
+                  Ver tienda
+                </Link>
+              </Button>
+              <Button variant="ghost" size="icon" onClick={() => setQrOpen(true)}>
+                <QrCode className="h-4 w-4" />
+              </Button>
+            </>
+          )}
           <ThemeToggle />
           <Button variant="ghost" size="icon" onClick={() => setActiveSection("settings")}>
             <Settings className="h-4 w-4" />
