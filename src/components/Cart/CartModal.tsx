@@ -8,12 +8,12 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
-import { Loader2, MapPin, Truck, Package, Tag, X, Users, Banknote, Building2, QrCode } from "lucide-react";
+import { Loader2, Truck, Tag, X, Users, Banknote, Building2, QrCode } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/lib/CartContext";
 import { getFinalPrice, generateWhatsAppUrl } from "@/utils/whatsapp";
 import { supabase } from "@/integrations/supabase/client";
-import type { ShippingConfigData, LocalZone } from "@/pages/Dashboard/ShippingConfig";
+import type { ShippingConfigData } from "@/pages/Dashboard/ShippingConfig";
 import type { PaymentMethodsConfig } from "@/pages/Dashboard/PaymentMethods";
 
 interface CartModalProps {
@@ -27,18 +27,6 @@ interface CartModalProps {
   referralCode?: string;
   onOrderComplete?: () => void;
 }
-
-const METHOD_ICONS: Record<string, React.ReactNode> = {
-  pickup: <MapPin className="h-4 w-4" />,
-  local: <Truck className="h-4 w-4" />,
-  national: <Package className="h-4 w-4" />,
-};
-
-const METHOD_LABELS: Record<string, string> = {
-  pickup: "Retiro en tienda",
-  local: "Envío local",
-  national: "Envío nacional",
-};
 
 const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primaryColor, currencySymbol = "$", referralCode = "", onOrderComplete }: CartModalProps) => {
   const { toast } = useToast();
@@ -55,14 +43,9 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
   const phoneInvalid = touched.phone && (!phone.trim() || phone.trim().length < 7);
   const invalidBorder = "border-destructive ring-1 ring-destructive/30";
 
-  // Shipping
+  // Shipping zones
   const [shippingConfig, setShippingConfig] = useState<ShippingConfigData | null>(null);
-  const [shippingMethod, setShippingMethod] = useState<string>("");
   const [selectedZoneIndex, setSelectedZoneIndex] = useState<number>(-1);
-  const [shipAddress, setShipAddress] = useState("");
-  const [shipCity, setShipCity] = useState("");
-  const [shipPostalCode, setShipPostalCode] = useState("");
-  const [shipPhone, setShipPhone] = useState("");
 
   // Coupons
   const [couponCode, setCouponCode] = useState("");
@@ -83,6 +66,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
   // Payment methods
   const [paymentConfig, setPaymentConfig] = useState<PaymentMethodsConfig | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<string>("");
+
   // Load shipping config when modal opens
   useEffect(() => {
     if (!open || !storeId) return;
@@ -97,21 +81,14 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
         if (sc && Object.keys(sc).length > 0) {
           const config = sc as unknown as ShippingConfigData;
           setShippingConfig(config);
-          // Auto-select first available method
-          if (config.pickup_enabled) setShippingMethod("pickup");
-          else if (config.local_enabled) setShippingMethod("local");
-          else if (config.national_enabled) setShippingMethod("national");
-          else setShippingMethod("");
         } else {
           setShippingConfig(null);
-          setShippingMethod("");
         }
         // Load payment methods
         const pm = (data[0] as any).payment_methods as Record<string, any> | null;
         if (pm && typeof pm === "object" && Object.keys(pm).length > 0) {
           const pmConfig = pm as unknown as PaymentMethodsConfig;
           setPaymentConfig(pmConfig);
-          // Auto-select first enabled
           if (pmConfig.cash?.enabled) setSelectedPayment("cash");
           else if (pmConfig.bank_transfer?.enabled) setSelectedPayment("bank_transfer");
           else if (pmConfig.qr?.enabled) setSelectedPayment("qr");
@@ -124,7 +101,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
     })();
   }, [open, storeId]);
 
-  // Reset coupon/referral when modal closes
+  // Reset when modal closes
   useEffect(() => {
     if (!open) {
       setAppliedCoupon(null);
@@ -132,6 +109,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
       setAppliedReferral(null);
       setRefCode(referralCode);
       setTouched({});
+      setSelectedZoneIndex(-1);
     }
   }, [open, referralCode]);
 
@@ -146,7 +124,6 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
     const c = (code || refCode).trim().toUpperCase();
     if (!c) return;
     setValidatingRef(true);
-    // Check referrer exists and is active
     const { data: refData } = await supabase
       .from("referrers")
       .select("*")
@@ -159,7 +136,6 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
       setValidatingRef(false);
       return;
     }
-    // Check referral config
     const { data: configData } = await supabase
       .from("referral_config")
       .select("*")
@@ -213,19 +189,16 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
       return;
     }
     const c = data[0];
-    // Check expiry
     if (c.expires_at && new Date(c.expires_at) < new Date()) {
       toast({ title: "Cupón expirado", variant: "destructive" });
       setValidatingCoupon(false);
       return;
     }
-    // Check max uses
     if (c.max_uses && c.used_count >= c.max_uses) {
       toast({ title: "Cupón agotado", variant: "destructive" });
       setValidatingCoupon(false);
       return;
     }
-    // Check min purchase
     if (c.min_purchase && cartTotal < Number(c.min_purchase)) {
       toast({ title: "Compra mínima no alcanzada", description: `Mínimo ${currencySymbol}${Number(c.min_purchase).toFixed(2)}`, variant: "destructive" });
       setValidatingCoupon(false);
@@ -246,15 +219,10 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
     setCouponCode("");
   };
 
-  const availableMethods = shippingConfig
-    ? [
-        ...(shippingConfig.pickup_enabled ? ["pickup"] : []),
-        ...(shippingConfig.local_enabled ? ["local"] : []),
-        ...(shippingConfig.national_enabled ? ["national"] : []),
-      ]
-    : [];
-
-  const hasShipping = availableMethods.length > 0;
+  // Zones from config
+  const zones = shippingConfig?.local_zones || [];
+  const hasZones = zones.length > 0;
+  const isFreeShippingCoupon = appliedCoupon?.discount_type === "free_shipping";
 
   // Calculate coupon discount
   const couponDiscount = appliedCoupon
@@ -264,8 +232,6 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
         ? 0
         : Math.min(appliedCoupon.discount_value, cartTotal)
     : 0;
-
-  const isFreeShippingCoupon = appliedCoupon?.discount_type === "free_shipping";
 
   const subtotalAfterCoupon = cartTotal - couponDiscount;
 
@@ -280,22 +246,10 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
 
   // Calculate shipping cost
   const getShippingCost = () => {
-    if (!shippingConfig || !shippingMethod) return 0;
-    if (shippingMethod === "pickup") return 0;
+    if (!hasZones || selectedZoneIndex < 0) return 0;
     if (isFreeShippingCoupon) return 0;
-
-    let cost = 0;
-    if (shippingMethod === "local") {
-      const zones = shippingConfig.local_zones || [];
-      if (zones.length > 0 && selectedZoneIndex >= 0 && selectedZoneIndex < zones.length) {
-        cost = zones[selectedZoneIndex].cost || 0;
-      } else {
-        cost = shippingConfig.local_cost || 0;
-      }
-    }
-    if (shippingMethod === "national") cost = shippingConfig.national_cost || 0;
-
-    if (shippingConfig.free_shipping_threshold > 0 && subtotalAfterDiscounts >= shippingConfig.free_shipping_threshold) {
+    const cost = zones[selectedZoneIndex]?.cost || 0;
+    if (shippingConfig && shippingConfig.free_shipping_threshold > 0 && subtotalAfterDiscounts >= shippingConfig.free_shipping_threshold) {
       return 0;
     }
     return cost;
@@ -304,34 +258,16 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
   const shippingCost = getShippingCost();
   const grandTotal = subtotalAfterDiscounts + shippingCost;
 
-  // Form completeness check
+  // Form completeness
   const hasPaymentMethods = paymentConfig && (paymentConfig.cash?.enabled || paymentConfig.bank_transfer?.enabled || paymentConfig.qr?.enabled);
   const isFormComplete = (() => {
     if (items.length === 0) return false;
     if (!name.trim() || name.trim().length < 3) return false;
     if (!phone.trim() || phone.trim().length < 7) return false;
-    if (hasShipping && !shippingMethod) return false;
-    if (hasShipping && shippingMethod === "local" && shippingConfig?.local_zones && shippingConfig.local_zones.length > 0 && selectedZoneIndex < 0) return false;
-    if (hasShipping && shippingMethod && shippingMethod !== "pickup") {
-      if (!shipAddress.trim()) return false;
-      if (!shipCity.trim()) return false;
-    }
+    if (hasZones && selectedZoneIndex < 0) return false;
     if (hasPaymentMethods && !selectedPayment) return false;
     return true;
   })();
-
-  const getEstimatedDate = () => {
-    if (!shippingConfig || !shippingMethod) return null;
-    let days = 0;
-    if (shippingMethod === "pickup") days = 0;
-    else if (shippingMethod === "local") days = shippingConfig.local_delivery_days || 1;
-    else if (shippingMethod === "national") days = shippingConfig.national_delivery_days || 5;
-
-    if (days === 0) return null;
-    const date = new Date();
-    date.setDate(date.getDate() + days);
-    return date.toISOString();
-  };
 
   const handleSubmit = async () => {
     if (!name.trim() || name.trim().length < 3) {
@@ -342,29 +278,12 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
       toast({ title: "Error", description: "Ingresa un teléfono válido", variant: "destructive" });
       return;
     }
-
-    // Validate shipping
-    if (hasShipping && !shippingMethod) {
-      toast({ title: "Error", description: "Selecciona un método de envío", variant: "destructive" });
-      return;
-    }
-    if (hasShipping && shippingMethod === "local" && shippingConfig?.local_zones && shippingConfig.local_zones.length > 0 && selectedZoneIndex < 0) {
+    if (hasZones && selectedZoneIndex < 0) {
       toast({ title: "Error", description: "Selecciona tu zona de envío", variant: "destructive" });
       return;
     }
-    if (hasShipping && shippingMethod !== "pickup") {
-      if (!shipAddress.trim()) {
-        toast({ title: "Error", description: "Ingresa la dirección de envío", variant: "destructive" });
-        return;
-      }
-      if (!shipCity.trim()) {
-        toast({ title: "Error", description: "Ingresa la ciudad", variant: "destructive" });
-        return;
-      }
-    }
 
     if (items.length === 0) return;
-
     setSubmitting(true);
 
     const orderItems = items.map((i) => ({
@@ -374,19 +293,8 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
       quantity: i.quantity,
     }));
 
-    // Generate tracking number
-    const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let trackingNumber = "TRK-";
-    for (let i = 0; i < 8; i++) {
-      trackingNumber += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-
-    const trackingUrl = hasShipping && shippingMethod
-      ? `${window.location.origin}/track?q=${encodeURIComponent(trackingNumber)}`
-      : undefined;
-
-    const zoneName = shippingMethod === "local" && shippingConfig?.local_zones && selectedZoneIndex >= 0
-      ? shippingConfig.local_zones[selectedZoneIndex].name
+    const zoneName = hasZones && selectedZoneIndex >= 0
+      ? zones[selectedZoneIndex].name
       : undefined;
 
     const waUrl = generateWhatsAppUrl({
@@ -396,40 +304,32 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
       customer: {
         name: name.trim(),
         phone: phone.trim(),
-        address: shippingMethod === "pickup" ? undefined : shipAddress.trim() || undefined,
       },
       currencySymbol,
       subtotal: cartTotal,
       coupon: appliedCoupon
         ? { code: appliedCoupon.code, discount: couponDiscount }
         : undefined,
-      shipping: hasShipping && shippingMethod
+      shipping: hasZones && selectedZoneIndex >= 0
         ? {
-            method: shippingMethod,
-            methodLabel: METHOD_LABELS[shippingMethod],
+            method: "local",
+            methodLabel: zoneName || "Envío",
             zoneName,
             cost: shippingCost,
-            address: shippingMethod === "pickup" ? undefined : shipAddress.trim(),
-            city: shippingMethod === "pickup" ? undefined : shipCity.trim(),
           }
         : undefined,
       grandTotal,
-      trackingNumber: hasShipping && shippingMethod ? trackingNumber : undefined,
-      trackingUrl,
       note: note.trim() || undefined,
       paymentMethod: selectedPayment && paymentConfig
         ? (paymentConfig as any)[selectedPayment]?.label || undefined
         : undefined,
     });
 
-    // IMPORTANT: Open WhatsApp IMMEDIATELY (synchronously) before any async DB calls
-    // This preserves the user gesture context so browsers don't block the popup
+    // Open WhatsApp immediately
     window.location.href = waUrl;
 
-    // Now do all DB operations in the background — the page is navigating away
-    // but these will still complete
+    // DB operations in background
     try {
-      // Create order
       const { data: orderData } = await supabase.from("orders").insert({
         store_id: storeId,
         customer_name: name.trim(),
@@ -441,23 +341,6 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
       }).select("id").single();
 
       if (orderData) {
-        // Create shipment if shipping is configured
-        if (hasShipping && shippingMethod) {
-          await supabase.from("shipments").insert({
-            order_id: orderData.id,
-            store_id: storeId,
-            shipping_method: shippingMethod,
-            tracking_number: trackingNumber,
-            cost: shippingCost,
-            address: shippingMethod === "pickup" ? (shippingConfig?.pickup_address || "") : shipAddress.trim(),
-            city: shippingMethod === "pickup" ? "" : shipCity.trim(),
-            postal_code: shippingMethod === "pickup" ? "" : shipPostalCode.trim(),
-            phone: shipPhone.trim() || phone.trim(),
-            status: "pending",
-            estimated_delivery_date: getEstimatedDate(),
-          });
-        }
-
         // Increment coupon used_count
         if (appliedCoupon) {
           const { data: couponData } = await supabase.from("coupons").select("used_count").eq("id", appliedCoupon.id).single();
@@ -510,7 +393,6 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
         }
       }
     } catch (e) {
-      // DB operations are best-effort since we already redirected to WhatsApp
       console.error("Error saving order to database:", e);
     }
 
@@ -518,7 +400,6 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
     onOpenChange(false);
     clearCart();
     setName(""); setPhone(""); setNote("");
-    setShipAddress(""); setShipCity(""); setShipPostalCode(""); setShipPhone("");
     onOrderComplete?.();
   };
 
@@ -541,162 +422,41 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
             {phoneInvalid && <p className="text-xs text-destructive mt-1">Mínimo 7 dígitos</p>}
           </div>
 
-          {/* Shipping Method Selection */}
-          {hasShipping && (
+          {/* Zone Selection */}
+          {hasZones && (
             <>
               <Separator />
               <div>
-                <Label className="text-sm font-semibold">Método de envío *</Label>
-                <div className="mt-2 space-y-2">
-                  {availableMethods.map((method) => {
-                    let description = "";
-                    if (method === "pickup") {
-                      description = `Gratis${shippingConfig?.pickup_address ? ` — ${shippingConfig.pickup_address}` : ""}`;
-                      if (shippingConfig?.pickup_hours) description += ` (${shippingConfig.pickup_hours})`;
-                    } else if (method === "local") {
-                      const zones = shippingConfig?.local_zones || [];
-                      const isFree = shippingConfig?.free_shipping_threshold && shippingConfig.free_shipping_threshold > 0 && cartTotal >= shippingConfig.free_shipping_threshold;
-                      if (zones.length > 0) {
-                        description = isFree ? "Gratis" : "Selecciona tu zona";
-                      } else {
-                        const cost = shippingConfig?.local_cost || 0;
-                        description = isFree ? "Gratis" : cost > 0 ? `${currencySymbol}${cost.toFixed(2)}` : "Gratis";
-                      }
-                      if (shippingConfig?.local_delivery_days) description += ` — ${shippingConfig.local_delivery_days} día(s)`;
-                    } else if (method === "national") {
-                      const cost = shippingConfig?.national_cost || 0;
-                      const isFree = shippingConfig?.free_shipping_threshold && shippingConfig.free_shipping_threshold > 0 && cartTotal >= shippingConfig.free_shipping_threshold;
-                      description = isFree ? "Gratis" : cost > 0 ? `${currencySymbol}${cost.toFixed(2)}` : "Gratis";
-                      if (shippingConfig?.national_carrier) description += ` — ${shippingConfig.national_carrier}`;
-                      if (shippingConfig?.national_delivery_days) description += ` (${shippingConfig.national_delivery_days} días)`;
-                    }
-
+                <Label className="text-sm font-semibold flex items-center gap-2">
+                  <Truck className="h-4 w-4" /> Zona de envío *
+                </Label>
+                <div className="mt-2 space-y-1.5">
+                  {zones.map((zone, i) => {
+                    const isFree = shippingConfig && shippingConfig.free_shipping_threshold > 0 && subtotalAfterDiscounts >= shippingConfig.free_shipping_threshold;
                     return (
                       <label
-                        key={method}
-                        className={`flex cursor-pointer items-start gap-3 rounded-lg border p-3 transition-colors ${
-                          shippingMethod === method
+                        key={i}
+                        className={`flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm transition-colors ${
+                          selectedZoneIndex === i
                             ? "border-primary bg-primary/5"
                             : "hover:bg-accent/50"
                         }`}
                       >
                         <input
                           type="radio"
-                          name="shipping-method"
-                          value={method}
-                          checked={shippingMethod === method}
-                          onChange={() => { setShippingMethod(method); setSelectedZoneIndex(-1); }}
-                          className="mt-1"
+                          name="shipping-zone"
+                          checked={selectedZoneIndex === i}
+                          onChange={() => setSelectedZoneIndex(i)}
                         />
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            {METHOD_ICONS[method]}
-                            <span className="text-sm font-medium text-foreground">{METHOD_LABELS[method]}</span>
-                          </div>
-                          <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
-                        </div>
+                        <span className="flex-1 font-medium">{zone.name || `Zona ${i + 1}`}</span>
+                        <span className="text-muted-foreground">
+                          {isFreeShippingCoupon || isFree ? "Gratis" : zone.cost > 0 ? `${currencySymbol}${zone.cost.toFixed(2)}` : "Gratis"}
+                        </span>
                       </label>
                     );
                   })}
                 </div>
               </div>
-
-              {/* Local zone selection */}
-              {shippingMethod === "local" && shippingConfig?.local_zones && shippingConfig.local_zones.length > 0 && (
-                <div className="space-y-2 rounded-lg border bg-muted/30 p-3">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase">Selecciona tu zona *</p>
-                  <div className="space-y-1.5">
-                    {shippingConfig.local_zones.map((zone, i) => {
-                      const isFree = shippingConfig.free_shipping_threshold > 0 && subtotalAfterCoupon >= shippingConfig.free_shipping_threshold;
-                      return (
-                        <label
-                          key={i}
-                          className={`flex cursor-pointer items-center gap-3 rounded-md border px-3 py-2 text-sm transition-colors ${
-                            selectedZoneIndex === i
-                              ? "border-primary bg-primary/5"
-                              : "hover:bg-accent/50"
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="local-zone"
-                            checked={selectedZoneIndex === i}
-                            onChange={() => setSelectedZoneIndex(i)}
-                          />
-                          <span className="flex-1 font-medium">{zone.name || `Zona ${i + 1}`}</span>
-                          <span className="text-muted-foreground">
-                            {isFree ? "Gratis" : zone.cost > 0 ? `${currencySymbol}${zone.cost.toFixed(2)}` : "Gratis"}
-                          </span>
-                        </label>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-
-              {/* Shipping address fields */}
-              {shippingMethod && shippingMethod !== "pickup" && (
-                <div className="space-y-3 rounded-lg border bg-muted/30 p-3">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase">Dirección de envío</p>
-                  <div>
-                    <Label htmlFor="ship-address" className={touched.shipAddress && !shipAddress.trim() ? "text-destructive" : ""}>Calle / Dirección *</Label>
-                    <Input
-                      id="ship-address"
-                      value={shipAddress}
-                      onChange={(e) => setShipAddress(e.target.value)}
-                      onBlur={() => markTouched("shipAddress")}
-                      placeholder="Av. Principal #123"
-                      className={`mt-1 ${touched.shipAddress && !shipAddress.trim() ? invalidBorder : ""}`}
-                    />
-                    {touched.shipAddress && !shipAddress.trim() && <p className="text-xs text-destructive mt-1">Requerido</p>}
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label htmlFor="ship-city" className={touched.shipCity && !shipCity.trim() ? "text-destructive" : ""}>Ciudad *</Label>
-                      <Input
-                        id="ship-city"
-                        value={shipCity}
-                        onChange={(e) => setShipCity(e.target.value)}
-                        onBlur={() => markTouched("shipCity")}
-                        placeholder="Santa Cruz"
-                        className={`mt-1 ${touched.shipCity && !shipCity.trim() ? invalidBorder : ""}`}
-                      />
-                      {touched.shipCity && !shipCity.trim() && <p className="text-xs text-destructive mt-1">Requerido</p>}
-                    </div>
-                    <div>
-                      <Label htmlFor="ship-postal">Código postal</Label>
-                      <Input
-                        id="ship-postal"
-                        value={shipPostalCode}
-                        onChange={(e) => setShipPostalCode(e.target.value)}
-                        placeholder="10001"
-                        className="mt-1"
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <Label htmlFor="ship-phone">Teléfono de contacto</Label>
-                    <Input
-                      id="ship-phone"
-                      value={shipPhone}
-                      onChange={(e) => setShipPhone(e.target.value)}
-                      placeholder="Mismo del pedido si no se llena"
-                      className="mt-1"
-                    />
-                  </div>
-                </div>
-              )}
-
-              {/* Pickup info */}
-              {shippingMethod === "pickup" && shippingConfig?.pickup_address && (
-                <div className="rounded-lg border bg-muted/30 p-3">
-                  <p className="text-xs font-semibold text-muted-foreground uppercase mb-1">Dirección de retiro</p>
-                  <p className="text-sm text-foreground">{shippingConfig.pickup_address}</p>
-                  {shippingConfig.pickup_hours && (
-                    <p className="mt-1 text-xs text-muted-foreground">🕐 {shippingConfig.pickup_hours}</p>
-                  )}
-                </div>
-              )}
             </>
           )}
 
@@ -713,14 +473,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
                         selectedPayment === "cash" ? "border-primary bg-primary/5" : "hover:bg-accent/50"
                       }`}
                     >
-                      <input
-                        type="radio"
-                        name="payment-method"
-                        value="cash"
-                        checked={selectedPayment === "cash"}
-                        onChange={() => setSelectedPayment("cash")}
-                        className="mt-1"
-                      />
+                      <input type="radio" name="payment-method" value="cash" checked={selectedPayment === "cash"} onChange={() => setSelectedPayment("cash")} className="mt-1" />
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <Banknote className="h-4 w-4" />
@@ -738,14 +491,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
                         selectedPayment === "bank_transfer" ? "border-primary bg-primary/5" : "hover:bg-accent/50"
                       }`}
                     >
-                      <input
-                        type="radio"
-                        name="payment-method"
-                        value="bank_transfer"
-                        checked={selectedPayment === "bank_transfer"}
-                        onChange={() => setSelectedPayment("bank_transfer")}
-                        className="mt-1"
-                      />
+                      <input type="radio" name="payment-method" value="bank_transfer" checked={selectedPayment === "bank_transfer"} onChange={() => setSelectedPayment("bank_transfer")} className="mt-1" />
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <Building2 className="h-4 w-4" />
@@ -765,14 +511,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
                         selectedPayment === "qr" ? "border-primary bg-primary/5" : "hover:bg-accent/50"
                       }`}
                     >
-                      <input
-                        type="radio"
-                        name="payment-method"
-                        value="qr"
-                        checked={selectedPayment === "qr"}
-                        onChange={() => setSelectedPayment("qr")}
-                        className="mt-1"
-                      />
+                      <input type="radio" name="payment-method" value="qr" checked={selectedPayment === "qr"} onChange={() => setSelectedPayment("qr")} className="mt-1" />
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <QrCode className="h-4 w-4" />
@@ -780,11 +519,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
                         </div>
                         {selectedPayment === "qr" && paymentConfig.qr.image_url && (
                           <div className="mt-2 flex justify-center">
-                            <img
-                              src={paymentConfig.qr.image_url}
-                              alt="QR de pago"
-                              className="h-48 w-48 rounded-lg border object-contain bg-white p-2"
-                            />
+                            <img src={paymentConfig.qr.image_url} alt="QR de pago" className="h-48 w-48 rounded-lg border object-contain bg-white p-2" />
                           </div>
                         )}
                       </div>
@@ -828,12 +563,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
                   className="flex-1"
                   onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), validateCoupon())}
                 />
-                <Button
-                  variant="outline"
-                  onClick={validateCoupon}
-                  disabled={validatingCoupon || !couponCode.trim()}
-                  className="shrink-0"
-                >
+                <Button variant="outline" onClick={validateCoupon} disabled={validatingCoupon || !couponCode.trim()} className="shrink-0">
                   {validatingCoupon ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aplicar"}
                 </Button>
               </div>
@@ -869,12 +599,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
                   className="flex-1"
                   onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), validateReferral())}
                 />
-                <Button
-                  variant="outline"
-                  onClick={() => validateReferral()}
-                  disabled={validatingRef || !refCode.trim()}
-                  className="shrink-0"
-                >
+                <Button variant="outline" onClick={() => validateReferral()} disabled={validatingRef || !refCode.trim()} className="shrink-0">
                   {validatingRef ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aplicar"}
                 </Button>
               </div>
@@ -899,9 +624,9 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
                 <span className="font-medium">-{currencySymbol}{referralDiscount.toFixed(2)}</span>
               </div>
             )}
-            {hasShipping && (
+            {hasZones && selectedZoneIndex >= 0 && (
               <div className="flex justify-between">
-                <span className="text-muted-foreground">Envío</span>
+                <span className="text-muted-foreground">Envío ({zones[selectedZoneIndex]?.name})</span>
                 <span className="font-medium">{shippingCost > 0 ? `${currencySymbol}${shippingCost.toFixed(2)}` : "Gratis"}</span>
               </div>
             )}
