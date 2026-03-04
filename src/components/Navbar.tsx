@@ -43,9 +43,6 @@ const Navbar = () => {
           <Link to="/install" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
             Instalar App
           </Link>
-          <Link to="/track" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-            Rastrear pedido
-          </Link>
           {user ? (
             <>
               <Link to="/dashboard" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
@@ -78,7 +75,6 @@ const Navbar = () => {
         <div className="border-t bg-card px-4 pb-4 pt-2 md:hidden">
           <Link to="/" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>Inicio</Link>
           <Link to="/install" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>Instalar App</Link>
-          <Link to="/track" className="block py-2 text-sm" onClick={() => setMobileOpen(false)}>Rastrear pedido</Link>
           {user ? (
             <div className="flex flex-col gap-2">
               <Link to="/dashboard" className="py-2 text-sm" onClick={() => setMobileOpen(false)}>Dashboard</Link>

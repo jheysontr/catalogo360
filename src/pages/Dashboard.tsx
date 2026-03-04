@@ -25,7 +25,7 @@ import Analytics from "@/pages/Dashboard/Analytics";
 import Categories from "@/pages/Dashboard/Categories";
 import Coupons from "@/pages/Dashboard/Coupons";
 
-import Shipments from "@/pages/Dashboard/Shipments";
+import ShippingConfig from "@/pages/Dashboard/ShippingConfig";
 import Linkbox from "@/pages/Dashboard/Linkbox";
 import Referrals from "@/pages/Dashboard/Referrals";
 import PaymentMethods from "@/pages/Dashboard/PaymentMethods";
@@ -59,7 +59,6 @@ const sidebarLinks: SidebarItem[] = [
 
   { type: "group", label: "Ventas" },
   { type: "link", label: "Órdenes", icon: ShoppingCart, id: "orders" },
-  { type: "link", label: "Envíos", icon: Truck, id: "shipments" },
 
   { type: "group", label: "Marketing" },
   { type: "link", label: "Cupones", icon: Ticket, id: "coupons" },
@@ -67,6 +66,7 @@ const sidebarLinks: SidebarItem[] = [
   { type: "link", label: "Linkbox", icon: Link2, id: "linkbox" },
 
   { type: "group", label: "Configuración" },
+  { type: "link", label: "Zonas de Envío", icon: Truck, id: "shipments" },
   { type: "link", label: "Métodos de Pago", icon: Wallet, id: "payment_methods" },
   { type: "link", label: "Estadísticas", icon: BarChart3, id: "stats" },
   { type: "link", label: "Planes", icon: CreditCard, id: "plans" },
@@ -284,7 +284,7 @@ const Dashboard = () => {
           ) : activeSection === "coupons" ? (
             <Coupons />
           ) : activeSection === "shipments" ? (
-            <Shipments />
+            <ShippingConfig />
           ) : activeSection === "linkbox" ? (
             <Linkbox />
           ) : activeSection === "referrals" ? (

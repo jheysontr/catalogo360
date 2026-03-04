@@ -16,7 +16,6 @@ import Dashboard from "./pages/Dashboard";
 import StoreFront from "./pages/StoreFront";
 import LinkboxPage from "./pages/LinkboxPage";
 import NotFound from "./pages/NotFound";
-import TrackOrder from "./pages/TrackOrder";
 import Admin from "./pages/Admin";
 import AffiliatePage from "./pages/AffiliatePage";
 import Install from "./pages/Install";
@@ -29,12 +28,11 @@ const AppLayout = () => {
   const isDashboard = location.pathname.startsWith("/dashboard");
   const isStoreFront = location.pathname.startsWith("/store/");
   const isLinkbox = location.pathname.startsWith("/linkbox/");
-  const isTrack = location.pathname.startsWith("/track");
   const isAdmin = location.pathname.startsWith("/admin");
   const isAffiliate = location.pathname.startsWith("/affiliate/");
   return (
     <div className="flex min-h-screen flex-col">
-      {!isDashboard && !isStoreFront && !isLinkbox && !isTrack && !isAdmin && !isAffiliate && <Navbar />}
+      {!isDashboard && !isStoreFront && !isLinkbox && !isAdmin && !isAffiliate && <Navbar />}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Landing />} />
@@ -50,7 +48,6 @@ const AppLayout = () => {
           />
           <Route path="/store/:slug" element={<StoreFront />} />
           <Route path="/linkbox/:slug" element={<LinkboxPage />} />
-          <Route path="/track" element={<TrackOrder />} />
           <Route path="/affiliate/:code" element={<AffiliatePage />} />
           <Route path="/install" element={<Install />} />
           <Route
@@ -64,7 +61,7 @@ const AppLayout = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {!isDashboard && !isStoreFront && !isLinkbox && !isTrack && !isAdmin && !isAffiliate && <Footer />}
+      {!isDashboard && !isStoreFront && !isLinkbox && !isAdmin && !isAffiliate && <Footer />}
     </div>
   );
 };
