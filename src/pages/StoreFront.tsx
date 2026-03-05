@@ -75,7 +75,7 @@ interface Category {
 const StoreFront = () => {
   const { slug } = useParams<{ slug: string }>();
   const [searchParams] = useSearchParams();
-  const referralCode = searchParams.get("ref") || "";
+  
   const { toast } = useToast();
   const { items: cart, addToCart, removeFromCart, updateQuantity, cartTotal, itemCount, setStoreId } = useCart();
   const { addToWishlist, removeFromWishlist, isInWishlist, items: wishlistItems, itemCount: wishlistCount, setStoreId: setWishlistStoreId } = useWishlist();
@@ -736,7 +736,7 @@ const StoreFront = () => {
         storeName={store.store_name}
         primaryColor={primaryColor}
         currencySymbol={currencySymbol}
-        referralCode={referralCode}
+        
         onOrderComplete={() => {
           setCartOpen(false);
           setActiveCategory("all");
