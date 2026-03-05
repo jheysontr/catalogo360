@@ -27,7 +27,7 @@ import Coupons from "@/pages/Dashboard/Coupons";
 
 import ShippingConfig from "@/pages/Dashboard/ShippingConfig";
 import Linkbox from "@/pages/Dashboard/Linkbox";
-import Referrals from "@/pages/Dashboard/Referrals";
+
 import PaymentMethods from "@/pages/Dashboard/PaymentMethods";
 import DashboardHome from "@/pages/Dashboard/DashboardHome";
 
@@ -40,7 +40,7 @@ interface StoreData {
 
 const MODULE_SIDEBAR_MAP: Record<string, string> = {
   linkbox: "linkbox",
-  referrals: "referrals",
+  
   coupons: "coupons",
   shipments: "shipments",
   analytics: "stats",
@@ -62,7 +62,7 @@ const sidebarLinks: SidebarItem[] = [
 
   { type: "group", label: "Marketing" },
   { type: "link", label: "Cupones", icon: Ticket, id: "coupons" },
-  { type: "link", label: "Referencias", icon: Users, id: "referrals" },
+  
   { type: "link", label: "Linkbox", icon: Link2, id: "linkbox" },
 
   { type: "group", label: "Configuración" },
@@ -287,8 +287,6 @@ const Dashboard = () => {
             <ShippingConfig />
           ) : activeSection === "linkbox" ? (
             <Linkbox />
-          ) : activeSection === "referrals" ? (
-            <Referrals />
           ) : activeSection === "payment_methods" ? (
             <PaymentMethods />
           ) : activeSection === "settings" ? (

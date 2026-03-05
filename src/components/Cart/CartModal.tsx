@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
-import { Loader2, Truck, Tag, X, Users, Banknote, Building2, QrCode } from "lucide-react";
+import { Loader2, Truck, Tag, X, Banknote, Building2, QrCode } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/lib/CartContext";
 import { getFinalPrice, generateWhatsAppUrl } from "@/utils/whatsapp";
@@ -28,7 +28,7 @@ interface CartModalProps {
   onOrderComplete?: () => void;
 }
 
-const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primaryColor, currencySymbol = "$", referralCode = "", onOrderComplete }: CartModalProps) => {
+const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primaryColor, currencySymbol = "$", onOrderComplete }: CartModalProps) => {
   const { toast } = useToast();
   const { items, cartTotal, clearCart } = useCart();
 
@@ -54,14 +54,6 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
   } | null>(null);
   const [validatingCoupon, setValidatingCoupon] = useState(false);
 
-  // Referral
-  const [refCode, setRefCode] = useState(referralCode);
-  const [appliedReferral, setAppliedReferral] = useState<{
-    referrer_name: string; referrer_email: string; referral_code: string;
-    discount_type: string; discount_value: number;
-    commission_type: string; commission_value: number; max_orders: number;
-  } | null>(null);
-  const [validatingRef, setValidatingRef] = useState(false);
 
   // Payment methods
   const [paymentConfig, setPaymentConfig] = useState<PaymentMethodsConfig | null>(null);
@@ -106,70 +98,10 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
     if (!open) {
       setAppliedCoupon(null);
       setCouponCode("");
-      setAppliedReferral(null);
-      setRefCode(referralCode);
       setTouched({});
       setSelectedZoneIndex(-1);
     }
-  }, [open, referralCode]);
-
-  // Auto-validate referral code on open
-  useEffect(() => {
-    if (open && referralCode && !appliedReferral) {
-      validateReferral(referralCode);
-    }
-  }, [open, referralCode]);
-
-  const validateReferral = async (code?: string) => {
-    const c = (code || refCode).trim().toUpperCase();
-    if (!c) return;
-    setValidatingRef(true);
-    const { data: refData } = await supabase
-      .from("referrers")
-      .select("*")
-      .eq("store_id", storeId)
-      .eq("referral_code", c)
-      .eq("is_active", true)
-      .limit(1);
-    if (!refData?.length) {
-      toast({ title: "Código de referido inválido", variant: "destructive" });
-      setValidatingRef(false);
-      return;
-    }
-    const { data: configData } = await supabase
-      .from("referral_config")
-      .select("*")
-      .eq("store_id", storeId)
-      .eq("is_active", true)
-      .limit(1);
-    if (!configData?.length) {
-      toast({ title: "El programa de referidos no está activo", variant: "destructive" });
-      setValidatingRef(false);
-      return;
-    }
-    const rc = configData[0];
-    const r = refData[0];
-    setAppliedReferral({
-      referrer_name: r.name,
-      referrer_email: r.email,
-      referral_code: r.referral_code,
-      discount_type: rc.referral_discount_type,
-      discount_value: Number(rc.referral_discount_value),
-      commission_type: rc.commission_type,
-      commission_value: Number(rc.commission_value),
-      max_orders: rc.max_commission_orders,
-    });
-    const desc = rc.referral_discount_type === "percentage"
-      ? `${rc.referral_discount_value}% de descuento`
-      : `${currencySymbol}${Number(rc.referral_discount_value).toFixed(2)} de descuento`;
-    toast({ title: "¡Código de referido aplicado!", description: desc });
-    setValidatingRef(false);
-  };
-
-  const removeReferral = () => {
-    setAppliedReferral(null);
-    setRefCode("");
-  };
+  }, [open]);
 
   const validateCoupon = async () => {
     const code = couponCode.trim().toUpperCase();
@@ -235,14 +167,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
 
   const subtotalAfterCoupon = cartTotal - couponDiscount;
 
-  // Calculate referral discount
-  const referralDiscount = appliedReferral
-    ? appliedReferral.discount_type === "percentage"
-      ? subtotalAfterCoupon * (appliedReferral.discount_value / 100)
-      : Math.min(appliedReferral.discount_value, subtotalAfterCoupon)
-    : 0;
-
-  const subtotalAfterDiscounts = subtotalAfterCoupon - referralDiscount;
+  const subtotalAfterDiscounts = subtotalAfterCoupon;
 
   // Calculate shipping cost
   const getShippingCost = () => {
@@ -349,48 +274,6 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
           }
         }
 
-        // Track referral commission
-        if (appliedReferral) {
-          const commissionAmount = appliedReferral.commission_type === "percentage"
-            ? grandTotal * (appliedReferral.commission_value / 100)
-            : appliedReferral.commission_value;
-
-          const { count } = await supabase
-            .from("referrals")
-            .select("id", { count: "exact", head: true })
-            .eq("store_id", storeId)
-            .eq("referrer_code", appliedReferral.referral_code)
-            .eq("referred_email", phone.trim());
-
-          const orderNum = (count || 0) + 1;
-
-          if (orderNum <= appliedReferral.max_orders) {
-            await supabase.from("referrals").insert({
-              store_id: storeId,
-              referrer_code: appliedReferral.referral_code,
-              referrer_name: appliedReferral.referrer_name,
-              referrer_email: appliedReferral.referrer_email,
-              referred_email: phone.trim(),
-              referred_order_id: orderData.id,
-              commission_amount: commissionAmount,
-              status: "pending",
-              order_count: orderNum,
-            });
-
-            const { data: refData } = await supabase
-              .from("referrers")
-              .select("id, total_earned, total_referrals")
-              .eq("store_id", storeId)
-              .eq("referral_code", appliedReferral.referral_code)
-              .single();
-            if (refData) {
-              await supabase.from("referrers").update({
-                total_earned: Number(refData.total_earned) + commissionAmount,
-                total_referrals: refData.total_referrals + 1,
-              }).eq("id", refData.id);
-            }
-          }
-        }
       }
     } catch (e) {
       console.error("Error saving order to database:", e);
@@ -570,41 +453,6 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
             )}
           </div>
 
-          {/* Referral Code */}
-          <div>
-            <Label className="text-sm font-semibold">Código de referido</Label>
-            {appliedReferral ? (
-              <div className="mt-2 flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30 p-2.5">
-                <Users className="h-4 w-4 text-blue-600" />
-                <div className="flex-1">
-                  <span className="text-sm font-medium text-blue-700 dark:text-blue-400">
-                    Referido por {appliedReferral.referrer_name}
-                  </span>
-                  <span className="ml-2 text-xs text-blue-600 dark:text-blue-500">
-                    {appliedReferral.discount_type === "percentage"
-                      ? `-${appliedReferral.discount_value}%`
-                      : `-${currencySymbol}${appliedReferral.discount_value.toFixed(2)}`}
-                  </span>
-                </div>
-                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={removeReferral}>
-                  <X className="h-3.5 w-3.5" />
-                </Button>
-              </div>
-            ) : (
-              <div className="mt-2 flex gap-2">
-                <Input
-                  value={refCode}
-                  onChange={(e) => setRefCode(e.target.value.toUpperCase())}
-                  placeholder="REF-XXXXXX"
-                  className="flex-1"
-                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), validateReferral())}
-                />
-                <Button variant="outline" onClick={() => validateReferral()} disabled={validatingRef || !refCode.trim()} className="shrink-0">
-                  {validatingRef ? <Loader2 className="h-4 w-4 animate-spin" /> : "Aplicar"}
-                </Button>
-              </div>
-            )}
-          </div>
 
           <Separator />
           <div className="space-y-1.5 text-sm">
@@ -616,12 +464,6 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
               <div className="flex justify-between text-green-600">
                 <span>Cupón ({appliedCoupon.code})</span>
                 <span className="font-medium">-{currencySymbol}{couponDiscount.toFixed(2)}</span>
-              </div>
-            )}
-            {appliedReferral && referralDiscount > 0 && (
-              <div className="flex justify-between text-blue-600">
-                <span>Referido ({appliedReferral.referrer_name})</span>
-                <span className="font-medium">-{currencySymbol}{referralDiscount.toFixed(2)}</span>
               </div>
             )}
             {hasZones && selectedZoneIndex >= 0 && (
