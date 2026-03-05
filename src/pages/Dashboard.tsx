@@ -59,16 +59,15 @@ const sidebarLinks: SidebarItem[] = [
 
   { type: "group", label: "Ventas" },
   { type: "link", label: "Órdenes", icon: ShoppingCart, id: "orders" },
+  { type: "link", label: "Estadísticas", icon: BarChart3, id: "stats" },
 
   { type: "group", label: "Marketing" },
   { type: "link", label: "Cupones", icon: Ticket, id: "coupons" },
-  
   { type: "link", label: "Linkbox", icon: Link2, id: "linkbox" },
 
-  { type: "group", label: "Configuración" },
+  { type: "group", label: "Tienda" },
   { type: "link", label: "Zonas de Envío", icon: Truck, id: "shipments" },
   { type: "link", label: "Métodos de Pago", icon: Wallet, id: "payment_methods" },
-  { type: "link", label: "Estadísticas", icon: BarChart3, id: "stats" },
   { type: "link", label: "Planes", icon: CreditCard, id: "plans" },
   { type: "link", label: "Ajustes", icon: Settings, id: "settings" },
 ];
