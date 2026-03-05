@@ -80,9 +80,19 @@ const Dashboard = () => {
   const [store, setStore] = useState<StoreData | null>(null);
   const [productCount, setProductCount] = useState(0);
   const [orderCount, setOrderCount] = useState(0);
+  const [pendingOrderCount, setPendingOrderCount] = useState(0);
+  const [lowStockCount, setLowStockCount] = useState(0);
+  const [activeCouponCount, setActiveCouponCount] = useState(0);
   const [lastOrder, setLastOrder] = useState<{ customer_name: string; items: any } | null>(null);
   const [enabledModules, setEnabledModules] = useState<Record<string, boolean>>({});
   const [qrOpen, setQrOpen] = useState(false);
+
+  // Badge counts map for sidebar
+  const badgeCounts: Record<string, number> = {
+    orders: pendingOrderCount,
+    products: lowStockCount,
+    coupons: activeCouponCount,
+  };
 
   // Realtime notifications
   useRealtimeOrders(store?.id ?? null);
@@ -122,6 +132,30 @@ const Dashboard = () => {
           .select("id", { count: "exact", head: true })
           .eq("store_id", s.id);
         setProductCount(pCount ?? 0);
+
+        // Low stock products (stock <= 5)
+        const { count: lowStock } = await supabase
+          .from("products")
+          .select("id", { count: "exact", head: true })
+          .eq("store_id", s.id)
+          .lte("stock", 5);
+        setLowStockCount(lowStock ?? 0);
+
+        // Pending orders count
+        const { count: pendingCount } = await supabase
+          .from("orders")
+          .select("id", { count: "exact", head: true })
+          .eq("store_id", s.id)
+          .eq("status", "pending");
+        setPendingOrderCount(pendingCount ?? 0);
+
+        // Active coupons count
+        const { count: couponCount } = await supabase
+          .from("coupons")
+          .select("id", { count: "exact", head: true })
+          .eq("store_id", s.id)
+          .eq("is_active", true);
+        setActiveCouponCount(couponCount ?? 0);
 
         const today = new Date();
         today.setHours(0, 0, 0, 0);
@@ -201,11 +235,21 @@ const Dashboard = () => {
               >
                 <link.icon className="h-4 w-4" />
                 <span className="flex-1 text-left">{link.label}</span>
-                {isLocked && (
+                {isLocked ? (
                   <span className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">
                     PRO
                   </span>
-                )}
+                ) : badgeCounts[link.id] > 0 ? (
+                  <span className={`min-w-[20px] rounded-full px-1.5 py-0.5 text-center text-[10px] font-bold leading-none ${
+                    link.id === "orders" 
+                      ? "bg-orange-500/15 text-orange-600 dark:text-orange-400" 
+                      : link.id === "products"
+                        ? "bg-red-500/15 text-red-600 dark:text-red-400"
+                        : "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                  }`}>
+                    {badgeCounts[link.id]}
+                  </span>
+                ) : null}
               </button>
             );
           })}
