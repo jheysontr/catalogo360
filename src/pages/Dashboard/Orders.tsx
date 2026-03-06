@@ -24,7 +24,8 @@ import {
 } from "@/components/ui/pagination";
 import {
   Search, ShoppingCart, Eye, MessageCircle, Download, Loader2, Package, Truck,
-  MoreHorizontal, CheckCircle, XCircle, Clock, ThumbsUp, FileText,
+  MoreHorizontal, CheckCircle, XCircle, Clock, ThumbsUp, FileText, FileDown,
+  DollarSign, Filter,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import type { Json } from "@/integrations/supabase/types";
@@ -167,6 +168,8 @@ const Orders = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const [period, setPeriod] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
+  const [minAmount, setMinAmount] = useState("");
+  const [maxAmount, setMaxAmount] = useState("");
   const [page, setPage] = useState(1);
 
   // Detail modal
@@ -230,20 +233,54 @@ const Orders = () => {
 
     if (search.trim()) {
       const q = search.toLowerCase();
-      list = list.filter((o) => o.customer_name.toLowerCase().includes(q));
+      list = list.filter((o) =>
+        o.customer_name.toLowerCase().includes(q) ||
+        o.customer_email.toLowerCase().includes(q) ||
+        (o.customer_phone && o.customer_phone.includes(q)) ||
+        o.id.toLowerCase().includes(q)
+      );
     }
+
+    if (minAmount) list = list.filter((o) => o.total_price >= Number(minAmount));
+    if (maxAmount) list = list.filter((o) => o.total_price <= Number(maxAmount));
 
     if (sortBy === "oldest") list.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     else if (sortBy === "value") list.sort((a, b) => b.total_price - a.total_price);
-    // newest is default (already ordered by DB)
 
     return list;
-  }, [orders, statusFilter, search, sortBy]);
+  }, [orders, statusFilter, search, sortBy, minAmount, maxAmount]);
+
+  /* ── CSV Export ── */
+  const exportCSV = () => {
+    const headers = ["ID", "Cliente", "Email", "Teléfono", "Productos", "Total", "Estado", "Fecha"];
+    const rows = filtered.map((o) => {
+      const items = parseItems(o.items);
+      return [
+        shortId(o.id),
+        o.customer_name,
+        o.customer_email,
+        o.customer_phone || "",
+        items.map((i) => `${itemName(i)} x${itemQty(i)}`).join("; "),
+        o.total_price.toFixed(2),
+        statusLabel(o.status),
+        fmtDate(o.created_at),
+      ];
+    });
+    const csv = [headers, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `ordenes-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "CSV exportado", description: `${filtered.length} órdenes exportadas` });
+  };
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
   const paginated = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
 
-  useEffect(() => { setPage(1); }, [search, statusFilter, sortBy, period]);
+  useEffect(() => { setPage(1); }, [search, statusFilter, sortBy, period, minAmount, maxAmount]);
 
   /* ── Status update ── */
   const updateStatus = async (orderId: string, newStatus: string) => {
@@ -308,49 +345,79 @@ const Orders = () => {
           <h1 className="font-display text-2xl font-bold text-foreground">Órdenes</h1>
           <p className="text-sm text-muted-foreground">{filtered.length} órdenes encontradas</p>
         </div>
-        <Select value={period} onValueChange={setPeriod}>
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {PERIOD_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={exportCSV} disabled={filtered.length === 0}>
+            <FileDown className="h-4 w-4" /> Exportar CSV
+          </Button>
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PERIOD_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Filters */}
-      <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Buscar por nombre de cliente..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="pl-9"
-          />
+      <Card className="space-y-3 p-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Buscar por nombre, email, teléfono o ID..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {STATUS_OPTIONS.map((o) => (
+                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-44">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="newest">Más reciente</SelectItem>
+              <SelectItem value="oldest">Más antiguo</SelectItem>
+              <SelectItem value="value">Mayor valor</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-40">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_OPTIONS.map((o) => (
-              <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-44">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="newest">Más reciente</SelectItem>
-            <SelectItem value="oldest">Más antiguo</SelectItem>
-            <SelectItem value="value">Mayor valor</SelectItem>
-          </SelectContent>
-        </Select>
+        <div className="flex items-center gap-2">
+          <DollarSign className="h-4 w-4 text-muted-foreground shrink-0" />
+          <Input
+            type="number"
+            placeholder="Monto mín"
+            value={minAmount}
+            onChange={(e) => setMinAmount(e.target.value)}
+            className="w-28"
+          />
+          <span className="text-xs text-muted-foreground">—</span>
+          <Input
+            type="number"
+            placeholder="Monto máx"
+            value={maxAmount}
+            onChange={(e) => setMaxAmount(e.target.value)}
+            className="w-28"
+          />
+          {(minAmount || maxAmount || search || statusFilter !== "all") && (
+            <Button variant="ghost" size="sm" onClick={() => { setSearch(""); setStatusFilter("all"); setMinAmount(""); setMaxAmount(""); }}>
+              <Filter className="h-3.5 w-3.5 mr-1" /> Limpiar
+            </Button>
+          )}
+        </div>
       </Card>
 
       {/* Table */}
