@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/pagination";
 import {
   Plus, Search, MoreVertical, Pencil, Copy, Trash2, ImagePlus, Package, Loader2,
-  LayoutGrid, List, X, ChevronLeft, ChevronRight,
+  LayoutGrid, List, X, ChevronLeft, ChevronRight, FileDown, AlertTriangle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -428,6 +428,33 @@ const Products = () => {
     else { toast({ title: "Producto eliminado" }); fetchProducts(); }
   };
 
+  /* ── CSV Export ── */
+  const exportProductsCSV = () => {
+    if (products.length === 0) return;
+    const headers = ["Nombre", "Categoría", "Precio", "Stock", "Estado", "En oferta", "Descuento %"];
+    const rows = products.map((p) => [
+      p.name,
+      getCategoryName(p.category_id),
+      p.price.toFixed(2),
+      String(p.stock),
+      getStatus(p).label,
+      p.on_sale ? "Sí" : "No",
+      p.discount_percent ? String(p.discount_percent) : "0",
+    ]);
+    const csv = [headers, ...rows].map((r) => r.map((c) => `"${String(c).replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `productos-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: "CSV exportado", description: `${products.length} productos exportados` });
+  };
+
+  /* ── Low stock count ── */
+  const lowStockProducts = products.filter((p) => p.stock <= 5 && p.stock > 0);
+  const outOfStockProducts = products.filter((p) => p.stock === 0);
 
   /* ── Pagination display ── */
   const fromItem = totalCount === 0 ? 0 : (page - 1) * ITEMS_PER_PAGE + 1;
@@ -442,10 +469,37 @@ const Products = () => {
           <h1 className="font-display text-2xl font-bold text-foreground">Productos</h1>
           <p className="text-sm text-muted-foreground">{totalCount}/{MAX_PRODUCTS} productos usados</p>
         </div>
-        <Button className="gap-2" onClick={openAddModal}>
-          <Plus className="h-4 w-4" /> Agregar producto
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-1.5" onClick={exportProductsCSV} disabled={products.length === 0}>
+            <FileDown className="h-4 w-4" /> Exportar CSV
+          </Button>
+          <Button className="gap-2" onClick={openAddModal}>
+            <Plus className="h-4 w-4" /> Agregar producto
+          </Button>
+        </div>
       </div>
+
+      {/* Inventory alerts */}
+      {(lowStockProducts.length > 0 || outOfStockProducts.length > 0) && (
+        <div className="flex flex-wrap gap-3">
+          {outOfStockProducts.length > 0 && (
+            <div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2 dark:border-red-800 dark:bg-red-950/30">
+              <AlertTriangle className="h-4 w-4 text-red-600 dark:text-red-400" />
+              <span className="text-sm font-medium text-red-700 dark:text-red-300">
+                {outOfStockProducts.length} producto{outOfStockProducts.length !== 1 ? "s" : ""} agotado{outOfStockProducts.length !== 1 ? "s" : ""}
+              </span>
+            </div>
+          )}
+          {lowStockProducts.length > 0 && (
+            <div className="flex items-center gap-2 rounded-lg border border-yellow-200 bg-yellow-50 px-3 py-2 dark:border-yellow-800 dark:bg-yellow-950/30">
+              <AlertTriangle className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+              <span className="text-sm font-medium text-yellow-700 dark:text-yellow-300">
+                {lowStockProducts.length} producto{lowStockProducts.length !== 1 ? "s" : ""} con stock bajo (≤5)
+              </span>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Toolbar */}
       <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:flex-wrap">
