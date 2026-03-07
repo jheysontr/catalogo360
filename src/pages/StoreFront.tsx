@@ -23,6 +23,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useCart, getFinalPrice } from "@/lib/CartContext";
 import CartModal from "@/components/Cart/CartModal";
 import { useWishlist } from "@/lib/WishlistContext";
+import HeroBanner, { type StorefrontConfig } from "@/components/Storefront/HeroBanner";
+import MinimalHeader from "@/components/Storefront/MinimalHeader";
 
 /* ─── Types ─── */
 interface StoreData {
