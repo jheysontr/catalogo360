@@ -87,6 +87,7 @@ const StoreFront = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [sfConfig, setSfConfig] = useState<StorefrontConfig>({ template: "classic" });
 
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
