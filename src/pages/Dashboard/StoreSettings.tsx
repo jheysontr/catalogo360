@@ -572,7 +572,153 @@ const StoreSettings = () => {
         </div>
       </div>
 
-      {/* Footer buttons */}
+      {/* TEMPLATE & STOREFRONT CONFIG */}
+      <div className="mt-8">
+        <Card>
+          <CardHeader className="flex flex-row items-center gap-3 pb-2">
+            <LayoutTemplate className="h-5 w-5 text-primary" />
+            <CardTitle className="text-base">Plantilla del Storefront</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <Label className="mb-3 block">Elige una plantilla</Label>
+              <TemplateSelector value={sfTemplate} onChange={setSfTemplate} />
+            </div>
+
+            {/* Modern/Minimal template options */}
+            {sfTemplate !== "classic" && (
+              <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
+                <p className="text-sm font-semibold text-foreground">Configuración de la plantilla</p>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="sf-hero-title">Título principal</Label>
+                    <Input
+                      id="sf-hero-title"
+                      value={sfHeroTitle}
+                      onChange={(e) => setSfHeroTitle(e.target.value)}
+                      className="mt-1.5"
+                      placeholder={`Ej: Bienvenido a ${storeName}`}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="sf-hero-subtitle">Subtítulo</Label>
+                    <Input
+                      id="sf-hero-subtitle"
+                      value={sfHeroSubtitle}
+                      onChange={(e) => setSfHeroSubtitle(e.target.value)}
+                      className="mt-1.5"
+                      placeholder="Ej: Los mejores productos al mejor precio"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="sf-cta">Texto del botón CTA</Label>
+                    <Input
+                      id="sf-cta"
+                      value={sfHeroCtaText}
+                      onChange={(e) => setSfHeroCtaText(e.target.value)}
+                      className="mt-1.5"
+                      placeholder="Ej: COMPRAR AHORA"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="sf-guarantee">Texto de garantía</Label>
+                    <Input
+                      id="sf-guarantee"
+                      value={sfGuaranteeText}
+                      onChange={(e) => setSfGuaranteeText(e.target.value)}
+                      className="mt-1.5"
+                      placeholder="Ej: Garantía de devolución de 30 días"
+                    />
+                  </div>
+                </div>
+
+                {/* Countdown */}
+                <div className="flex items-center justify-between rounded-lg border bg-background p-3">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Cuenta regresiva</p>
+                    <p className="text-xs text-muted-foreground">Muestra un timer de oferta limitada</p>
+                  </div>
+                  <Switch checked={sfCountdownEnabled} onCheckedChange={setSfCountdownEnabled} />
+                </div>
+
+                {sfCountdownEnabled && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <Label htmlFor="sf-countdown-end">Fecha de fin</Label>
+                      <Input
+                        id="sf-countdown-end"
+                        type="datetime-local"
+                        value={sfCountdownEnd}
+                        onChange={(e) => setSfCountdownEnd(e.target.value)}
+                        className="mt-1.5"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="sf-countdown-text">Texto del countdown</Label>
+                      <Input
+                        id="sf-countdown-text"
+                        value={sfCountdownText}
+                        onChange={(e) => setSfCountdownText(e.target.value)}
+                        className="mt-1.5"
+                        placeholder="Oferta por tiempo limitado"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* Trust badges */}
+                <div className="flex items-center justify-between rounded-lg border bg-background p-3">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Badges de confianza</p>
+                    <p className="text-xs text-muted-foreground">Compra segura, envío rápido, pago seguro</p>
+                  </div>
+                  <Switch checked={sfTrustBadges} onCheckedChange={setSfTrustBadges} />
+                </div>
+
+                {/* Social proof */}
+                <div className="flex items-center justify-between rounded-lg border bg-background p-3">
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Social proof</p>
+                    <p className="text-xs text-muted-foreground">Muestra estrellas y número de compradores</p>
+                  </div>
+                  <Switch checked={sfSocialProofEnabled} onCheckedChange={setSfSocialProofEnabled} />
+                </div>
+
+                {sfSocialProofEnabled && (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <Label htmlFor="sf-sp-count">Cantidad de compradores</Label>
+                      <Input
+                        id="sf-sp-count"
+                        type="number"
+                        value={sfSocialProofCount}
+                        onChange={(e) => setSfSocialProofCount(Number(e.target.value))}
+                        className="mt-1.5"
+                        placeholder="1000"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="sf-sp-text">Texto personalizado</Label>
+                      <Input
+                        id="sf-sp-text"
+                        value={sfSocialProofText}
+                        onChange={(e) => setSfSocialProofText(e.target.value)}
+                        className="mt-1.5"
+                        placeholder="Ej: compradores satisfechos"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="mt-8 flex justify-end gap-3 border-t pt-6">
         <Button variant="outline" onClick={handleCancel} disabled={saving}>
           Cancelar
