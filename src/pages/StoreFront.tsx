@@ -133,6 +133,10 @@ const StoreFront = () => {
       setStoreId(s.id);
       setWishlistStoreId(s.id);
 
+      // Load storefront config
+      const rawConfig = (s as any).storefront_config as Record<string, any> | null;
+      if (rawConfig) setSfConfig(rawConfig as StorefrontConfig);
+
       const [{ data: prods }, { data: cats }] = await Promise.all([
         supabase.from("products").select("*").eq("store_id", s.id).gt("stock", 0).order("created_at", { ascending: false }),
         supabase.from("categories").select("id, name, icon").eq("store_id", s.id),
