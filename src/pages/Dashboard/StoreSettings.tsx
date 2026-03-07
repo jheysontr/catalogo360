@@ -218,7 +218,21 @@ const StoreSettings = () => {
           whatsapp: whatsapp.trim(),
           phone: phone.trim(),
         },
-      })
+        storefront_config: {
+          template: sfTemplate,
+          hero_title: sfHeroTitle.trim(),
+          hero_subtitle: sfHeroSubtitle.trim(),
+          hero_cta_text: sfHeroCtaText.trim(),
+          countdown_enabled: sfCountdownEnabled,
+          countdown_end: sfCountdownEnd,
+          countdown_text: sfCountdownText.trim(),
+          trust_badges: sfTrustBadges,
+          social_proof_enabled: sfSocialProofEnabled,
+          social_proof_count: sfSocialProofCount,
+          social_proof_text: sfSocialProofText.trim(),
+          guarantee_text: sfGuaranteeText.trim(),
+        },
+      } as any)
       .eq("id", store.id);
 
     setSaving(false);
