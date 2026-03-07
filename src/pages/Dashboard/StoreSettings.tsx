@@ -7,10 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import { Loader2, Upload, Store, Palette, Share2, DollarSign, LayoutTemplate } from "lucide-react";
+import { Loader2, Upload, Store, Palette, Share2, DollarSign } from "lucide-react";
 import toast from "react-hot-toast";
-import TemplateSelector from "@/components/Storefront/TemplateSelector";
 
 interface StoreData {
   id: string;
@@ -65,20 +63,6 @@ const StoreSettings = () => {
   const [whatsapp, setWhatsapp] = useState("");
   const [currency, setCurrency] = useState("BOB");
 
-  // Template / storefront config
-  const [sfTemplate, setSfTemplate] = useState("classic");
-  const [sfHeroTitle, setSfHeroTitle] = useState("");
-  const [sfHeroSubtitle, setSfHeroSubtitle] = useState("");
-  const [sfHeroCtaText, setSfHeroCtaText] = useState("");
-  const [sfCountdownEnabled, setSfCountdownEnabled] = useState(false);
-  const [sfCountdownEnd, setSfCountdownEnd] = useState("");
-  const [sfCountdownText, setSfCountdownText] = useState("Oferta por tiempo limitado");
-  const [sfTrustBadges, setSfTrustBadges] = useState(true);
-  const [sfSocialProofEnabled, setSfSocialProofEnabled] = useState(false);
-  const [sfSocialProofCount, setSfSocialProofCount] = useState(0);
-  const [sfSocialProofText, setSfSocialProofText] = useState("");
-  const [sfGuaranteeText, setSfGuaranteeText] = useState("");
-
   // Upload states
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
@@ -112,23 +96,6 @@ const StoreSettings = () => {
         setWhatsapp(social.whatsapp ?? "");
         setPhone(social.phone ?? "");
         setCurrency((s as any).currency ?? "BOB");
-
-        // Load storefront config
-        const sfc = (s as any).storefront_config as Record<string, any> | null;
-        if (sfc) {
-          setSfTemplate(sfc.template || "classic");
-          setSfHeroTitle(sfc.hero_title || "");
-          setSfHeroSubtitle(sfc.hero_subtitle || "");
-          setSfHeroCtaText(sfc.hero_cta_text || "");
-          setSfCountdownEnabled(sfc.countdown_enabled || false);
-          setSfCountdownEnd(sfc.countdown_end || "");
-          setSfCountdownText(sfc.countdown_text || "Oferta por tiempo limitado");
-          setSfTrustBadges(sfc.trust_badges !== false);
-          setSfSocialProofEnabled(sfc.social_proof_enabled || false);
-          setSfSocialProofCount(sfc.social_proof_count || 0);
-          setSfSocialProofText(sfc.social_proof_text || "");
-          setSfGuaranteeText(sfc.guarantee_text || "");
-        }
       }
       setLoading(false);
     };
@@ -218,21 +185,7 @@ const StoreSettings = () => {
           whatsapp: whatsapp.trim(),
           phone: phone.trim(),
         },
-        storefront_config: {
-          template: sfTemplate,
-          hero_title: sfHeroTitle.trim(),
-          hero_subtitle: sfHeroSubtitle.trim(),
-          hero_cta_text: sfHeroCtaText.trim(),
-          countdown_enabled: sfCountdownEnabled,
-          countdown_end: sfCountdownEnd,
-          countdown_text: sfCountdownText.trim(),
-          trust_badges: sfTrustBadges,
-          social_proof_enabled: sfSocialProofEnabled,
-          social_proof_count: sfSocialProofCount,
-          social_proof_text: sfSocialProofText.trim(),
-          guarantee_text: sfGuaranteeText.trim(),
-        },
-      } as any)
+      })
       .eq("id", store.id);
 
     setSaving(false);
@@ -572,153 +525,7 @@ const StoreSettings = () => {
         </div>
       </div>
 
-      {/* TEMPLATE & STOREFRONT CONFIG */}
-      <div className="mt-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center gap-3 pb-2">
-            <LayoutTemplate className="h-5 w-5 text-primary" />
-            <CardTitle className="text-base">Plantilla del Storefront</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div>
-              <Label className="mb-3 block">Elige una plantilla</Label>
-              <TemplateSelector value={sfTemplate} onChange={setSfTemplate} />
-            </div>
-
-            {/* Modern/Minimal template options */}
-            {sfTemplate !== "classic" && (
-              <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
-                <p className="text-sm font-semibold text-foreground">Configuración de la plantilla</p>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <Label htmlFor="sf-hero-title">Título principal</Label>
-                    <Input
-                      id="sf-hero-title"
-                      value={sfHeroTitle}
-                      onChange={(e) => setSfHeroTitle(e.target.value)}
-                      className="mt-1.5"
-                      placeholder={`Ej: Bienvenido a ${storeName}`}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="sf-hero-subtitle">Subtítulo</Label>
-                    <Input
-                      id="sf-hero-subtitle"
-                      value={sfHeroSubtitle}
-                      onChange={(e) => setSfHeroSubtitle(e.target.value)}
-                      className="mt-1.5"
-                      placeholder="Ej: Los mejores productos al mejor precio"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <Label htmlFor="sf-cta">Texto del botón CTA</Label>
-                    <Input
-                      id="sf-cta"
-                      value={sfHeroCtaText}
-                      onChange={(e) => setSfHeroCtaText(e.target.value)}
-                      className="mt-1.5"
-                      placeholder="Ej: COMPRAR AHORA"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="sf-guarantee">Texto de garantía</Label>
-                    <Input
-                      id="sf-guarantee"
-                      value={sfGuaranteeText}
-                      onChange={(e) => setSfGuaranteeText(e.target.value)}
-                      className="mt-1.5"
-                      placeholder="Ej: Garantía de devolución de 30 días"
-                    />
-                  </div>
-                </div>
-
-                {/* Countdown */}
-                <div className="flex items-center justify-between rounded-lg border bg-background p-3">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Cuenta regresiva</p>
-                    <p className="text-xs text-muted-foreground">Muestra un timer de oferta limitada</p>
-                  </div>
-                  <Switch checked={sfCountdownEnabled} onCheckedChange={setSfCountdownEnabled} />
-                </div>
-
-                {sfCountdownEnabled && (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <Label htmlFor="sf-countdown-end">Fecha de fin</Label>
-                      <Input
-                        id="sf-countdown-end"
-                        type="datetime-local"
-                        value={sfCountdownEnd}
-                        onChange={(e) => setSfCountdownEnd(e.target.value)}
-                        className="mt-1.5"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="sf-countdown-text">Texto del countdown</Label>
-                      <Input
-                        id="sf-countdown-text"
-                        value={sfCountdownText}
-                        onChange={(e) => setSfCountdownText(e.target.value)}
-                        className="mt-1.5"
-                        placeholder="Oferta por tiempo limitado"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {/* Trust badges */}
-                <div className="flex items-center justify-between rounded-lg border bg-background p-3">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Badges de confianza</p>
-                    <p className="text-xs text-muted-foreground">Compra segura, envío rápido, pago seguro</p>
-                  </div>
-                  <Switch checked={sfTrustBadges} onCheckedChange={setSfTrustBadges} />
-                </div>
-
-                {/* Social proof */}
-                <div className="flex items-center justify-between rounded-lg border bg-background p-3">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Social proof</p>
-                    <p className="text-xs text-muted-foreground">Muestra estrellas y número de compradores</p>
-                  </div>
-                  <Switch checked={sfSocialProofEnabled} onCheckedChange={setSfSocialProofEnabled} />
-                </div>
-
-                {sfSocialProofEnabled && (
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <div>
-                      <Label htmlFor="sf-sp-count">Cantidad de compradores</Label>
-                      <Input
-                        id="sf-sp-count"
-                        type="number"
-                        value={sfSocialProofCount}
-                        onChange={(e) => setSfSocialProofCount(Number(e.target.value))}
-                        className="mt-1.5"
-                        placeholder="1000"
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="sf-sp-text">Texto personalizado</Label>
-                      <Input
-                        id="sf-sp-text"
-                        value={sfSocialProofText}
-                        onChange={(e) => setSfSocialProofText(e.target.value)}
-                        className="mt-1.5"
-                        placeholder="Ej: compradores satisfechos"
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
-
+      {/* Footer buttons */}
       <div className="mt-8 flex justify-end gap-3 border-t pt-6">
         <Button variant="outline" onClick={handleCancel} disabled={saving}>
           Cancelar

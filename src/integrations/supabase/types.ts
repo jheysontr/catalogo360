@@ -714,7 +714,6 @@ export type Database = {
           social_media: Json | null
           store_name: string
           store_slug: string
-          storefront_config: Json | null
           updated_at: string
           user_id: string
         }
@@ -737,7 +736,6 @@ export type Database = {
           social_media?: Json | null
           store_name: string
           store_slug: string
-          storefront_config?: Json | null
           updated_at?: string
           user_id: string
         }
@@ -760,7 +758,6 @@ export type Database = {
           social_media?: Json | null
           store_name?: string
           store_slug?: string
-          storefront_config?: Json | null
           updated_at?: string
           user_id?: string
         }
