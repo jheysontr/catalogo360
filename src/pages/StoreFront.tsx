@@ -453,7 +453,7 @@ const StoreFront = () => {
       </div>
 
       {/* ── PRODUCTS GRID ── */}
-      <div className="container px-4 pb-8 pt-4">
+      <div id="products-grid" className="container px-4 pb-8 pt-4">
         {filteredProducts.length === 0 ? (
           <div className="flex flex-col items-center gap-3 py-20 text-center">
             <Search className="h-12 w-12 text-muted-foreground/30" />
