@@ -112,6 +112,23 @@ const StoreSettings = () => {
         setWhatsapp(social.whatsapp ?? "");
         setPhone(social.phone ?? "");
         setCurrency((s as any).currency ?? "BOB");
+
+        // Load storefront config
+        const sfc = (s as any).storefront_config as Record<string, any> | null;
+        if (sfc) {
+          setSfTemplate(sfc.template || "classic");
+          setSfHeroTitle(sfc.hero_title || "");
+          setSfHeroSubtitle(sfc.hero_subtitle || "");
+          setSfHeroCtaText(sfc.hero_cta_text || "");
+          setSfCountdownEnabled(sfc.countdown_enabled || false);
+          setSfCountdownEnd(sfc.countdown_end || "");
+          setSfCountdownText(sfc.countdown_text || "Oferta por tiempo limitado");
+          setSfTrustBadges(sfc.trust_badges !== false);
+          setSfSocialProofEnabled(sfc.social_proof_enabled || false);
+          setSfSocialProofCount(sfc.social_proof_count || 0);
+          setSfSocialProofText(sfc.social_proof_text || "");
+          setSfGuaranteeText(sfc.guarantee_text || "");
+        }
       }
       setLoading(false);
     };
