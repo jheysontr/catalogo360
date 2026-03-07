@@ -65,6 +65,20 @@ const StoreSettings = () => {
   const [whatsapp, setWhatsapp] = useState("");
   const [currency, setCurrency] = useState("BOB");
 
+  // Template / storefront config
+  const [sfTemplate, setSfTemplate] = useState("classic");
+  const [sfHeroTitle, setSfHeroTitle] = useState("");
+  const [sfHeroSubtitle, setSfHeroSubtitle] = useState("");
+  const [sfHeroCtaText, setSfHeroCtaText] = useState("");
+  const [sfCountdownEnabled, setSfCountdownEnabled] = useState(false);
+  const [sfCountdownEnd, setSfCountdownEnd] = useState("");
+  const [sfCountdownText, setSfCountdownText] = useState("Oferta por tiempo limitado");
+  const [sfTrustBadges, setSfTrustBadges] = useState(true);
+  const [sfSocialProofEnabled, setSfSocialProofEnabled] = useState(false);
+  const [sfSocialProofCount, setSfSocialProofCount] = useState(0);
+  const [sfSocialProofText, setSfSocialProofText] = useState("");
+  const [sfGuaranteeText, setSfGuaranteeText] = useState("");
+
   // Upload states
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
