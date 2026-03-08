@@ -272,17 +272,17 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
 
       {/* Tabs */}
       <Tabs defaultValue="resumen" className="w-full">
-        <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto rounded-none gap-0 overflow-x-auto">
-          <TabsTrigger value="resumen" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm">
-            <Eye className="h-4 w-4 mr-1.5" />
+        <TabsList className="dashboard-tabs-list">
+          <TabsTrigger value="resumen" className="dashboard-tab-trigger gap-1.5">
+            <Eye className="h-4 w-4" />
             Resumen
           </TabsTrigger>
-          <TabsTrigger value="productos" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm">
-            <Package className="h-4 w-4 mr-1.5" />
+          <TabsTrigger value="productos" className="dashboard-tab-trigger gap-1.5">
+            <Package className="h-4 w-4" />
             Productos
           </TabsTrigger>
-          <TabsTrigger value="ordenes" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm">
-            <ShoppingCart className="h-4 w-4 mr-1.5" />
+          <TabsTrigger value="ordenes" className="dashboard-tab-trigger gap-1.5">
+            <ShoppingCart className="h-4 w-4" />
             Órdenes
           </TabsTrigger>
         </TabsList>

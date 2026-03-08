@@ -372,12 +372,12 @@ const Orders = () => {
 
       {/* Status Tabs */}
       <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
-        <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto rounded-none gap-0 overflow-x-auto">
+        <TabsList className="dashboard-tabs-list">
           {STATUS_OPTIONS.map((o) => (
             <TabsTrigger
               key={o.value}
               value={o.value}
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm gap-1.5"
+              className="dashboard-tab-trigger gap-1.5"
             >
               {o.label}
               {statusCounts[o.value] > 0 && (

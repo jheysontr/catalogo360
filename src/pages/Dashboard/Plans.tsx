@@ -212,14 +212,14 @@ const Plans = () => {
 
       {/* Tabs */}
       <Tabs defaultValue="planes" className="w-full">
-        <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto rounded-none gap-0 overflow-x-auto">
-          <TabsTrigger value="planes" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm">
-            <CreditCard className="h-4 w-4 mr-1.5" />
+        <TabsList className="dashboard-tabs-list">
+          <TabsTrigger value="planes" className="dashboard-tab-trigger gap-1.5">
+            <CreditCard className="h-4 w-4" />
             Planes
           </TabsTrigger>
-          <TabsTrigger value="historial" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm">
-            <Clock className="h-4 w-4 mr-1.5" />
-            Historial de Pagos
+          <TabsTrigger value="historial" className="dashboard-tab-trigger gap-1.5">
+            <Clock className="h-4 w-4" />
+            Historial
           </TabsTrigger>
         </TabsList>
 

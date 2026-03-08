@@ -105,3 +105,27 @@
     font-family: 'Space Grotesk', sans-serif;
   }
 }
+
+@layer components {
+  /* Shared responsive dashboard tabs */
+  .dashboard-tabs-list {
+    @apply w-full justify-start border-b border-border bg-transparent p-0 h-auto rounded-none gap-0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .dashboard-tabs-list::-webkit-scrollbar {
+    display: none;
+  }
+  .dashboard-tab-trigger {
+    @apply rounded-none border-b-2 border-transparent px-3 pb-2.5 pt-2 text-xs font-medium whitespace-nowrap
+      data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none
+      data-[state=active]:text-foreground text-muted-foreground transition-colors;
+  }
+  @media (min-width: 640px) {
+    .dashboard-tab-trigger {
+      @apply px-4 pb-3 text-sm;
+    }
+  }
+}

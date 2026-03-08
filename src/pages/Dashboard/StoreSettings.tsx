@@ -315,33 +315,21 @@ const StoreSettings = () => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto rounded-none gap-0 overflow-x-auto">
-          <TabsTrigger
-            value="general"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm"
-          >
-            <Store className="h-4 w-4 mr-1.5" />
+        <TabsList className="dashboard-tabs-list">
+          <TabsTrigger value="general" className="dashboard-tab-trigger gap-1.5">
+            <Store className="h-4 w-4" />
             General
           </TabsTrigger>
-          <TabsTrigger
-            value="apariencia"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm"
-          >
-            <Palette className="h-4 w-4 mr-1.5" />
+          <TabsTrigger value="apariencia" className="dashboard-tab-trigger gap-1.5">
+            <Palette className="h-4 w-4" />
             Apariencia
           </TabsTrigger>
-          <TabsTrigger
-            value="plantilla"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm"
-          >
-            <Layout className="h-4 w-4 mr-1.5" />
+          <TabsTrigger value="plantilla" className="dashboard-tab-trigger gap-1.5">
+            <Layout className="h-4 w-4" />
             Plantilla
           </TabsTrigger>
-          <TabsTrigger
-            value="contacto"
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm"
-          >
-            <Share2 className="h-4 w-4 mr-1.5" />
+          <TabsTrigger value="contacto" className="dashboard-tab-trigger gap-1.5">
+            <Share2 className="h-4 w-4" />
             Contacto
           </TabsTrigger>
         </TabsList>
