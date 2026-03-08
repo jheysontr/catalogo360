@@ -21,7 +21,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCart, getFinalPrice } from "@/lib/CartContext";
-import CartModal from "@/components/Cart/CartModal";
+import { getCurrencySymbol } from "@/lib/currency";
 import { useWishlist } from "@/lib/WishlistContext";
 
 /* ─── Types ─── */
