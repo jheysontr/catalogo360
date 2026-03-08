@@ -22,6 +22,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useCart, getFinalPrice } from "@/lib/CartContext";
 import { getCurrencySymbol } from "@/lib/currency";
+import CartModal from "@/components/Cart/CartModal";
 import { useWishlist } from "@/lib/WishlistContext";
 
 /* ─── Types ─── */
