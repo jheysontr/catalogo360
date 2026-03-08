@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, lazy, Suspense } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,19 +18,26 @@ import { QRCodeSVG } from "qrcode.react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import SalesCalculator from "@/components/SalesCalculator";
 import NotificationPanel from "@/components/Dashboard/NotificationPanel";
-import Products from "@/pages/Dashboard/Products";
-import StoreSettings from "@/pages/Dashboard/StoreSettings";
-import Orders from "@/pages/Dashboard/Orders";
-import Plans from "@/pages/Dashboard/Plans";
-import Analytics from "@/pages/Dashboard/Analytics";
-import Categories from "@/pages/Dashboard/Categories";
-import Coupons from "@/pages/Dashboard/Coupons";
+import SectionErrorBoundary from "@/components/SectionErrorBoundary";
 
-import ShippingConfig from "@/pages/Dashboard/ShippingConfig";
-import Linkbox from "@/pages/Dashboard/Linkbox";
+// Lazy-loaded dashboard pages
+const Products = lazy(() => import("@/pages/Dashboard/Products"));
+const StoreSettings = lazy(() => import("@/pages/Dashboard/StoreSettings"));
+const Orders = lazy(() => import("@/pages/Dashboard/Orders"));
+const Plans = lazy(() => import("@/pages/Dashboard/Plans"));
+const Analytics = lazy(() => import("@/pages/Dashboard/Analytics"));
+const Categories = lazy(() => import("@/pages/Dashboard/Categories"));
+const Coupons = lazy(() => import("@/pages/Dashboard/Coupons"));
+const ShippingConfig = lazy(() => import("@/pages/Dashboard/ShippingConfig"));
+const Linkbox = lazy(() => import("@/pages/Dashboard/Linkbox"));
+const PaymentMethods = lazy(() => import("@/pages/Dashboard/PaymentMethods"));
+const DashboardHome = lazy(() => import("@/pages/Dashboard/DashboardHome"));
 
-import PaymentMethods from "@/pages/Dashboard/PaymentMethods";
-import DashboardHome from "@/pages/Dashboard/DashboardHome";
+const SectionLoader = () => (
+  <div className="flex items-center justify-center py-20">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+  </div>
+);
 
 interface StoreData {
   id: string;
