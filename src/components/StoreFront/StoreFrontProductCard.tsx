@@ -141,7 +141,7 @@ const StoreFrontProductCard = ({
     >
       <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
         {p.image_url ? (
-          <img src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+          <ProgressiveImage src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/60">
             <StoreIcon className="h-12 w-12 text-muted-foreground/20" />
