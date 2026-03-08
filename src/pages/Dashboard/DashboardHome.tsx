@@ -14,6 +14,7 @@ import {
   BarChart, Bar,
 } from "recharts";
 import type { Json } from "@/integrations/supabase/types";
+import { getCurrencySymbol } from "@/lib/currency";
 
 interface DashboardHomeProps {
   storeId: string;
