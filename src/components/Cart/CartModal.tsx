@@ -64,7 +64,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
     if (!open || !storeId) return;
     (async () => {
       const { data } = await supabase
-        .from("stores")
+        .from("stores_public" as any)
         .select("shipping_config, payment_methods")
         .eq("id", storeId)
         .limit(1);
