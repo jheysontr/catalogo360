@@ -226,7 +226,7 @@ const AdminStores = () => {
                           size="icon"
                           variant="ghost"
                           title="Ver tienda"
-                          onClick={() => window.open(`/store/${store.store_slug}`, "_blank")}
+                          onClick={() => window.open(`/${store.store_slug}`, "_blank")}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
