@@ -42,7 +42,7 @@ const DashboardHeader = ({
     {storeSlug && (
       <>
         <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
-          <a href={`/store/${storeSlug}`} target="_blank" rel="noopener noreferrer">
+          <a href={`/${storeSlug}`} target="_blank" rel="noopener noreferrer">
             <Eye className="h-4 w-4 mr-2" />
             Ver tienda
           </a>
