@@ -202,7 +202,7 @@ const TemplatePreview = ({
             {renderImage(product.imageUrl)}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
             {product.sale && (
-              <span className={`absolute left-1 top-1 ${theme.pillRounded} bg-destructive px-1 py-0.5 text-[5px] font-bold text-destructive-foreground`}>-15%</span>
+              <span className={`absolute left-1 top-1 ${theme.pillRounded} bg-destructive px-1 py-0.5 text-[5px] font-bold text-destructive-foreground`}>Oferta</span>
             )}
             <div className="absolute bottom-0 left-0 right-0 p-1.5">
               <p className={`text-[6px] font-semibold text-white ${theme.nameStyle === "uppercase" ? "uppercase tracking-wider" : ""}`}>{product.name}</p>
