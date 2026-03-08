@@ -280,122 +280,122 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
         </Card>
       </div>
 
-      {/* ── 4. Insights: Top Products + Low Stock ── */}
-      {(topProducts.length > 0 || lowStockProducts.length > 0) && (
-        <div className="grid gap-4 lg:grid-cols-2">
-          {topProducts.length > 0 && (
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-1 pt-4 px-4 sm:px-6">
-                <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                  <Star className="h-4 w-4 text-amber-500" /> Más vendidos
-                </CardTitle>
-                <Button variant="ghost" size="sm" className="h-7 text-[11px] text-muted-foreground" onClick={() => onNavigate("stats")}>
-                  Detalle <ChevronRight className="h-3 w-3 ml-0.5" />
-                </Button>
-              </CardHeader>
-              <CardContent className="px-2 sm:px-4 pb-4">
-                <div className="h-40 sm:h-48">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={topProducts} layout="vertical" margin={{ left: 0, right: 10, top: 0, bottom: 0 }}>
-                      <XAxis type="number" hide />
-                      <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} className="fill-muted-foreground" width={75} axisLine={false} tickLine={false} />
-                      <Tooltip
-                        contentStyle={{ borderRadius: 10, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12, boxShadow: "0 4px 12px rgba(0,0,0,.08)" }}
-                        formatter={(v: number) => [`${v} uds`, "Vendidos"]}
-                      />
-                      <Bar dataKey="sold" radius={[0, 6, 6, 0]} barSize={16}>
-                        {topProducts.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
-                      </Bar>
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {lowStockProducts.length > 0 && (
-            <Card className="border-0 shadow-sm">
-              <CardHeader className="flex flex-row items-center justify-between pb-1 pt-4 px-4 sm:px-6">
-                <CardTitle className="flex items-center gap-2 text-sm font-semibold">
-                  <AlertTriangle className="h-4 w-4 text-destructive" /> Stock bajo
-                </CardTitle>
-                <Button variant="ghost" size="sm" className="h-7 text-[11px] text-muted-foreground" onClick={() => onNavigate("products")}>
-                  Inventario <ChevronRight className="h-3 w-3 ml-0.5" />
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-2 px-4 pb-4">
-                {lowStockProducts.map((p) => (
-                  <div key={p.id} className="flex items-center gap-3 rounded-lg bg-accent/40 px-3 py-2.5">
-                    {p.image_url ? (
-                      <img src={p.image_url} alt={p.name} className="h-9 w-9 shrink-0 rounded-lg object-cover" />
-                    ) : (
-                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
-                        <Package className="h-4 w-4 text-muted-foreground" />
-                      </div>
-                    )}
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-medium text-foreground truncate">{p.name}</p>
-                      <p className="text-[11px] text-muted-foreground">{fmt(p.price)}</p>
+      {/* ── 4. Low Stock alert ── */}
+      {lowStockProducts.length > 0 && (
+        <Card className="border-0 shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between pb-1 pt-4 px-4 sm:px-6">
+            <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+              <AlertTriangle className="h-4 w-4 text-destructive" /> Stock bajo
+            </CardTitle>
+            <Button variant="ghost" size="sm" className="h-7 text-[11px] text-muted-foreground" onClick={() => onNavigate("products")}>
+              Inventario <ChevronRight className="h-3 w-3 ml-0.5" />
+            </Button>
+          </CardHeader>
+          <CardContent className="px-4 pb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+              {lowStockProducts.map((p) => (
+                <div key={p.id} className="flex items-center gap-3 rounded-lg bg-accent/40 px-3 py-2.5">
+                  {p.image_url ? (
+                    <img src={p.image_url} alt={p.name} className="h-9 w-9 shrink-0 rounded-lg object-cover" />
+                  ) : (
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted">
+                      <Package className="h-4 w-4 text-muted-foreground" />
                     </div>
-                    <Badge variant={p.stock === 0 ? "destructive" : "secondary"} className="text-[10px] shrink-0">
-                      {p.stock === 0 ? "Agotado" : `${p.stock} uds`}
-                    </Badge>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs font-medium text-foreground truncate">{p.name}</p>
+                    <p className="text-[11px] text-muted-foreground">{fmt(p.price)}</p>
                   </div>
-                ))}
-              </CardContent>
-            </Card>
-          )}
-        </div>
+                  <Badge variant={p.stock === 0 ? "destructive" : "secondary"} className="text-[10px] shrink-0">
+                    {p.stock === 0 ? "Agotado" : `${p.stock} uds`}
+                  </Badge>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* ── 5. Recent Orders ── */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4 sm:px-6">
-          <CardTitle className="text-sm font-semibold">Órdenes recientes</CardTitle>
-          <Button variant="ghost" size="sm" className="h-7 gap-1 text-[11px] text-muted-foreground" onClick={() => onNavigate("orders")}>
-            Ver todas <ChevronRight className="h-3 w-3" />
-          </Button>
-        </CardHeader>
-        <CardContent className="px-4 sm:px-6 pb-4">
-          {orders.length === 0 ? (
-            <div className="flex flex-col items-center justify-center gap-3 py-10 text-muted-foreground">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/60">
-                <ShoppingCart className="h-6 w-6 opacity-40" />
+      {/* ── 5. Recent Orders + Top Products side by side ── */}
+      <div className={`grid gap-4 ${topProducts.length > 0 ? "lg:grid-cols-5" : ""}`}>
+        <Card className={`border-0 shadow-sm ${topProducts.length > 0 ? "lg:col-span-3" : ""}`}>
+          <CardHeader className="flex flex-row items-center justify-between pb-2 pt-4 px-4 sm:px-6">
+            <CardTitle className="text-sm font-semibold">Órdenes recientes</CardTitle>
+            <Button variant="ghost" size="sm" className="h-7 gap-1 text-[11px] text-muted-foreground" onClick={() => onNavigate("orders")}>
+              Ver todas <ChevronRight className="h-3 w-3" />
+            </Button>
+          </CardHeader>
+          <CardContent className="px-4 sm:px-6 pb-4">
+            {orders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center gap-3 py-10 text-muted-foreground">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted/60">
+                  <ShoppingCart className="h-6 w-6 opacity-40" />
+                </div>
+                <p className="text-sm font-medium">Aún no tienes órdenes</p>
+                <p className="text-xs">Aparecerán aquí cuando tus clientes hagan pedidos</p>
               </div>
-              <p className="text-sm font-medium">Aún no tienes órdenes</p>
-              <p className="text-xs">Aparecerán aquí cuando tus clientes hagan pedidos</p>
-            </div>
-          ) : (
-            <div className="space-y-1">
-              {orders.slice(0, 6).map((o) => {
-                const items = parseItems(o.items);
-                const names = items.slice(0, 2).map((i) => i.name || i.product_name || "Producto").join(", ");
-                const extra = items.length > 2 ? ` +${items.length - 2}` : "";
-                return (
-                  <div key={o.id} className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-accent/40 transition-colors">
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/8">
-                      <span className="text-xs font-bold text-primary">{o.customer_name.charAt(0).toUpperCase()}</span>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-foreground truncate">{o.customer_name}</span>
-                        <Badge variant="outline" className={`text-[10px] border-0 shrink-0 ${STATUS_STYLE[o.status] || ""}`}>
-                          {STATUS_LABEL[o.status] || o.status}
-                        </Badge>
+            ) : (
+              <div className="space-y-1">
+                {orders.slice(0, 6).map((o) => {
+                  const items = parseItems(o.items);
+                  const names = items.slice(0, 2).map((i) => i.name || i.product_name || "Producto").join(", ");
+                  const extra = items.length > 2 ? ` +${items.length - 2}` : "";
+                  return (
+                    <div key={o.id} className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-accent/40 transition-colors">
+                      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/8">
+                        <span className="text-xs font-bold text-primary">{o.customer_name.charAt(0).toUpperCase()}</span>
                       </div>
-                      <p className="text-xs text-muted-foreground truncate">{names}{extra}</p>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-foreground truncate">{o.customer_name}</span>
+                          <Badge variant="outline" className={`text-[10px] border-0 shrink-0 ${STATUS_STYLE[o.status] || ""}`}>
+                            {STATUS_LABEL[o.status] || o.status}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground truncate">{names}{extra}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-bold text-foreground">{fmt(o.total_price)}</p>
+                        <p className="text-[11px] text-muted-foreground">{getTimeAgo(o.created_at)}</p>
+                      </div>
                     </div>
-                    <div className="text-right shrink-0">
-                      <p className="text-sm font-bold text-foreground">{fmt(o.total_price)}</p>
-                      <p className="text-[11px] text-muted-foreground">{getTimeAgo(o.created_at)}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                  );
+                })}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {topProducts.length > 0 && (
+          <Card className="border-0 shadow-sm lg:col-span-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-1 pt-4 px-4 sm:px-6">
+              <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+                <Star className="h-4 w-4 text-amber-500" /> Más vendidos
+              </CardTitle>
+              <Button variant="ghost" size="sm" className="h-7 text-[11px] text-muted-foreground" onClick={() => onNavigate("stats")}>
+                Detalle <ChevronRight className="h-3 w-3 ml-0.5" />
+              </Button>
+            </CardHeader>
+            <CardContent className="px-2 sm:px-4 pb-4">
+              <div className="h-48 sm:h-56">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={topProducts} layout="vertical" margin={{ left: 0, right: 10, top: 0, bottom: 0 }}>
+                    <XAxis type="number" hide />
+                    <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} className="fill-muted-foreground" width={75} axisLine={false} tickLine={false} />
+                    <Tooltip
+                      contentStyle={{ borderRadius: 10, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12, boxShadow: "0 4px 12px rgba(0,0,0,.08)" }}
+                      formatter={(v: number) => [`${v} uds`, "Vendidos"]}
+                    />
+                    <Bar dataKey="sold" radius={[0, 6, 6, 0]} barSize={18}>
+                      {topProducts.map((_, i) => <Cell key={i} fill={BAR_COLORS[i % BAR_COLORS.length]} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };
