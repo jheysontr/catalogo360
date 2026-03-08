@@ -110,12 +110,21 @@ const MOCK_CATEGORIES = [
 
 /* ─── Component ──────────────────────────────────── */
 
-const Analytics = () => {
+interface AnalyticsProps {
+  currency?: string;
+}
+
+const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("30");
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [storeId, setStoreId] = useState<string | null>(null);
+
+  const fmtCurrency = (n: number) => {
+    const sym = getCurrencySymbol(currency);
+    return `${sym}${n.toFixed(2)}`;
+  };
 
   /* Fetch store + orders */
   useEffect(() => {
