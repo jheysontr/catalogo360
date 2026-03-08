@@ -108,7 +108,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       const { data: stores } = await supabase
         .from("stores")
-        .select("id, store_name, store_slug, plan_id")
+        .select("id, store_name, store_slug, plan_id, currency")
         .eq("user_id", user.id)
         .limit(1);
 
