@@ -207,6 +207,31 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
       ? zones[selectedZoneIndex].name
       : undefined;
 
+    // Save order to DB FIRST, then redirect to WhatsApp
+    let orderId: string | undefined;
+    try {
+      const { data: orderData } = await supabase.from("orders").insert({
+        store_id: storeId,
+        customer_name: name.trim(),
+        customer_email: "",
+        customer_phone: phone.trim(),
+        items: orderItems as any,
+        total_price: grandTotal,
+        status: "pending",
+      }).select("id").single();
+
+      orderId = orderData?.id;
+
+      if (orderData && appliedCoupon) {
+        const { data: couponData } = await supabase.from("coupons").select("used_count").eq("id", appliedCoupon.id).single();
+        if (couponData) {
+          await supabase.from("coupons").update({ used_count: couponData.used_count + 1 }).eq("id", appliedCoupon.id);
+        }
+      }
+    } catch (e) {
+      console.error("Error saving order to database:", e);
+    }
+
     const waUrl = generateWhatsAppUrl({
       storePhone,
       storeName,
@@ -233,29 +258,8 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
       paymentMethod: selectedPayment && paymentConfig
         ? (paymentConfig as any)[selectedPayment]?.label || undefined
         : undefined,
+      orderId,
     });
-
-    // Save order to DB FIRST, then redirect to WhatsApp
-    try {
-      const { data: orderData } = await supabase.from("orders").insert({
-        store_id: storeId,
-        customer_name: name.trim(),
-        customer_email: "",
-        customer_phone: phone.trim(),
-        items: orderItems as any,
-        total_price: grandTotal,
-        status: "pending",
-      }).select("id").single();
-
-      if (orderData && appliedCoupon) {
-        const { data: couponData } = await supabase.from("coupons").select("used_count").eq("id", appliedCoupon.id).single();
-        if (couponData) {
-          await supabase.from("coupons").update({ used_count: couponData.used_count + 1 }).eq("id", appliedCoupon.id);
-        }
-      }
-    } catch (e) {
-      console.error("Error saving order to database:", e);
-    }
 
     // Open WhatsApp AFTER order is saved
     const link = document.createElement("a");
