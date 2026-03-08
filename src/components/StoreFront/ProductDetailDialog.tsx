@@ -111,7 +111,7 @@ const ProductDetailDialog = ({
         {/* Gallery */}
         <div className="relative aspect-square w-full overflow-hidden bg-muted select-none">
           {activeImg ? (
-            <img src={activeImg} alt={sp.name} className="h-full w-full object-cover transition-opacity duration-200" />
+            <img src={activeImg} alt={sp.name} className="h-full w-full object-cover transition-opacity duration-200" loading="lazy" />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
               <StoreIcon className="h-16 w-16 text-muted-foreground/30" />
