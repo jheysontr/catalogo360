@@ -16,6 +16,11 @@ import StoreFrontProductCard from "@/components/StoreFront/StoreFrontProductCard
 import FloatingActions from "@/components/StoreFront/FloatingActions";
 import ProductSkeleton from "@/components/StoreFront/ProductSkeleton";
 import StoreFooter from "@/components/StoreFront/StoreFooter";
+import AppStoreHeader from "@/components/StoreFront/AppTemplate/AppStoreHeader";
+import AppHeroBanner from "@/components/StoreFront/AppTemplate/AppHeroBanner";
+import AppCategoryPills from "@/components/StoreFront/AppTemplate/AppCategoryPills";
+import AppProductCard from "@/components/StoreFront/AppTemplate/AppProductCard";
+import AppSortBar from "@/components/StoreFront/AppTemplate/AppSortBar";
 
 /* Lazy-load heavy dialogs/panels (not needed on initial render) */
 const CartPanel = lazy(() => import("@/components/StoreFront/CartPanel"));
