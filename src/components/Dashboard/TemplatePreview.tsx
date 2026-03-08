@@ -253,7 +253,7 @@ const TemplatePreview = ({
                 <p className="text-[6px] text-muted-foreground line-clamp-1">{product.desc}</p>
               )}
               <span className={`font-bold ${theme.priceStyle === "large" ? "text-[9px]" : "text-[8px]"}`} style={theme.priceStyle === "accent" ? { color: primaryColor } : undefined}>
-                ${product.price}
+                {sym}{product.price}
               </span>
             </div>
           </div>
