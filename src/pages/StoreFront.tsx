@@ -41,6 +41,8 @@ const StoreFront = () => {
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
+  const [currentPage, setCurrentPage] = useState(1);
+  const PRODUCTS_PER_PAGE = 20;
 
   const [cartOpen, setCartOpen] = useState(false);
   const [wishlistOpen, setWishlistOpen] = useState(false);
