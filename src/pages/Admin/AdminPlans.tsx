@@ -45,7 +45,7 @@ const emptyForm = {
   max_products: "",
   max_stores: "1",
   features: "",
-  enabled_modules: { referrals: false, linkbox: false, coupons: false, shipments: false, analytics: false } as Record<string, boolean>,
+  enabled_modules: { linkbox: false, coupons: false, shipments: false, analytics: false } as Record<string, boolean>,
 };
 
 const AdminPlans = () => {
