@@ -64,8 +64,14 @@ const statusStyles: Record<string, string> = {
 const parseItems = (raw: Json): Array<{ name?: string; product_name?: string; quantity?: number; qty?: number; price?: number }> =>
   Array.isArray(raw) ? raw as any : [];
 
-const DashboardHome = ({ storeId, storeName, storeSlug, productCount, onNavigate }: DashboardHomeProps) => {
-  const [loading, setLoading] = useState(true);
+const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency = "BOB", onNavigate }: DashboardHomeProps) => {
+  const sym = CURRENCY_SYMBOLS[currency] || currency;
+  const fmtCurrency = (n: number) => `${sym} ${n.toFixed(2)}`;
+  const fmtShort = (n: number) => {
+    if (n >= 1000) return `${sym} ${(n / 1000).toFixed(1)}k`;
+    return `${sym} ${n.toFixed(0)}`;
+  };
+
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [allTimeOrders, setAllTimeOrders] = useState(0);
   const [lowStockProducts, setLowStockProducts] = useState<ProductRow[]>([]);
