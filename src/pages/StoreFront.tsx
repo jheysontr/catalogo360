@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Search, Store as StoreIcon } from "lucide-react";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useCart, getFinalPrice } from "@/lib/CartContext";
 import { getCurrencySymbol } from "@/lib/currency";
@@ -213,23 +214,30 @@ const StoreFront = () => {
             <p className="text-sm text-muted-foreground">Intenta con otra búsqueda o categoría</p>
           </div>
         ) : (
-          <div className={viewMode === "grid" ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-3"}>
-            {filteredProducts.map((p) => (
-              <StoreFrontProductCard
-                key={p.id}
-                product={p}
-                viewMode={viewMode}
-                catName={getCategoryName(p.category_id)}
-                finalPrice={getFinalPrice(toCartProduct(p))}
-                currencySymbol={currencySymbol}
-                primaryColor={primaryColor}
-                isWishlisted={isInWishlist(p.id)}
-                onQuickAdd={handleQuickAdd}
-                onToggleWishlist={toggleWishlist}
-                onOpenDetail={setSelectedProduct}
-              />
-            ))}
-          </div>
+          <LayoutGroup>
+            <motion.div
+              layout
+              className={viewMode === "grid" ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-3"}
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredProducts.map((p, i) => (
+                  <StoreFrontProductCard
+                    key={p.id}
+                    product={p}
+                    viewMode={viewMode}
+                    catName={getCategoryName(p.category_id)}
+                    finalPrice={getFinalPrice(toCartProduct(p))}
+                    currencySymbol={currencySymbol}
+                    primaryColor={primaryColor}
+                    isWishlisted={isInWishlist(p.id)}
+                    onQuickAdd={handleQuickAdd}
+                    onToggleWishlist={toggleWishlist}
+                    onOpenDetail={setSelectedProduct}
+                  />
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          </LayoutGroup>
         )}
       </div>
 
