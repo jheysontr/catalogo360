@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, ImagePlus, Loader2, Trash2, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { compressImage } from "@/lib/imageCompression";
 
 /* ─── Types ──────────────────────────────────────── */
 
