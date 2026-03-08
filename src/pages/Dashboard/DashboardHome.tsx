@@ -260,23 +260,23 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
       )}
 
       {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {kpis.map((kpi) => (
           <Card key={kpi.label} className="relative overflow-hidden transition-shadow hover:shadow-md">
-            <CardContent className="p-5">
+            <CardContent className="p-3 sm:p-5">
               <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">{kpi.label}</p>
-                  <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
+                <div className="space-y-0.5 sm:space-y-1 min-w-0">
+                  <p className="text-[10px] sm:text-xs font-medium text-muted-foreground truncate">{kpi.label}</p>
+                  <p className="text-lg sm:text-2xl font-bold text-foreground truncate">{kpi.value}</p>
                 </div>
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${kpi.color}`}>
-                  <kpi.icon className="h-5 w-5" />
+                <div className={`flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg sm:rounded-xl ${kpi.color}`}>
+                  <kpi.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
               </div>
-              <div className="mt-2 flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{kpi.sub}</span>
+              <div className="mt-1.5 sm:mt-2 flex flex-wrap items-center gap-1 sm:gap-2">
+                <span className="text-[10px] sm:text-xs text-muted-foreground truncate">{kpi.sub}</span>
                 {kpi.change !== undefined && (
-                  <span className={`flex items-center gap-0.5 text-xs font-medium ${kpi.change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                  <span className={`flex items-center gap-0.5 text-[10px] sm:text-xs font-medium ${kpi.change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
                     {kpi.change >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                     {kpi.change >= 0 ? "+" : ""}{kpi.change.toFixed(1)}%
                   </span>
@@ -294,10 +294,10 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold">Ventas últimos 14 días</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-64">
+          <CardContent className="px-2 sm:px-6">
+            <div className="h-48 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
+                <AreaChart data={chartData} margin={{ left: -10, right: 5, top: 5, bottom: 0 }}>
                   <defs>
                     <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="hsl(165, 60%, 40%)" stopOpacity={0.3} />
@@ -305,14 +305,14 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="label" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                  <YAxis tick={{ fontSize: 11 }} className="fill-muted-foreground" tickFormatter={(v) => `${sym}${v}`} />
+                  <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" tickFormatter={(v) => `${sym}${v}`} width={50} />
                   <Tooltip
                     contentStyle={{
                       borderRadius: 8,
                       border: "1px solid hsl(var(--border))",
                       background: "hsl(var(--card))",
-                      fontSize: 13,
+                      fontSize: 12,
                     }}
                     formatter={(value: number, name: string) => [
                       name === "ventas" ? fmtCurrency(value) : value,
@@ -379,12 +379,12 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
                 <Star className="h-4 w-4 text-primary" /> Productos más vendidos
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="h-52">
+            <CardContent className="px-2 sm:px-6">
+              <div className="h-44 sm:h-52">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={topProducts} layout="vertical">
-                    <XAxis type="number" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                    <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} className="fill-muted-foreground" width={100} />
+                  <BarChart data={topProducts} layout="vertical" margin={{ left: -10, right: 5, top: 5, bottom: 0 }}>
+                    <XAxis type="number" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                    <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} className="fill-muted-foreground" width={80} />
                     <Tooltip
                       contentStyle={{
                         borderRadius: 8,

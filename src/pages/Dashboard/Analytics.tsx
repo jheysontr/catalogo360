@@ -261,22 +261,22 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
       )}
 
       {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {kpis.map((kpi) => {
           const up = kpi.change >= 0;
           return (
             <Card key={kpi.label} className="transition-shadow hover:shadow-md">
-              <CardContent className="flex items-start justify-between p-5">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">{kpi.label}</p>
-                  <p className="text-2xl font-bold text-foreground">{kpi.fmt}</p>
-                  <div className={`flex items-center gap-1 text-xs font-medium ${up ? "text-green-600" : "text-red-500"}`}>
-                    {up ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+              <CardContent className="flex items-start justify-between p-3 sm:p-5">
+                <div className="space-y-0.5 sm:space-y-1 min-w-0">
+                  <p className="text-[10px] sm:text-xs font-medium text-muted-foreground truncate">{kpi.label}</p>
+                  <p className="text-lg sm:text-2xl font-bold text-foreground truncate">{kpi.fmt}</p>
+                  <div className={`flex items-center gap-1 text-[10px] sm:text-xs font-medium ${up ? "text-green-600" : "text-red-500"}`}>
+                    {up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                     {up ? "+" : ""}{kpi.change}%
                   </div>
                 </div>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                  <kpi.icon className="h-5 w-5 text-primary" />
+                <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <kpi.icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 </div>
               </CardContent>
             </Card>
@@ -285,21 +285,21 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
       </div>
 
       {/* Charts row */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {/* Line chart */}
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Vistas y órdenes en el tiempo</CardTitle>
+          <CardHeader className="pb-2 px-3 sm:px-6">
+            <CardTitle className="text-sm sm:text-base font-semibold">Vistas y órdenes en el tiempo</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-72">
+          <CardContent className="px-2 sm:px-6">
+            <div className="h-52 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={lineData}>
+                <LineChart data={lineData} margin={{ left: -15, right: 5, top: 5, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="date" tickFormatter={(d) => fmtDate(d)} tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                  <YAxis tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+                  <XAxis dataKey="date" tickFormatter={(d) => fmtDate(d)} tick={{ fontSize: 10 }} className="fill-muted-foreground" interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" width={35} />
                   <Tooltip
-                    contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
+                    contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }}
                     labelFormatter={(d) => fmtDate(d as string)}
                   />
                   <Line type="monotone" dataKey="views" stroke="hsl(200, 65%, 50%)" strokeWidth={2} dot={false} name="Vistas" />
@@ -313,17 +313,17 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
 
         {/* Bar chart */}
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Productos más vendidos</CardTitle>
+          <CardHeader className="pb-2 px-3 sm:px-6">
+            <CardTitle className="text-sm sm:text-base font-semibold">Productos más vendidos</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-72">
+          <CardContent className="px-2 sm:px-6">
+            <div className="h-52 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topProducts} layout="vertical">
+                <BarChart data={topProducts} layout="vertical" margin={{ left: -10, right: 5, top: 5, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis type="number" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                  <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                  <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />
+                  <XAxis type="number" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                  <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }} />
                   <Bar dataKey="sold" fill="hsl(165, 60%, 40%)" radius={[0, 6, 6, 0]} name="Vendidos" />
                 </BarChart>
               </ResponsiveContainer>
@@ -333,14 +333,14 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
       </div>
 
       {/* Pie + Recent orders */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {/* Pie chart */}
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Órdenes por categoría</CardTitle>
+          <CardHeader className="pb-2 px-3 sm:px-6">
+            <CardTitle className="text-sm sm:text-base font-semibold">Órdenes por categoría</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-72">
+          <CardContent className="px-2 sm:px-6">
+            <div className="h-56 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -349,16 +349,17 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
                     nameKey="name"
                     cx="50%"
                     cy="50%"
-                    outerRadius={100}
+                    outerRadius="70%"
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     labelLine={false}
+                    fontSize={11}
                   >
                     {categoryData.map((_, idx) => (
                       <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />
-                  <Legend />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>
