@@ -1,24 +1,28 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Search, Store as StoreIcon } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useCart, getFinalPrice } from "@/lib/CartContext";
 import { getCurrencySymbol } from "@/lib/currency";
 import { useWishlist } from "@/lib/WishlistContext";
-import CartModal from "@/components/Cart/CartModal";
 import type { StoreData, Product, ProductAttribute, Category } from "@/components/StoreFront/types";
 import StickyTopBar from "@/components/StoreFront/StickyTopBar";
 import StoreHeader from "@/components/StoreFront/StoreHeader";
 import StoreFilters from "@/components/StoreFront/StoreFilters";
 import StoreFrontProductCard from "@/components/StoreFront/StoreFrontProductCard";
 import FloatingActions from "@/components/StoreFront/FloatingActions";
-import CartPanel from "@/components/StoreFront/CartPanel";
-import WishlistPanel from "@/components/StoreFront/WishlistPanel";
-import ProductDetailDialog from "@/components/StoreFront/ProductDetailDialog";
-import StoreInfoDialog from "@/components/StoreFront/StoreInfoDialog";
+import ProductSkeleton from "@/components/StoreFront/ProductSkeleton";
 import StoreFooter from "@/components/StoreFront/StoreFooter";
+
+/* Lazy-load heavy dialogs/panels (not needed on initial render) */
+const CartPanel = lazy(() => import("@/components/StoreFront/CartPanel"));
+const WishlistPanel = lazy(() => import("@/components/StoreFront/WishlistPanel"));
+const ProductDetailDialog = lazy(() => import("@/components/StoreFront/ProductDetailDialog"));
+const StoreInfoDialog = lazy(() => import("@/components/StoreFront/StoreInfoDialog"));
+const CartModal = lazy(() => import("@/components/Cart/CartModal"));
 
 const StoreFront = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -150,11 +154,27 @@ const StoreFront = () => {
     toast({ title: "✓ Agregado", description: product.name, duration: 1500 });
   }, [addToCart, toCartProduct, toast]);
 
-  /* ── Loading / Not found ── */
+  /* ── Loading skeleton ── */
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      <div className="min-h-screen bg-background">
+        <Skeleton className="h-44 w-full sm:h-56 md:h-64" />
+        <div className="container px-4">
+          <div className="relative -mt-12 flex flex-col items-center gap-3 sm:-mt-14 sm:flex-row sm:items-end sm:gap-5">
+            <Skeleton className="h-24 w-24 rounded-full sm:h-28 sm:w-28" />
+            <div className="flex-1 space-y-2 pb-2">
+              <Skeleton className="h-7 w-48" />
+              <Skeleton className="h-4 w-72" />
+            </div>
+          </div>
+          <div className="mt-6 flex items-center gap-2">
+            <Skeleton className="h-10 flex-1 rounded-md" />
+            <Skeleton className="h-10 w-[130px] rounded-md" />
+          </div>
+          <div className="mt-4">
+            <ProductSkeleton viewMode="grid" count={6} />
+          </div>
+        </div>
       </div>
     );
   }
@@ -249,64 +269,76 @@ const StoreFront = () => {
         onWishlistOpen={() => setWishlistOpen(true)}
       />
 
-      <CartPanel
-        open={cartOpen}
-        onOpenChange={setCartOpen}
-        items={cart}
-        itemCount={itemCount}
-        cartTotal={cartTotal}
-        primaryColor={primaryColor}
-        currencySymbol={currencySymbol}
-        onUpdateQuantity={updateQuantity}
-        onRemove={removeFromCart}
-        onCheckout={() => setCheckoutOpen(true)}
-      />
+      <Suspense fallback={null}>
+        {cartOpen && (
+          <CartPanel
+            open={cartOpen}
+            onOpenChange={setCartOpen}
+            items={cart}
+            itemCount={itemCount}
+            cartTotal={cartTotal}
+            primaryColor={primaryColor}
+            currencySymbol={currencySymbol}
+            onUpdateQuantity={updateQuantity}
+            onRemove={removeFromCart}
+            onCheckout={() => setCheckoutOpen(true)}
+          />
+        )}
 
-      <WishlistPanel
-        open={wishlistOpen}
-        onOpenChange={setWishlistOpen}
-        items={wishlistItems}
-        wishlistCount={wishlistCount}
-        primaryColor={primaryColor}
-        currencySymbol={currencySymbol}
-        products={products}
-        onOpenDetail={setSelectedProduct}
-        onRemove={removeFromWishlist}
-      />
+        {wishlistOpen && (
+          <WishlistPanel
+            open={wishlistOpen}
+            onOpenChange={setWishlistOpen}
+            items={wishlistItems}
+            wishlistCount={wishlistCount}
+            primaryColor={primaryColor}
+            currencySymbol={currencySymbol}
+            products={products}
+            onOpenDetail={setSelectedProduct}
+            onRemove={removeFromWishlist}
+          />
+        )}
 
-      <CartModal
-        open={checkoutOpen}
-        onOpenChange={setCheckoutOpen}
-        storeId={store.id}
-        storePhone={socialMedia?.whatsapp || ""}
-        storeName={store.store_name}
-        primaryColor={primaryColor}
-        currencySymbol={currencySymbol}
-        onOrderComplete={() => {
-          setCartOpen(false);
-          setActiveCategory("all");
-          setSearch("");
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-      />
+        {checkoutOpen && (
+          <CartModal
+            open={checkoutOpen}
+            onOpenChange={setCheckoutOpen}
+            storeId={store.id}
+            storePhone={socialMedia?.whatsapp || ""}
+            storeName={store.store_name}
+            primaryColor={primaryColor}
+            currencySymbol={currencySymbol}
+            onOrderComplete={() => {
+              setCartOpen(false);
+              setActiveCategory("all");
+              setSearch("");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
+        )}
 
-      <ProductDetailDialog
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        currencySymbol={currencySymbol}
-        primaryColor={primaryColor}
-        isWishlisted={selectedProduct ? isInWishlist(selectedProduct.id) : false}
-        onToggleWishlist={(p) => toggleWishlist(p)}
-        onAddToCart={handleAddFromDetail}
-        getCategoryName={getCategoryName}
-      />
+        {selectedProduct && (
+          <ProductDetailDialog
+            product={selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+            currencySymbol={currencySymbol}
+            primaryColor={primaryColor}
+            isWishlisted={isInWishlist(selectedProduct.id)}
+            onToggleWishlist={(p) => toggleWishlist(p)}
+            onAddToCart={handleAddFromDetail}
+            getCategoryName={getCategoryName}
+          />
+        )}
 
-      <StoreInfoDialog
-        open={infoOpen}
-        onOpenChange={setInfoOpen}
-        store={store}
-        socialMedia={socialMedia}
-      />
+        {infoOpen && (
+          <StoreInfoDialog
+            open={infoOpen}
+            onOpenChange={setInfoOpen}
+            store={store}
+            socialMedia={socialMedia}
+          />
+        )}
+      </Suspense>
 
       <StoreFooter
         store={store}
