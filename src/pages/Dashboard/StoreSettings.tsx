@@ -9,7 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Upload, Store, Palette, Share2, DollarSign, Layout, MapPin, Mail, Phone, Globe, Eye } from "lucide-react";
+import { Loader2, Upload, Store, Palette, Share2, DollarSign, Layout, MapPin, Mail, Phone, Globe, Eye, Smartphone } from "lucide-react";
+import TemplatePreview from "@/components/Dashboard/TemplatePreview";
 import toast from "react-hot-toast";
 import { compressImage } from "@/lib/imageCompression";
 
