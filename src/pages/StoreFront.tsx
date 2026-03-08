@@ -21,6 +21,7 @@ import AppHeroBanner from "@/components/StoreFront/AppTemplate/AppHeroBanner";
 import AppCategoryPills from "@/components/StoreFront/AppTemplate/AppCategoryPills";
 import AppProductCard from "@/components/StoreFront/AppTemplate/AppProductCard";
 import AppSortBar from "@/components/StoreFront/AppTemplate/AppSortBar";
+import { getTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
 
 /* Lazy-load heavy dialogs/panels (not needed on initial render) */
 const CartPanel = lazy(() => import("@/components/StoreFront/CartPanel"));
@@ -103,6 +104,7 @@ const StoreFront = () => {
   const currencySymbol = getCurrencySymbol(store?.currency || "BOB");
   const storefrontConfig = (store as any)?.storefront_config as Record<string, any> | null;
   const template = storefrontConfig?.template || "classic";
+  const theme = getTheme(template);
 
   const filteredProducts = useMemo(() => {
     let items = [...products];
@@ -207,7 +209,7 @@ const StoreFront = () => {
     );
   }
 
-  const isAppTemplate = template === "app";
+  const isAppTemplate = template !== "classic";
 
   /* ── Pagination component (shared) ── */
   const renderPagination = () => {
@@ -279,13 +281,14 @@ const StoreFront = () => {
             onInfoClick={() => setInfoOpen(true)}
           />
 
-          <AppHeroBanner store={store} primaryColor={primaryColor} />
+          <AppHeroBanner store={store} primaryColor={primaryColor} theme={theme} />
 
           <AppCategoryPills
             categories={categories}
             activeCategory={activeCategory}
             onCategoryChange={setActiveCategory}
             primaryColor={primaryColor}
+            theme={theme}
           />
 
           <AppSortBar
@@ -338,6 +341,7 @@ const StoreFront = () => {
                             onQuickAdd={handleQuickAdd}
                             onToggleWishlist={toggleWishlist}
                             onOpenDetail={setSelectedProduct}
+                            theme={theme}
                           />
                         )
                       )}

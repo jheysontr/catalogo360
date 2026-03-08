@@ -2,6 +2,7 @@ import { memo } from "react";
 import { Heart, ShoppingCart, Store as StoreIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import ProgressiveImage from "../ProgressiveImage";
+import type { TemplateTheme } from "./templateThemes";
 
 interface ProductAttribute {
   name: string;
@@ -33,6 +34,7 @@ interface AppProductCardProps {
   onQuickAdd: (p: Product, e: React.MouseEvent) => void;
   onToggleWishlist: (p: Product, e?: React.MouseEvent) => void;
   onOpenDetail: (p: Product) => void;
+  theme: TemplateTheme;
 }
 
 const AppProductCard = ({
@@ -44,9 +46,8 @@ const AppProductCard = ({
   onQuickAdd,
   onToggleWishlist,
   onOpenDetail,
+  theme,
 }: AppProductCardProps) => {
-  const hasAttrs = Array.isArray(p.attributes) && (p.attributes as ProductAttribute[]).length > 0;
-
   return (
     <motion.div
       layout
@@ -57,9 +58,9 @@ const AppProductCard = ({
       className="group cursor-pointer"
       onClick={() => onOpenDetail(p)}
     >
-      <div className="overflow-hidden rounded-2xl border bg-card shadow-sm transition-shadow hover:shadow-md">
+      <div className={`overflow-hidden ${theme.cardRounded} ${theme.cardBorder ? "border" : ""} bg-card ${theme.cardShadow} transition-shadow`}>
         {/* Image */}
-        <div className="relative aspect-square overflow-hidden bg-muted">
+        <div className={`relative ${theme.cardAspect} overflow-hidden bg-muted`}>
           {p.image_url ? (
             <ProgressiveImage
               src={p.image_url}
@@ -74,7 +75,7 @@ const AppProductCard = ({
 
           {/* Sale badge */}
           {p.on_sale && p.discount_percent && (
-            <span className="absolute left-2 top-2 inline-flex items-center rounded-lg bg-destructive px-2.5 py-1 text-[11px] font-bold text-destructive-foreground shadow-sm">
+            <span className={`absolute left-2 top-2 inline-flex items-center ${theme.pillRounded} bg-destructive px-2.5 py-1 text-[11px] font-bold text-destructive-foreground shadow-sm`}>
               -{p.discount_percent}%
             </span>
           )}
@@ -82,7 +83,7 @@ const AppProductCard = ({
           {/* Low stock */}
           {p.stock < 5 && (
             <span
-              className="absolute left-2 inline-flex items-center rounded-lg bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold text-white"
+              className={`absolute left-2 inline-flex items-center ${theme.pillRounded} bg-amber-500/90 px-2 py-0.5 text-[10px] font-bold text-white`}
               style={{ top: p.on_sale && p.discount_percent ? "2.5rem" : "0.5rem" }}
             >
               ¡Quedan {p.stock}!
@@ -101,11 +102,11 @@ const AppProductCard = ({
             <Heart className={`h-3.5 w-3.5 ${isWishlisted ? "fill-white" : ""}`} />
           </button>
 
-          {/* Quick add button on hover */}
+          {/* Quick add on hover */}
           <div className="absolute bottom-2 right-2 translate-y-2 opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100">
             <button
               onClick={(e) => onQuickAdd(p, e)}
-              className="flex h-10 w-10 items-center justify-center rounded-xl text-white shadow-lg transition-transform hover:scale-110"
+              className={`flex h-10 w-10 items-center justify-center ${theme.cardRounded} text-white shadow-lg transition-transform hover:scale-110`}
               style={{ backgroundColor: primaryColor }}
             >
               <ShoppingCart className="h-4 w-4" />
