@@ -72,7 +72,7 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
     return `${sym} ${n.toFixed(0)}`;
   };
   const [loading, setLoading] = useState(true);
-
+  const [orders, setOrders] = useState<OrderRow[]>([]);
   const [allTimeOrders, setAllTimeOrders] = useState(0);
   const [lowStockProducts, setLowStockProducts] = useState<ProductRow[]>([]);
   const [topProducts, setTopProducts] = useState<{ name: string; sold: number }[]>([]);
