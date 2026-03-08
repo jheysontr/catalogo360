@@ -69,6 +69,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
         .eq("id", storeId)
         .limit(1);
       if (data?.[0]) {
+        const row = data[0] as any;
         const sc = data[0].shipping_config as Record<string, any> | null;
         if (sc && Object.keys(sc).length > 0) {
           const config = sc as unknown as ShippingConfigData;
