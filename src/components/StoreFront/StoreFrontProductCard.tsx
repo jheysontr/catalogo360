@@ -1,5 +1,6 @@
 import { Heart, ShoppingCart, Store as StoreIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 interface ProductAttribute {
   name: string;
