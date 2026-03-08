@@ -516,6 +516,7 @@ const StoreFront = () => {
                         src={item.image_url}
                         alt={item.name}
                         className="h-16 w-16 cursor-pointer rounded-md object-cover"
+                        loading="lazy"
                         onClick={() => { setWishlistOpen(false); if (product) openProductDetail(product); }}
                       />
                     ) : (

@@ -30,7 +30,7 @@ const StoreHeader = ({ store, primaryColor, secondaryColor, onInfoClick, onShare
           style={{ backgroundColor: primaryColor }}
         >
           {store.logo_url ? (
-            <img src={store.logo_url} alt={store.store_name} className="h-full w-full object-cover" />
+            <img src={store.logo_url} alt={store.store_name} className="h-full w-full object-cover" loading="lazy" />
           ) : (
             <StoreIcon className="h-10 w-10 text-white" />
           )}

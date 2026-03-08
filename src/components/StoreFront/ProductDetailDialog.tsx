@@ -166,7 +166,7 @@ const ProductDetailDialog = ({
                   galleryIndex === idx ? "border-primary shadow-md" : "border-transparent opacity-60 hover:opacity-100"
                 }`}
               >
-                <img src={img} alt={`Foto ${idx + 1}`} className="h-full w-full object-cover" />
+                <img src={img} alt={`Foto ${idx + 1}`} className="h-full w-full object-cover" loading="lazy" />
               </button>
             ))}
           </div>
