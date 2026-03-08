@@ -238,10 +238,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
         : undefined,
     });
 
-    // Open WhatsApp immediately
-    window.location.href = waUrl;
-
-    // DB operations in background
+    // Save order to DB FIRST, then redirect to WhatsApp
     try {
       const { data: orderData } = await supabase.from("orders").insert({
         store_id: storeId,
@@ -253,19 +250,24 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
         status: "pending",
       }).select("id").single();
 
-      if (orderData) {
-        // Increment coupon used_count
-        if (appliedCoupon) {
-          const { data: couponData } = await supabase.from("coupons").select("used_count").eq("id", appliedCoupon.id).single();
-          if (couponData) {
-            await supabase.from("coupons").update({ used_count: couponData.used_count + 1 }).eq("id", appliedCoupon.id);
-          }
+      if (orderData && appliedCoupon) {
+        const { data: couponData } = await supabase.from("coupons").select("used_count").eq("id", appliedCoupon.id).single();
+        if (couponData) {
+          await supabase.from("coupons").update({ used_count: couponData.used_count + 1 }).eq("id", appliedCoupon.id);
         }
-
       }
     } catch (e) {
       console.error("Error saving order to database:", e);
     }
+
+    // Open WhatsApp AFTER order is saved
+    const link = document.createElement("a");
+    link.href = waUrl;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 
     setSubmitting(false);
     onOpenChange(false);
