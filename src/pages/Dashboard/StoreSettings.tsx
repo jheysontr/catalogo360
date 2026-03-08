@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Upload, Store, Palette, Share2, DollarSign, Layout } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Loader2, Upload, Store, Palette, Share2, DollarSign, Layout, MapPin, Mail, Phone, Globe, Eye } from "lucide-react";
 import toast from "react-hot-toast";
 import { compressImage } from "@/lib/imageCompression";
 
@@ -41,11 +43,26 @@ const CURRENCIES = [
   { code: "GBP", name: "Libra esterlina", symbol: "£" },
 ];
 
+const GENERAL_TEMPLATES = [
+  { value: "classic", emoji: "🏪", label: "Clásica", desc: "Banner + logo circular" },
+  { value: "app", emoji: "📱", label: "App", desc: "Estilo app móvil moderno" },
+  { value: "elegante", emoji: "✨", label: "Elegante", desc: "Minimalista y sofisticado" },
+  { value: "moderna", emoji: "🚀", label: "Moderna", desc: "Audaz y dinámica" },
+];
+
+const NICHE_TEMPLATES = [
+  { value: "comida", emoji: "🍔", label: "Comida", desc: "Restaurantes y delivery" },
+  { value: "frutas", emoji: "🍎", label: "Frutas y Orgánicos", desc: "Productos frescos y naturales" },
+  { value: "moda", emoji: "👗", label: "Moda y Ropa", desc: "Estilo editorial fashion" },
+  { value: "electronica", emoji: "🔌", label: "Electrónica", desc: "Tech y repuestos" },
+];
+
 const StoreSettings = () => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [store, setStore] = useState<StoreData | null>(null);
+  const [activeTab, setActiveTab] = useState("general");
 
   // Form fields
   const [storeName, setStoreName] = useState("");
@@ -153,10 +170,10 @@ const StoreSettings = () => {
 
     if (!storeSlug.trim() || storeSlug.trim().length < 3) {
       toast.error("La URL debe tener al menos 3 caracteres");
+      setSaving(false);
       return;
     }
 
-    // Check slug uniqueness
     const { data: slugCheck } = await supabase
       .from("stores")
       .select("id")
@@ -170,7 +187,6 @@ const StoreSettings = () => {
       return;
     }
 
-    // Build storefront_config preserving existing fields
     const existingConfig = (store as any).storefront_config as Record<string, any> || {};
     const updatedStorefrontConfig = { ...existingConfig, template: storeTemplate };
 
@@ -236,66 +252,124 @@ const StoreSettings = () => {
     );
   }
 
+  const TemplateButton = ({ t }: { t: { value: string; emoji: string; label: string; desc: string } }) => (
+    <button
+      onClick={() => setStoreTemplate(t.value)}
+      className={`rounded-xl border-2 p-3 text-left transition-all ${
+        storeTemplate === t.value
+          ? "border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20"
+          : "border-border hover:border-primary/40 hover:bg-muted/50"
+      }`}
+    >
+      <div className="flex items-center gap-2">
+        <span className="text-lg">{t.emoji}</span>
+        <div>
+          <p className="text-sm font-semibold text-foreground">{t.label}</p>
+          <p className="text-[11px] text-muted-foreground">{t.desc}</p>
+        </div>
+      </div>
+    </button>
+  );
+
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="font-display text-2xl font-bold text-foreground">Configuración de Tienda</h1>
-        <p className="text-sm text-muted-foreground">Personaliza la apariencia y datos de contacto de tu tienda</p>
+      {/* Header */}
+      <div className="mb-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h1 className="font-display text-2xl font-bold text-foreground">Configuración</h1>
+          <p className="text-sm text-muted-foreground">Administra tu tienda, apariencia y contacto</p>
+        </div>
+        <div className="flex gap-2 mt-3 sm:mt-0">
+          <Button variant="outline" onClick={handleCancel} disabled={saving} size="sm">
+            Cancelar
+          </Button>
+          <Button onClick={handleSave} disabled={saving} size="sm" className="gap-2">
+            {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+            Guardar cambios
+          </Button>
+        </div>
       </div>
 
-      <div className="grid gap-8 lg:grid-cols-2">
-        {/* LEFT COLUMN */}
-        <div className="space-y-6">
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto rounded-none gap-0 overflow-x-auto">
+          <TabsTrigger
+            value="general"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm"
+          >
+            <Store className="h-4 w-4 mr-1.5" />
+            General
+          </TabsTrigger>
+          <TabsTrigger
+            value="apariencia"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm"
+          >
+            <Palette className="h-4 w-4 mr-1.5" />
+            Apariencia
+          </TabsTrigger>
+          <TabsTrigger
+            value="plantilla"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm"
+          >
+            <Layout className="h-4 w-4 mr-1.5" />
+            Plantilla
+          </TabsTrigger>
+          <TabsTrigger
+            value="contacto"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm"
+          >
+            <Share2 className="h-4 w-4 mr-1.5" />
+            Contacto
+          </TabsTrigger>
+        </TabsList>
+
+        {/* ═══════════════ TAB: GENERAL ═══════════════ */}
+        <TabsContent value="general" className="mt-6 space-y-6">
+          {/* Logo & Name */}
           <Card>
-            <CardHeader className="flex flex-row items-center gap-3 pb-2">
-              <Store className="h-5 w-5 text-primary" />
-              <CardTitle className="text-base">Información Básica</CardTitle>
+            <CardHeader>
+              <CardTitle className="text-base">Identidad de la tienda</CardTitle>
+              <CardDescription>Logo, nombre y URL pública</CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
               {/* Logo */}
-              <div>
-                <Label>Logo de tienda</Label>
-                <div className="mt-2 flex items-center gap-4">
-                  <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-dashed border-input bg-muted">
-                    {logoUrl ? (
-                      <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <Store className="h-8 w-8 text-muted-foreground" />
-                      </div>
-                    )}
-                    {uploadingLogo && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-background/70">
-                        <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <label>
-                      <Button variant="outline" size="sm" className="gap-1.5" asChild>
-                        <span>
-                          <Upload className="h-3.5 w-3.5" /> Cambiar logo
-                        </span>
-                      </Button>
-                      <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
-                    </label>
-                    <p className="mt-1 text-xs text-muted-foreground">Recomendado: 200×200px</p>
-                  </div>
+              <div className="flex items-center gap-4">
+                <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full border-2 border-dashed border-input bg-muted">
+                  {logoUrl ? (
+                    <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                      <Store className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                  )}
+                  {uploadingLogo && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background/70">
+                      <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label>
+                    <Button variant="outline" size="sm" className="gap-1.5" asChild>
+                      <span>
+                        <Upload className="h-3.5 w-3.5" /> Cambiar logo
+                      </span>
+                    </Button>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleLogoChange} />
+                  </label>
+                  <p className="mt-1 text-xs text-muted-foreground">Recomendado: 200×200px</p>
                 </div>
               </div>
+
+              <Separator />
 
               {/* Store name */}
               <div>
                 <Label htmlFor="s-name">Nombre de tienda *</Label>
-                <Input
-                  id="s-name"
-                  value={storeName}
-                  onChange={(e) => setStoreName(e.target.value)}
-                  className="mt-1.5"
-                />
+                <Input id="s-name" value={storeName} onChange={(e) => setStoreName(e.target.value)} className="mt-1.5" />
               </div>
 
-              {/* Slug (editable) */}
+              {/* Slug */}
               <div>
                 <Label htmlFor="s-slug">URL de tu tienda</Label>
                 <div className="mt-1.5 flex items-center gap-0 rounded-md border bg-muted overflow-hidden">
@@ -325,81 +399,72 @@ const StoreSettings = () => {
                 />
                 <p className="mt-1 text-xs text-muted-foreground">{description.length}/160 caracteres</p>
               </div>
-
-              {/* Email */}
-              <div>
-                <Label htmlFor="s-email">Email de contacto</Label>
-                <Input
-                  id="s-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1.5"
-                  placeholder="contacto@tutienda.com"
-                />
-              </div>
-
-              {/* Phone */}
-              <div>
-                <Label htmlFor="s-phone">Teléfono</Label>
-                <Input
-                  id="s-phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  className="mt-1.5"
-                  placeholder="+1 234 567 890"
-                />
-              </div>
-
-              {/* Address */}
-              <div>
-                <Label htmlFor="s-address">Dirección</Label>
-                <Input
-                  id="s-address"
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className="mt-1.5"
-                  placeholder="Calle, ciudad, país"
-                />
-              </div>
             </CardContent>
           </Card>
-        </div>
 
-        {/* RIGHT COLUMN */}
-        <div className="space-y-6">
-          {/* Banner & Colors */}
+          {/* Currency */}
           <Card>
-            <CardHeader className="flex flex-row items-center gap-3 pb-2">
-              <Palette className="h-5 w-5 text-primary" />
-              <CardTitle className="text-base">Personalización</CardTitle>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-primary" />
+                Moneda
+              </CardTitle>
+              <CardDescription>Moneda en la que se muestran tus precios</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Select value={currency} onValueChange={setCurrency}>
+                <SelectTrigger id="s-currency">
+                  <SelectValue placeholder="Selecciona moneda" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CURRENCIES.map((c) => (
+                    <SelectItem key={c.code} value={c.code}>
+                      {c.symbol} — {c.name} ({c.code})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* ═══════════════ TAB: APARIENCIA ═══════════════ */}
+        <TabsContent value="apariencia" className="mt-6 space-y-6">
+          {/* Banner */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Banner de portada</CardTitle>
+              <CardDescription>Imagen principal que se muestra en tu tienda</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <label className="block cursor-pointer">
+                <div className="relative h-44 w-full overflow-hidden rounded-xl border-2 border-dashed border-input bg-muted transition-colors hover:border-primary/40">
+                  {bannerUrl ? (
+                    <img src={bannerUrl} alt="Banner" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex h-full w-full flex-col items-center justify-center gap-2">
+                      <Upload className="h-8 w-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">Subir banner (800×400px)</span>
+                    </div>
+                  )}
+                  {uploadingBanner && (
+                    <div className="absolute inset-0 flex items-center justify-center bg-background/70">
+                      <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    </div>
+                  )}
+                </div>
+                <input type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
+              </label>
+            </CardContent>
+          </Card>
+
+          {/* Colors */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Colores de marca</CardTitle>
+              <CardDescription>Define la paleta de tu tienda</CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
-              {/* Banner */}
-              <div>
-                <Label>Banner de tienda</Label>
-                <label className="mt-2 block cursor-pointer">
-                  <div className="relative h-40 w-full overflow-hidden rounded-lg border-2 border-dashed border-input bg-muted">
-                    {bannerUrl ? (
-                      <img src={bannerUrl} alt="Banner" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full flex-col items-center justify-center gap-2">
-                        <Upload className="h-8 w-8 text-muted-foreground" />
-                        <span className="text-sm text-muted-foreground">Subir banner (800×400px)</span>
-                      </div>
-                    )}
-                    {uploadingBanner && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-background/70">
-                        <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                      </div>
-                    )}
-                  </div>
-                  <input type="file" accept="image/*" className="hidden" onChange={handleBannerChange} />
-                </label>
-              </div>
-
-              {/* Colors */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="s-primary">Color primario</Label>
@@ -411,12 +476,7 @@ const StoreSettings = () => {
                       onChange={(e) => setPrimaryColor(e.target.value)}
                       className="h-10 w-10 cursor-pointer rounded border-0 bg-transparent p-0"
                     />
-                    <Input
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      className="flex-1"
-                      maxLength={7}
-                    />
+                    <Input value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="flex-1" maxLength={7} />
                   </div>
                 </div>
                 <div>
@@ -429,20 +489,20 @@ const StoreSettings = () => {
                       onChange={(e) => setSecondaryColor(e.target.value)}
                       className="h-10 w-10 cursor-pointer rounded border-0 bg-transparent p-0"
                     />
-                    <Input
-                      value={secondaryColor}
-                      onChange={(e) => setSecondaryColor(e.target.value)}
-                      className="flex-1"
-                      maxLength={7}
-                    />
+                    <Input value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="flex-1" maxLength={7} />
                   </div>
                 </div>
               </div>
 
+              <Separator />
+
               {/* Live preview */}
               <div>
-                <Label>Vista previa</Label>
-                <div className="mt-1.5 overflow-hidden rounded-lg border">
+                <Label className="flex items-center gap-1.5 mb-1.5">
+                  <Eye className="h-3.5 w-3.5" />
+                  Vista previa
+                </Label>
+                <div className="overflow-hidden rounded-xl border">
                   <div className="h-16 w-full" style={{ backgroundColor: primaryColor }} />
                   <div className="flex items-center gap-3 p-3" style={{ backgroundColor: secondaryColor }}>
                     {logoUrl ? (
@@ -456,160 +516,126 @@ const StoreSettings = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
 
-          {/* Template selector */}
+        {/* ═══════════════ TAB: PLANTILLA ═══════════════ */}
+        <TabsContent value="plantilla" className="mt-6 space-y-6">
           <Card>
-            <CardHeader className="flex flex-row items-center gap-3 pb-2">
-              <Layout className="h-5 w-5 text-primary" />
-              <CardTitle className="text-base">Plantilla de Tienda</CardTitle>
+            <CardHeader>
+              <CardTitle className="text-base">Estilo de tienda</CardTitle>
+              <CardDescription>Elige cómo se ve tu tienda para tus clientes</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-xs text-muted-foreground">Elige el estilo visual de tu tienda pública</p>
-              
-              {/* General templates */}
+            <CardContent className="space-y-5">
+              {/* General */}
               <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Generales</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { value: "classic", emoji: "🏪", label: "Clásica", desc: "Banner + logo circular" },
-                    { value: "app", emoji: "📱", label: "App", desc: "Estilo app móvil moderno" },
-                    { value: "elegante", emoji: "✨", label: "Elegante", desc: "Minimalista y sofisticado" },
-                    { value: "moderna", emoji: "🚀", label: "Moderna", desc: "Audaz y dinámica" },
-                  ].map((t) => (
-                    <button
-                      key={t.value}
-                      onClick={() => setStoreTemplate(t.value)}
-                      className={`rounded-xl border-2 p-3 text-left transition-all ${
-                        storeTemplate === t.value
-                          ? "border-primary bg-primary/5 shadow-sm"
-                          : "border-border hover:border-primary/40"
-                      }`}
-                    >
-                      <p className="text-sm font-semibold text-foreground">{t.emoji} {t.label}</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">{t.desc}</p>
-                    </button>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Generales</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {GENERAL_TEMPLATES.map((t) => (
+                    <TemplateButton key={t.value} t={t} />
                   ))}
                 </div>
               </div>
 
-              {/* Niche templates */}
+              <Separator />
+
+              {/* Niche */}
               <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Por categoría</p>
-                <div className="grid grid-cols-2 gap-2">
-                  {[
-                    { value: "comida", emoji: "🍔", label: "Comida", desc: "Restaurantes y delivery" },
-                    { value: "frutas", emoji: "🍎", label: "Frutas y Orgánicos", desc: "Productos frescos y naturales" },
-                    { value: "moda", emoji: "👗", label: "Moda y Ropa", desc: "Estilo editorial fashion" },
-                    { value: "electronica", emoji: "🔌", label: "Electrónica", desc: "Tech y repuestos" },
-                  ].map((t) => (
-                    <button
-                      key={t.value}
-                      onClick={() => setStoreTemplate(t.value)}
-                      className={`rounded-xl border-2 p-3 text-left transition-all ${
-                        storeTemplate === t.value
-                          ? "border-primary bg-primary/5 shadow-sm"
-                          : "border-border hover:border-primary/40"
-                      }`}
-                    >
-                      <p className="text-sm font-semibold text-foreground">{t.emoji} {t.label}</p>
-                      <p className="text-[11px] text-muted-foreground mt-0.5">{t.desc}</p>
-                    </button>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Por categoría de negocio</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {NICHE_TEMPLATES.map((t) => (
+                    <TemplateButton key={t.value} t={t} />
                   ))}
                 </div>
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
 
-          {/* Currency */}
+        {/* ═══════════════ TAB: CONTACTO ═══════════════ */}
+        <TabsContent value="contacto" className="mt-6 space-y-6">
+          {/* Contact info */}
           <Card>
-            <CardHeader className="flex flex-row items-center gap-3 pb-2">
-              <DollarSign className="h-5 w-5 text-primary" />
-              <CardTitle className="text-base">Moneda</CardTitle>
+            <CardHeader>
+              <CardTitle className="text-base">Datos de contacto</CardTitle>
+              <CardDescription>Información visible para tus clientes</CardDescription>
             </CardHeader>
-            <CardContent>
-              <Label htmlFor="s-currency">Moneda de tu tienda</Label>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger id="s-currency" className="mt-1.5">
-                  <SelectValue placeholder="Selecciona moneda" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CURRENCIES.map((c) => (
-                    <SelectItem key={c.code} value={c.code}>
-                      {c.symbol} — {c.name} ({c.code})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="mt-1.5 text-xs text-muted-foreground">
-                Los precios de tus productos se mostrarán con esta moneda
-              </p>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="s-email" className="flex items-center gap-1.5">
+                    <Mail className="h-3.5 w-3.5 text-muted-foreground" /> Email
+                  </Label>
+                  <Input
+                    id="s-email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="mt-1.5"
+                    placeholder="contacto@tutienda.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="s-phone" className="flex items-center gap-1.5">
+                    <Phone className="h-3.5 w-3.5 text-muted-foreground" /> Teléfono
+                  </Label>
+                  <Input
+                    id="s-phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="mt-1.5"
+                    placeholder="+1 234 567 890"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="s-address" className="flex items-center gap-1.5">
+                  <MapPin className="h-3.5 w-3.5 text-muted-foreground" /> Dirección
+                </Label>
+                <Input
+                  id="s-address"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="mt-1.5"
+                  placeholder="Calle, ciudad, país"
+                />
+              </div>
             </CardContent>
           </Card>
 
           {/* Social Media */}
           <Card>
-            <CardHeader className="flex flex-row items-center gap-3 pb-2">
-              <Share2 className="h-5 w-5 text-primary" />
-              <CardTitle className="text-base">Redes Sociales</CardTitle>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <Globe className="h-4 w-4 text-primary" />
+                Redes Sociales
+              </CardTitle>
+              <CardDescription>Links que aparecen en tu tienda pública</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="s-fb">Facebook</Label>
-                <Input
-                  id="s-fb"
-                  value={facebook}
-                  onChange={(e) => setFacebook(e.target.value)}
-                  className="mt-1.5"
-                  placeholder="https://facebook.com/tutienda"
-                />
-              </div>
-              <div>
-                <Label htmlFor="s-ig">Instagram</Label>
-                <Input
-                  id="s-ig"
-                  value={instagram}
-                  onChange={(e) => setInstagram(e.target.value)}
-                  className="mt-1.5"
-                  placeholder="https://instagram.com/tutienda"
-                />
-              </div>
-              <div>
-                <Label htmlFor="s-tt">TikTok</Label>
-                <Input
-                  id="s-tt"
-                  value={tiktok}
-                  onChange={(e) => setTiktok(e.target.value)}
-                  className="mt-1.5"
-                  placeholder="https://tiktok.com/@tutienda"
-                />
-              </div>
-              <div>
-                <Label htmlFor="s-wa">WhatsApp</Label>
-                <Input
-                  id="s-wa"
-                  type="tel"
-                  value={whatsapp}
-                  onChange={(e) => setWhatsapp(e.target.value)}
-                  className="mt-1.5"
-                  placeholder="+1 234 567 890"
-                />
-                <p className="mt-1 text-xs text-muted-foreground">Se usará para recibir órdenes por WhatsApp</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="s-fb">Facebook</Label>
+                  <Input id="s-fb" value={facebook} onChange={(e) => setFacebook(e.target.value)} className="mt-1.5" placeholder="https://facebook.com/tutienda" />
+                </div>
+                <div>
+                  <Label htmlFor="s-ig">Instagram</Label>
+                  <Input id="s-ig" value={instagram} onChange={(e) => setInstagram(e.target.value)} className="mt-1.5" placeholder="https://instagram.com/tutienda" />
+                </div>
+                <div>
+                  <Label htmlFor="s-tt">TikTok</Label>
+                  <Input id="s-tt" value={tiktok} onChange={(e) => setTiktok(e.target.value)} className="mt-1.5" placeholder="https://tiktok.com/@tutienda" />
+                </div>
+                <div>
+                  <Label htmlFor="s-wa">WhatsApp</Label>
+                  <Input id="s-wa" type="tel" value={whatsapp} onChange={(e) => setWhatsapp(e.target.value)} className="mt-1.5" placeholder="+1 234 567 890" />
+                  <p className="mt-1 text-xs text-muted-foreground">Se usará para recibir órdenes</p>
+                </div>
               </div>
             </CardContent>
           </Card>
-        </div>
-      </div>
-
-      {/* Footer buttons */}
-      <div className="mt-8 flex justify-end gap-3 border-t pt-6">
-        <Button variant="outline" onClick={handleCancel} disabled={saving}>
-          Cancelar
-        </Button>
-        <Button onClick={handleSave} disabled={saving} className="gap-2">
-          {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-          Guardar cambios
-        </Button>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
