@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 import { Button } from "@/components/ui/button";
 import { Menu, Eye, QrCode, Settings, LogOut } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
