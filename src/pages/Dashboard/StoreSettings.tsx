@@ -64,6 +64,7 @@ const StoreSettings = () => {
   const [saving, setSaving] = useState(false);
   const [store, setStore] = useState<StoreData | null>(null);
   const [activeTab, setActiveTab] = useState("general");
+  const [storeProducts, setStoreProducts] = useState<Array<{ name: string; price: number; image_url: string | null; description: string | null; on_sale: boolean; discount_percent: number | null }>>([]);
 
   // Form fields
   const [storeName, setStoreName] = useState("");
