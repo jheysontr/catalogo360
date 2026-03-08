@@ -71,8 +71,8 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
     if (n >= 1000) return `${sym} ${(n / 1000).toFixed(1)}k`;
     return `${sym} ${n.toFixed(0)}`;
   };
+  const [loading, setLoading] = useState(true);
 
-  const [orders, setOrders] = useState<OrderRow[]>([]);
   const [allTimeOrders, setAllTimeOrders] = useState(0);
   const [lowStockProducts, setLowStockProducts] = useState<ProductRow[]>([]);
   const [topProducts, setTopProducts] = useState<{ name: string; sold: number }[]>([]);
