@@ -99,7 +99,7 @@ const StorefrontShowcase = () => (
             ))}
           </ul>
           <div className="mt-8">
-            <Button asChild size="lg" className="gap-2"><Link to="/store/demo">Ver tienda demo <ArrowRight className="h-4 w-4" /></Link></Button>
+            <Button asChild size="lg" className="gap-2"><Link to="/demo">Ver tienda demo <ArrowRight className="h-4 w-4" /></Link></Button>
           </div>
         </motion.div>
         <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="relative">
