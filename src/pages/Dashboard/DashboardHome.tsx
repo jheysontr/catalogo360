@@ -20,6 +20,7 @@ interface DashboardHomeProps {
   storeName: string;
   storeSlug: string;
   productCount: number;
+  currency?: string;
   onNavigate: (section: string) => void;
 }
 
