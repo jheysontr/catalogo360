@@ -141,7 +141,7 @@ const StoreFront = () => {
   const primaryColor = store?.primary_color || "#2a9d8f";
   const secondaryColor = store?.secondary_color || "#264653";
   const socialMedia = (store?.social_media ?? {}) as Record<string, string>;
-  const currencySymbol = CURRENCY_SYMBOLS[store?.currency || "BOB"] || store?.currency || "$";
+  const currencySymbol = getCurrencySymbol(store?.currency || "BOB");
 
   const filteredProducts = useMemo(() => {
     let items = [...products];
