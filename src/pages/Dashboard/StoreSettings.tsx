@@ -64,6 +64,7 @@ const StoreSettings = () => {
   const [saving, setSaving] = useState(false);
   const [store, setStore] = useState<StoreData | null>(null);
   const [activeTab, setActiveTab] = useState("general");
+  const [storeProducts, setStoreProducts] = useState<Array<{ name: string; price: number; image_url: string | null; description: string | null; on_sale: boolean; discount_percent: number | null }>>([]);
 
   // Form fields
   const [storeName, setStoreName] = useState("");
@@ -118,6 +119,16 @@ const StoreSettings = () => {
         setCurrency((s as any).currency ?? "BOB");
         const sfConfig = (data[0] as any).storefront_config as Record<string, any> | null;
         setStoreTemplate(sfConfig?.template || "classic");
+
+        // Fetch products for preview
+        const { data: prods } = await supabase
+          .from("products")
+          .select("name, price, image_url, description, on_sale, discount_percent")
+          .eq("store_id", s.id)
+          .gt("stock", 0)
+          .order("created_at", { ascending: false })
+          .limit(6);
+        setStoreProducts(prods ?? []);
       }
       setLoading(false);
     };
@@ -567,6 +578,8 @@ const StoreSettings = () => {
                 primaryColor={primaryColor}
                 secondaryColor={secondaryColor}
                 description={description}
+                products={storeProducts}
+                currency={currency}
               />
               <p className="text-center text-[10px] text-muted-foreground">
                 Así se verá tu tienda con la plantilla <span className="font-semibold">{[...GENERAL_TEMPLATES, ...NICHE_TEMPLATES].find(t => t.value === storeTemplate)?.label || storeTemplate}</span>

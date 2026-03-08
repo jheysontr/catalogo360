@@ -1,5 +1,24 @@
 import { Store as StoreIcon, Search, ShoppingCart, Heart, Plus } from "lucide-react";
 import { getTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
+import { getCurrencySymbol } from "@/lib/currency";
+
+interface RealProduct {
+  name: string;
+  price: number;
+  image_url: string | null;
+  description: string | null;
+  on_sale: boolean;
+  discount_percent: number | null;
+}
+
+interface PreviewProduct {
+  name: string;
+  price: string;
+  oldPrice?: string;
+  sale: boolean;
+  desc: string;
+  imageUrl: string | null;
+}
 
 interface TemplatePreviewProps {
   templateId: string;
@@ -9,15 +28,17 @@ interface TemplatePreviewProps {
   primaryColor: string;
   secondaryColor: string;
   description: string;
+  products?: RealProduct[];
+  currency?: string;
 }
 
-const MOCK_PRODUCTS = [
-  { name: "Producto 1", price: "25.00", sale: false, desc: "Descripción breve del producto" },
-  { name: "Producto 2", price: "18.50", oldPrice: "22.00", sale: true, desc: "Con descuento especial" },
-  { name: "Producto 3", price: "42.00", sale: false, desc: "Alta calidad premium" },
-  { name: "Producto 4", price: "15.00", sale: false, desc: "El más popular" },
-  { name: "Producto 5", price: "33.00", sale: false, desc: "Nuevo en stock" },
-  { name: "Producto 6", price: "28.00", oldPrice: "35.00", sale: true, desc: "Oferta limitada" },
+const FALLBACK_PRODUCTS: PreviewProduct[] = [
+  { name: "Producto 1", price: "25.00", sale: false, desc: "Descripción del producto", imageUrl: null },
+  { name: "Producto 2", price: "18.50", oldPrice: "22.00", sale: true, desc: "Con descuento", imageUrl: null },
+  { name: "Producto 3", price: "42.00", sale: false, desc: "Alta calidad", imageUrl: null },
+  { name: "Producto 4", price: "15.00", sale: false, desc: "Popular", imageUrl: null },
+  { name: "Producto 5", price: "33.00", sale: false, desc: "Nuevo", imageUrl: null },
+  { name: "Producto 6", price: "28.00", oldPrice: "35.00", sale: true, desc: "Oferta", imageUrl: null },
 ];
 
 const MOCK_CATEGORIES = ["Todos", "Cat 1", "Cat 2"];
@@ -30,9 +51,29 @@ const TemplatePreview = ({
   primaryColor,
   secondaryColor,
   description,
+  products,
+  currency = "BOB",
 }: TemplatePreviewProps) => {
   const theme = getTheme(templateId);
   const isClassic = templateId === "classic";
+  const sym = getCurrencySymbol(currency);
+
+  // Map real products to preview format, fallback to mock
+  const previewProducts: PreviewProduct[] = products && products.length > 0
+    ? products.map((p) => {
+        const finalPrice = p.on_sale && p.discount_percent
+          ? p.price * (1 - p.discount_percent / 100)
+          : p.price;
+        return {
+          name: p.name,
+          price: finalPrice.toFixed(2),
+          oldPrice: p.on_sale && p.discount_percent ? p.price.toFixed(2) : undefined,
+          sale: p.on_sale && !!p.discount_percent,
+          desc: p.description || "",
+          imageUrl: p.image_url,
+        };
+      })
+    : FALLBACK_PRODUCTS;
 
   const renderBanner = () => {
     if (isClassic) {
@@ -142,22 +183,31 @@ const TemplatePreview = ({
     );
   };
 
-  const renderProductCard = (product: typeof MOCK_PRODUCTS[0], i: number) => {
+  const renderImage = (imageUrl: string | null) => {
+    if (imageUrl) {
+      return <img src={imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />;
+    }
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+        <StoreIcon className="h-3 w-3 text-muted-foreground/20" />
+      </div>
+    );
+  };
+
+  const renderProductCard = (product: PreviewProduct, i: number) => {
     switch (theme.cardLayout) {
       case "overlay":
         return (
           <div key={i} className={`relative overflow-hidden ${theme.cardRounded} ${theme.cardAspect} bg-muted`}>
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-              <StoreIcon className="h-3 w-3 text-muted-foreground/20" />
-            </div>
+            {renderImage(product.imageUrl)}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
             {product.sale && (
-              <span className={`absolute left-1 top-1 ${theme.pillRounded} bg-destructive px-1 py-0.5 text-[5px] font-bold text-destructive-foreground`}>-15%</span>
+              <span className={`absolute left-1 top-1 ${theme.pillRounded} bg-destructive px-1 py-0.5 text-[5px] font-bold text-destructive-foreground`}>Oferta</span>
             )}
             <div className="absolute bottom-0 left-0 right-0 p-1.5">
               <p className={`text-[6px] font-semibold text-white ${theme.nameStyle === "uppercase" ? "uppercase tracking-wider" : ""}`}>{product.name}</p>
               <div className="flex items-center justify-between mt-0.5">
-                <span className="text-[7px] font-bold text-white">${product.price}</span>
+                <span className="text-[7px] font-bold text-white">{sym}{product.price}</span>
                 <div className="flex h-3.5 w-3.5 items-center justify-center rounded-sm" style={{ backgroundColor: `${primaryColor}cc` }}>
                   <Plus className="h-2 w-2 text-white" />
                 </div>
@@ -168,14 +218,14 @@ const TemplatePreview = ({
       case "horizontal-mini":
         return (
           <div key={i} className={`flex overflow-hidden ${theme.cardRounded} bg-card ${theme.cardShadow.split(" ")[0]}`}>
-            <div className="h-14 w-14 flex-shrink-0 bg-muted flex items-center justify-center">
-              <StoreIcon className="h-3 w-3 text-muted-foreground/20" />
+            <div className="h-14 w-14 flex-shrink-0 bg-muted overflow-hidden">
+              {renderImage(product.imageUrl)}
             </div>
             <div className="flex flex-1 items-center justify-between p-1.5">
               <div>
                 <p className="text-[7px] font-semibold text-foreground line-clamp-1">{product.name}</p>
                 <p className="text-[6px] text-muted-foreground line-clamp-1">{product.desc}</p>
-                <span className="text-[7px] font-bold" style={{ color: primaryColor }}>${product.price}</span>
+                <span className="text-[7px] font-bold" style={{ color: primaryColor }}>{sym}{product.price}</span>
               </div>
               <div className={`flex h-4 w-4 items-center justify-center ${theme.ctaRounded}`} style={{ backgroundColor: primaryColor }}>
                 <Plus className="h-2 w-2 text-white" />
@@ -186,12 +236,10 @@ const TemplatePreview = ({
       default:
         return (
           <div key={i} className={`overflow-hidden ${theme.cardRounded} ${theme.cardBorder ? "border" : ""} bg-card ${theme.cardShadow.split(" ")[0]}`}>
-            <div className={`relative ${theme.cardAspect} bg-muted`}>
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/60">
-                <StoreIcon className="h-3 w-3 text-muted-foreground/20" />
-              </div>
+            <div className={`relative ${theme.cardAspect} bg-muted overflow-hidden`}>
+              {renderImage(product.imageUrl)}
               {product.sale && (
-                <span className={`absolute left-0.5 top-0.5 ${theme.pillRounded} bg-destructive px-1 py-0.5 text-[5px] font-bold text-destructive-foreground`}>-15%</span>
+                <span className={`absolute left-0.5 top-0.5 ${theme.pillRounded} bg-destructive px-1 py-0.5 text-[5px] font-bold text-destructive-foreground`}>Oferta</span>
               )}
               <button className="absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white/90 shadow-sm">
                 <Heart className="h-1.5 w-1.5 text-muted-foreground" />
@@ -205,7 +253,7 @@ const TemplatePreview = ({
                 <p className="text-[6px] text-muted-foreground line-clamp-1">{product.desc}</p>
               )}
               <span className={`font-bold ${theme.priceStyle === "large" ? "text-[9px]" : "text-[8px]"}`} style={theme.priceStyle === "accent" ? { color: primaryColor } : undefined}>
-                ${product.price}
+                {sym}{product.price}
               </span>
             </div>
           </div>
@@ -221,10 +269,10 @@ const TemplatePreview = ({
       : "grid-cols-2";
 
   const visibleProducts = theme.cardLayout === "horizontal-mini"
-    ? MOCK_PRODUCTS.slice(0, 4)
+    ? previewProducts.slice(0, 4)
     : previewGridCols === "grid-cols-3"
-      ? MOCK_PRODUCTS.slice(0, 6)
-      : MOCK_PRODUCTS.slice(0, 4);
+      ? previewProducts.slice(0, 6)
+      : previewProducts.slice(0, 4);
 
   return (
     <div className="relative mx-auto w-full max-w-[280px] overflow-hidden rounded-[2rem] border-[6px] border-foreground/10 bg-background shadow-2xl">
