@@ -317,40 +317,42 @@ const Dashboard = () => {
         </header>
 
         <main className="flex-1 p-3 sm:p-6 lg:p-8">
-          {activeSection === "products" ? (
-            <Products />
-          ) : activeSection === "categories" ? (
-            <Categories />
-          ) : activeSection === "coupons" ? (
-            <Coupons />
-          ) : activeSection === "shipments" ? (
-            <ShippingConfig />
-          ) : activeSection === "linkbox" ? (
-            <Linkbox />
-          ) : activeSection === "payment_methods" ? (
-            <PaymentMethods />
-          ) : activeSection === "settings" ? (
-            <StoreSettings />
-          ) : activeSection === "orders" ? (
-            <Orders />
-          ) : activeSection === "plans" ? (
-            <Plans />
-          ) : activeSection === "stats" ? (
-            <Analytics currency={store?.currency} />
-          ) : store ? (
-            <DashboardHome
-              storeId={store.id}
-              storeName={store.store_name}
-              storeSlug={store.store_slug}
-              productCount={productCount}
-              currency={store.currency}
-              onNavigate={(section) => setActiveSection(section)}
-            />
-          ) : (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          )}
+          <SectionErrorBoundary section={activeSection} key={activeSection}>
+            <Suspense fallback={<SectionLoader />}>
+              {activeSection === "products" ? (
+                <Products />
+              ) : activeSection === "categories" ? (
+                <Categories />
+              ) : activeSection === "coupons" ? (
+                <Coupons />
+              ) : activeSection === "shipments" ? (
+                <ShippingConfig />
+              ) : activeSection === "linkbox" ? (
+                <Linkbox />
+              ) : activeSection === "payment_methods" ? (
+                <PaymentMethods />
+              ) : activeSection === "settings" ? (
+                <StoreSettings />
+              ) : activeSection === "orders" ? (
+                <Orders />
+              ) : activeSection === "plans" ? (
+                <Plans />
+              ) : activeSection === "stats" ? (
+                <Analytics currency={store?.currency} />
+              ) : store ? (
+                <DashboardHome
+                  storeId={store.id}
+                  storeName={store.store_name}
+                  storeSlug={store.store_slug}
+                  productCount={productCount}
+                  currency={store.currency}
+                  onNavigate={(section) => setActiveSection(section)}
+                />
+              ) : (
+                <SectionLoader />
+              )}
+            </Suspense>
+          </SectionErrorBoundary>
         </main>
       </div>
 
