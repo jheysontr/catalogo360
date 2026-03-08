@@ -122,11 +122,16 @@ const Dashboard = () => {
         if (s.plan_id) {
           const { data: planData } = await supabase
             .from("pricing_plans")
-            .select("enabled_modules")
+            .select("enabled_modules, max_products")
             .eq("id", s.plan_id)
             .single();
-          if (planData?.enabled_modules && typeof planData.enabled_modules === "object") {
-            setEnabledModules(planData.enabled_modules as Record<string, boolean>);
+          if (planData) {
+            if (planData.enabled_modules && typeof planData.enabled_modules === "object") {
+              setEnabledModules(planData.enabled_modules as Record<string, boolean>);
+            }
+            if (typeof planData.max_products === "number") {
+              setMaxProducts(planData.max_products);
+            }
           }
         }
 
