@@ -17,6 +17,7 @@ import { Shield } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import SalesCalculator from "@/components/SalesCalculator";
+import NotificationPanel from "@/components/Dashboard/NotificationPanel";
 import Products from "@/pages/Dashboard/Products";
 import StoreSettings from "@/pages/Dashboard/StoreSettings";
 import Orders from "@/pages/Dashboard/Orders";
@@ -312,6 +313,13 @@ const Dashboard = () => {
                 <QrCode className="h-4 w-4" />
               </Button>
             </>
+          )}
+          {store && (
+            <NotificationPanel
+              storeId={store.id}
+              currency={store.currency}
+              onNavigateToOrders={() => setActiveSection("orders")}
+            />
           )}
           <ThemeToggle />
           <Button variant="ghost" size="icon" className="hidden sm:inline-flex" onClick={() => setActiveSection("settings")}>
