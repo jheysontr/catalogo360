@@ -260,23 +260,23 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
       )}
 
       {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {kpis.map((kpi) => (
           <Card key={kpi.label} className="relative overflow-hidden transition-shadow hover:shadow-md">
-            <CardContent className="p-5">
+            <CardContent className="p-3 sm:p-5">
               <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">{kpi.label}</p>
-                  <p className="text-2xl font-bold text-foreground">{kpi.value}</p>
+                <div className="space-y-0.5 sm:space-y-1 min-w-0">
+                  <p className="text-[10px] sm:text-xs font-medium text-muted-foreground truncate">{kpi.label}</p>
+                  <p className="text-lg sm:text-2xl font-bold text-foreground truncate">{kpi.value}</p>
                 </div>
-                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${kpi.color}`}>
-                  <kpi.icon className="h-5 w-5" />
+                <div className={`flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg sm:rounded-xl ${kpi.color}`}>
+                  <kpi.icon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </div>
               </div>
-              <div className="mt-2 flex items-center gap-2">
-                <span className="text-xs text-muted-foreground">{kpi.sub}</span>
+              <div className="mt-1.5 sm:mt-2 flex flex-wrap items-center gap-1 sm:gap-2">
+                <span className="text-[10px] sm:text-xs text-muted-foreground truncate">{kpi.sub}</span>
                 {kpi.change !== undefined && (
-                  <span className={`flex items-center gap-0.5 text-xs font-medium ${kpi.change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                  <span className={`flex items-center gap-0.5 text-[10px] sm:text-xs font-medium ${kpi.change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
                     {kpi.change >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                     {kpi.change >= 0 ? "+" : ""}{kpi.change.toFixed(1)}%
                   </span>
