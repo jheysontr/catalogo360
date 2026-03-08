@@ -1,5 +1,24 @@
 import { Store as StoreIcon, Search, ShoppingCart, Heart, Plus } from "lucide-react";
 import { getTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
+import { getCurrencySymbol } from "@/lib/currency";
+
+interface RealProduct {
+  name: string;
+  price: number;
+  image_url: string | null;
+  description: string | null;
+  on_sale: boolean;
+  discount_percent: number | null;
+}
+
+interface PreviewProduct {
+  name: string;
+  price: string;
+  oldPrice?: string;
+  sale: boolean;
+  desc: string;
+  imageUrl: string | null;
+}
 
 interface TemplatePreviewProps {
   templateId: string;
@@ -9,15 +28,17 @@ interface TemplatePreviewProps {
   primaryColor: string;
   secondaryColor: string;
   description: string;
+  products?: RealProduct[];
+  currency?: string;
 }
 
-const MOCK_PRODUCTS = [
-  { name: "Producto 1", price: "25.00", sale: false, desc: "Descripción breve del producto" },
-  { name: "Producto 2", price: "18.50", oldPrice: "22.00", sale: true, desc: "Con descuento especial" },
-  { name: "Producto 3", price: "42.00", sale: false, desc: "Alta calidad premium" },
-  { name: "Producto 4", price: "15.00", sale: false, desc: "El más popular" },
-  { name: "Producto 5", price: "33.00", sale: false, desc: "Nuevo en stock" },
-  { name: "Producto 6", price: "28.00", oldPrice: "35.00", sale: true, desc: "Oferta limitada" },
+const FALLBACK_PRODUCTS: PreviewProduct[] = [
+  { name: "Producto 1", price: "25.00", sale: false, desc: "Descripción del producto", imageUrl: null },
+  { name: "Producto 2", price: "18.50", oldPrice: "22.00", sale: true, desc: "Con descuento", imageUrl: null },
+  { name: "Producto 3", price: "42.00", sale: false, desc: "Alta calidad", imageUrl: null },
+  { name: "Producto 4", price: "15.00", sale: false, desc: "Popular", imageUrl: null },
+  { name: "Producto 5", price: "33.00", sale: false, desc: "Nuevo", imageUrl: null },
+  { name: "Producto 6", price: "28.00", oldPrice: "35.00", sale: true, desc: "Oferta", imageUrl: null },
 ];
 
 const MOCK_CATEGORIES = ["Todos", "Cat 1", "Cat 2"];
@@ -30,9 +51,29 @@ const TemplatePreview = ({
   primaryColor,
   secondaryColor,
   description,
+  products,
+  currency = "BOB",
 }: TemplatePreviewProps) => {
   const theme = getTheme(templateId);
   const isClassic = templateId === "classic";
+  const sym = getCurrencySymbol(currency);
+
+  // Map real products to preview format, fallback to mock
+  const previewProducts: PreviewProduct[] = products && products.length > 0
+    ? products.map((p) => {
+        const finalPrice = p.on_sale && p.discount_percent
+          ? p.price * (1 - p.discount_percent / 100)
+          : p.price;
+        return {
+          name: p.name,
+          price: finalPrice.toFixed(2),
+          oldPrice: p.on_sale && p.discount_percent ? p.price.toFixed(2) : undefined,
+          sale: p.on_sale && !!p.discount_percent,
+          desc: p.description || "",
+          imageUrl: p.image_url,
+        };
+      })
+    : FALLBACK_PRODUCTS;
 
   const renderBanner = () => {
     if (isClassic) {
