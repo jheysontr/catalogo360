@@ -58,7 +58,6 @@ const TemplatePreview = ({
   const isClassic = templateId === "classic";
   const sym = getCurrencySymbol(currency);
 
-  // Map real products to preview format, fallback to mock
   const previewProducts: PreviewProduct[] = products && products.length > 0
     ? products.map((p) => {
         const finalPrice = p.on_sale && p.discount_percent
@@ -92,14 +91,15 @@ const TemplatePreview = ({
       );
     }
 
+    // Non-classic banners: show greeting + description, NO store name
     switch (theme.bannerStyle) {
       case "full":
         return (
           <div className="relative h-24 w-full" style={{ background: bannerUrl ? `url(${bannerUrl}) center/cover` : `linear-gradient(135deg, ${primaryColor}, ${primaryColor}99)` }}>
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 p-3">
-              <p className="text-[6px] uppercase tracking-[0.2em] text-white/50">{theme.bannerGreeting}</p>
-              <p className="text-[11px] font-bold text-white">{storeName || "Mi Tienda"}</p>
+              <p className="text-[7px] uppercase tracking-[0.2em] text-white/60">{theme.bannerGreeting}</p>
+              {description && <p className="text-[7px] text-white/70 line-clamp-1 mt-0.5">{description}</p>}
             </div>
           </div>
         );
@@ -107,23 +107,18 @@ const TemplatePreview = ({
         return (
           <div className="mx-2.5 mt-2 flex overflow-hidden" style={{ backgroundColor: primaryColor, borderRadius: "8px" }}>
             <div className="flex-1 p-3">
-              <p className="text-[6px] uppercase tracking-widest text-white/50">{theme.bannerGreeting}</p>
-              <p className="text-[10px] font-bold text-white">{storeName || "Mi Tienda"}</p>
-              {description && <p className="text-[7px] text-white/60 line-clamp-1 mt-0.5">{description}</p>}
+              <p className="text-[7px] uppercase tracking-widest text-white/60">{theme.bannerGreeting}</p>
+              {description && <p className="text-[7px] text-white/70 line-clamp-2 mt-0.5">{description}</p>}
             </div>
             {bannerUrl && <div className="w-1/3 overflow-hidden"><img src={bannerUrl} alt="" className="h-full w-full object-cover" /></div>}
           </div>
         );
       case "minimal":
-        return (
+        return description ? (
           <div className="px-3 pt-2 text-center">
-            <div className="flex items-center gap-2">
-              <div className="h-px flex-1" style={{ background: `linear-gradient(90deg, ${primaryColor}, transparent)` }} />
-              <p className="text-[10px] font-bold text-foreground">{storeName || "Mi Tienda"}</p>
-              <div className="h-px flex-1" style={{ background: `linear-gradient(270deg, ${primaryColor}, transparent)` }} />
-            </div>
+            <p className="text-[7px] text-muted-foreground line-clamp-1">{description}</p>
           </div>
-        );
+        ) : null;
       case "compact":
         return (
           <div className="mx-2.5 mt-2">
@@ -131,7 +126,7 @@ const TemplatePreview = ({
               {bannerUrl && <img src={bannerUrl} alt="" className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`} />}
               <div className="relative z-10">
                 <p className="text-[7px] text-white/70">{theme.bannerGreeting}</p>
-                <p className="text-[10px] font-bold text-white">{storeName || "Mi Tienda"}</p>
+                {description && <p className="text-[7px] text-white/70 line-clamp-1 mt-0.5">{description}</p>}
               </div>
             </div>
           </div>
@@ -143,7 +138,6 @@ const TemplatePreview = ({
               {bannerUrl && <img src={bannerUrl} alt="" className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`} />}
               <div className="relative z-10 space-y-0.5">
                 <p className="text-[7px] text-white/80">{theme.bannerGreeting}</p>
-                <p className="text-[10px] font-bold text-white">{storeName || "Mi Tienda"}</p>
                 {description && <p className="text-[7px] text-white/70 line-clamp-1">{description}</p>}
               </div>
             </div>
@@ -261,7 +255,6 @@ const TemplatePreview = ({
     }
   };
 
-  // Determine grid cols for preview
   const previewGridCols = theme.cardLayout === "horizontal-mini"
     ? "grid-cols-1"
     : theme.gridCols.includes("grid-cols-3") && !theme.gridCols.includes("grid-cols-2")
@@ -288,7 +281,7 @@ const TemplatePreview = ({
       </div>
 
       <div className="h-[420px] overflow-y-auto scrollbar-hide">
-        {/* Header for non-classic */}
+        {/* Header — always shows store name + logo (single source of name) */}
         {!isClassic && (
           <div className={`flex items-center justify-between px-3 py-1.5 ${theme.headerBorder ? "border-b" : ""}`}>
             <div className="flex items-center gap-1.5">
