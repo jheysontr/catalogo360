@@ -340,7 +340,7 @@ const Dashboard = () => {
           ) : activeSection === "plans" ? (
             <Plans />
           ) : activeSection === "stats" ? (
-            <Analytics />
+            <Analytics currency={store?.currency} />
           ) : store ? (
             <DashboardHome
               storeId={store.id}
