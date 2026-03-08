@@ -236,10 +236,8 @@ const TemplatePreview = ({
       default:
         return (
           <div key={i} className={`overflow-hidden ${theme.cardRounded} ${theme.cardBorder ? "border" : ""} bg-card ${theme.cardShadow.split(" ")[0]}`}>
-            <div className={`relative ${theme.cardAspect} bg-muted`}>
-              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/60">
-                <StoreIcon className="h-3 w-3 text-muted-foreground/20" />
-              </div>
+            <div className={`relative ${theme.cardAspect} bg-muted overflow-hidden`}>
+              {renderImage(product.imageUrl)}
               {product.sale && (
                 <span className={`absolute left-0.5 top-0.5 ${theme.pillRounded} bg-destructive px-1 py-0.5 text-[5px] font-bold text-destructive-foreground`}>-15%</span>
               )}
