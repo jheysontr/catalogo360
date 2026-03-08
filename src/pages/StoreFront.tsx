@@ -153,11 +153,27 @@ const StoreFront = () => {
     toast({ title: "✓ Agregado", description: product.name, duration: 1500 });
   }, [addToCart, toCartProduct, toast]);
 
-  /* ── Loading / Not found ── */
+  /* ── Loading skeleton ── */
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+      <div className="min-h-screen bg-background">
+        <Skeleton className="h-44 w-full sm:h-56 md:h-64" />
+        <div className="container px-4">
+          <div className="relative -mt-12 flex flex-col items-center gap-3 sm:-mt-14 sm:flex-row sm:items-end sm:gap-5">
+            <Skeleton className="h-24 w-24 rounded-full sm:h-28 sm:w-28" />
+            <div className="flex-1 space-y-2 pb-2">
+              <Skeleton className="h-7 w-48" />
+              <Skeleton className="h-4 w-72" />
+            </div>
+          </div>
+          <div className="mt-6 flex items-center gap-2">
+            <Skeleton className="h-10 flex-1 rounded-md" />
+            <Skeleton className="h-10 w-[130px] rounded-md" />
+          </div>
+          <div className="mt-4">
+            <ProductSkeleton viewMode="grid" count={6} />
+          </div>
+        </div>
       </div>
     );
   }
