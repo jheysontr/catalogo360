@@ -135,165 +135,180 @@ const PaymentMethods = () => {
         </p>
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Cash */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-green-100 dark:bg-green-950/40">
-                <Banknote className="h-5 w-5 text-green-600" />
-              </div>
-              <CardTitle className="text-base">Efectivo</CardTitle>
-            </div>
-            <Switch
-              checked={config.cash.enabled}
-              onCheckedChange={(v) => updateMethod("cash", "enabled", v)}
-            />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Nombre del método</Label>
-              <Input
-                value={config.cash.label}
-                onChange={(e) => updateMethod("cash", "label", e.target.value)}
-                placeholder="Efectivo"
-                className="mt-1.5"
-              />
-            </div>
-            <div>
-              <Label>Instrucciones (opcional)</Label>
-              <Textarea
-                value={config.cash.instructions}
-                onChange={(e) => updateMethod("cash", "instructions", e.target.value)}
-                placeholder="Ej: Pagar al momento de la entrega"
-                className="mt-1.5"
-                rows={2}
-              />
-            </div>
-          </CardContent>
-        </Card>
+      <Tabs defaultValue="cash" className="w-full">
+        <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto rounded-none gap-2 overflow-x-auto">
+          <TabsTrigger value="cash" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none gap-2 px-4 pb-3">
+            <Banknote className="h-4 w-4" /> Efectivo
+          </TabsTrigger>
+          <TabsTrigger value="bank" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none gap-2 px-4 pb-3">
+            <Building2 className="h-4 w-4" /> Transferencia
+          </TabsTrigger>
+          <TabsTrigger value="qr" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none gap-2 px-4 pb-3">
+            <QrCode className="h-4 w-4" /> Pago QR
+          </TabsTrigger>
+        </TabsList>
 
-        {/* Bank Transfer */}
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 dark:bg-blue-950/40">
-                <Building2 className="h-5 w-5 text-blue-600" />
+        <TabsContent value="cash">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <Banknote className="h-5 w-5 text-primary" />
+                </div>
+                <CardTitle className="text-base">Efectivo</CardTitle>
               </div>
-              <CardTitle className="text-base">Transferencia Bancaria</CardTitle>
-            </div>
-            <Switch
-              checked={config.bank_transfer.enabled}
-              onCheckedChange={(v) => updateMethod("bank_transfer", "enabled", v)}
-            />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label>Nombre del método</Label>
-              <Input
-                value={config.bank_transfer.label}
-                onChange={(e) => updateMethod("bank_transfer", "label", e.target.value)}
-                placeholder="Transferencia Bancaria"
-                className="mt-1.5"
+              <Switch
+                checked={config.cash.enabled}
+                onCheckedChange={(v) => updateMethod("cash", "enabled", v)}
               />
-            </div>
-            <div>
-              <Label>Datos bancarios</Label>
-              <Textarea
-                value={config.bank_transfer.details}
-                onChange={(e) => updateMethod("bank_transfer", "details", e.target.value)}
-                placeholder={"Banco: ...\nCuenta: ...\nTitular: ...\nCI/NIT: ..."}
-                className="mt-1.5"
-                rows={4}
-              />
-              <p className="mt-1 text-xs text-muted-foreground">
-                Estos datos se mostrarán al cliente cuando seleccione este método
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Nombre del método</Label>
+                <Input
+                  value={config.cash.label}
+                  onChange={(e) => updateMethod("cash", "label", e.target.value)}
+                  placeholder="Efectivo"
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label>Instrucciones (opcional)</Label>
+                <Textarea
+                  value={config.cash.instructions}
+                  onChange={(e) => updateMethod("cash", "instructions", e.target.value)}
+                  placeholder="Ej: Pagar al momento de la entrega"
+                  className="mt-1.5"
+                  rows={2}
+                />
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-        {/* QR Payment */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-purple-100 dark:bg-purple-950/40">
-                <QrCode className="h-5 w-5 text-purple-600" />
-              </div>
-              <CardTitle className="text-base">Pago por QR</CardTitle>
-            </div>
-            <Switch
-              checked={config.qr.enabled}
-              onCheckedChange={(v) => updateMethod("qr", "enabled", v)}
-            />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-4">
-                <div>
-                  <Label>Nombre del método</Label>
-                  <Input
-                    value={config.qr.label}
-                    onChange={(e) => updateMethod("qr", "label", e.target.value)}
-                    placeholder="Pago por QR"
-                    className="mt-1.5"
-                  />
+        <TabsContent value="bank">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <Building2 className="h-5 w-5 text-primary" />
                 </div>
-                <div>
-                  <Label>Imagen QR de pago</Label>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Sube la imagen del código QR de tu cuenta bancaria o billetera digital
-                  </p>
-                  <label className="mt-2 block cursor-pointer">
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" className="gap-1.5" asChild disabled={uploadingQr}>
-                        <span>
-                          {uploadingQr ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          ) : (
-                            <Upload className="h-3.5 w-3.5" />
-                          )}
-                          {config.qr.image_url ? "Cambiar imagen" : "Subir imagen QR"}
-                        </span>
-                      </Button>
-                    </div>
-                    <input
-                      type="file"
-                      accept=".jpg,.jpeg,.png,.webp"
-                      className="hidden"
-                      onChange={handleQrUpload}
-                    />
-                  </label>
-                </div>
+                <CardTitle className="text-base">Transferencia Bancaria</CardTitle>
               </div>
-              <div className="flex items-center justify-center">
-                {config.qr.image_url ? (
-                  <div className="relative">
-                    <img
-                      src={config.qr.image_url}
-                      alt="QR de pago"
-                      className="h-48 w-48 rounded-lg border object-contain bg-white p-2"
+              <Switch
+                checked={config.bank_transfer.enabled}
+                onCheckedChange={(v) => updateMethod("bank_transfer", "enabled", v)}
+              />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Nombre del método</Label>
+                <Input
+                  value={config.bank_transfer.label}
+                  onChange={(e) => updateMethod("bank_transfer", "label", e.target.value)}
+                  placeholder="Transferencia Bancaria"
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label>Datos bancarios</Label>
+                <Textarea
+                  value={config.bank_transfer.details}
+                  onChange={(e) => updateMethod("bank_transfer", "details", e.target.value)}
+                  placeholder={"Banco: ...\nCuenta: ...\nTitular: ...\nCI/NIT: ..."}
+                  className="mt-1.5"
+                  rows={4}
+                />
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Estos datos se mostrarán al cliente cuando seleccione este método
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="qr">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                  <QrCode className="h-5 w-5 text-primary" />
+                </div>
+                <CardTitle className="text-base">Pago por QR</CardTitle>
+              </div>
+              <Switch
+                checked={config.qr.enabled}
+                onCheckedChange={(v) => updateMethod("qr", "enabled", v)}
+              />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-4">
+                  <div>
+                    <Label>Nombre del método</Label>
+                    <Input
+                      value={config.qr.label}
+                      onChange={(e) => updateMethod("qr", "label", e.target.value)}
+                      placeholder="Pago por QR"
+                      className="mt-1.5"
                     />
-                    <button
-                      onClick={() => updateMethod("qr", "image_url", "")}
-                      className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-md hover:bg-destructive/90"
-                    >
-                      <X className="h-3.5 w-3.5" />
-                    </button>
                   </div>
-                ) : (
-                  <div className="flex h-48 w-48 flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-input bg-muted/30">
-                    <ImagePlus className="h-10 w-10 text-muted-foreground/40" />
-                    <p className="text-xs text-muted-foreground text-center px-4">
-                      Sube tu imagen QR
+                  <div>
+                    <Label>Imagen QR de pago</Label>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Sube la imagen del código QR de tu cuenta bancaria o billetera digital
                     </p>
+                    <label className="mt-2 block cursor-pointer">
+                      <div className="flex items-center gap-2">
+                        <Button variant="outline" size="sm" className="gap-1.5" asChild disabled={uploadingQr}>
+                          <span>
+                            {uploadingQr ? (
+                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                            ) : (
+                              <Upload className="h-3.5 w-3.5" />
+                            )}
+                            {config.qr.image_url ? "Cambiar imagen" : "Subir imagen QR"}
+                          </span>
+                        </Button>
+                      </div>
+                      <input
+                        type="file"
+                        accept=".jpg,.jpeg,.png,.webp"
+                        className="hidden"
+                        onChange={handleQrUpload}
+                      />
+                    </label>
                   </div>
-                )}
+                </div>
+                <div className="flex items-center justify-center">
+                  {config.qr.image_url ? (
+                    <div className="relative">
+                      <img
+                        src={config.qr.image_url}
+                        alt="QR de pago"
+                        className="h-48 w-48 rounded-lg border object-contain bg-background p-2"
+                      />
+                      <button
+                        onClick={() => updateMethod("qr", "image_url", "")}
+                        className="absolute -right-2 -top-2 flex h-6 w-6 items-center justify-center rounded-full bg-destructive text-destructive-foreground shadow-md hover:bg-destructive/90"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex h-48 w-48 flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-input bg-muted/30">
+                      <ImagePlus className="h-10 w-10 text-muted-foreground/40" />
+                      <p className="text-xs text-muted-foreground text-center px-4">
+                        Sube tu imagen QR
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
 
       <div className="flex justify-end gap-3 border-t pt-6">
         <Button onClick={handleSave} disabled={saving} className="gap-2">
