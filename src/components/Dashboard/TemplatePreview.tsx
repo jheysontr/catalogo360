@@ -239,7 +239,7 @@ const TemplatePreview = ({
             <div className={`relative ${theme.cardAspect} bg-muted overflow-hidden`}>
               {renderImage(product.imageUrl)}
               {product.sale && (
-                <span className={`absolute left-0.5 top-0.5 ${theme.pillRounded} bg-destructive px-1 py-0.5 text-[5px] font-bold text-destructive-foreground`}>-15%</span>
+                <span className={`absolute left-0.5 top-0.5 ${theme.pillRounded} bg-destructive px-1 py-0.5 text-[5px] font-bold text-destructive-foreground`}>Oferta</span>
               )}
               <button className="absolute right-0.5 top-0.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white/90 shadow-sm">
                 <Heart className="h-1.5 w-1.5 text-muted-foreground" />
