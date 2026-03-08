@@ -225,7 +225,7 @@ const TemplatePreview = ({
               <div>
                 <p className="text-[7px] font-semibold text-foreground line-clamp-1">{product.name}</p>
                 <p className="text-[6px] text-muted-foreground line-clamp-1">{product.desc}</p>
-                <span className="text-[7px] font-bold" style={{ color: primaryColor }}>${product.price}</span>
+                <span className="text-[7px] font-bold" style={{ color: primaryColor }}>{sym}{product.price}</span>
               </div>
               <div className={`flex h-4 w-4 items-center justify-center ${theme.ctaRounded}`} style={{ backgroundColor: primaryColor }}>
                 <Plus className="h-2 w-2 text-white" />
