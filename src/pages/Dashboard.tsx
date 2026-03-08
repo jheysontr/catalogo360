@@ -36,6 +36,7 @@ interface StoreData {
   store_name: string;
   store_slug: string;
   plan_id: string | null;
+  currency: string;
 }
 
 const MODULE_SIDEBAR_MAP: Record<string, string> = {

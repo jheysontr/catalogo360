@@ -308,7 +308,7 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                   <XAxis dataKey="label" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                  <YAxis tick={{ fontSize: 11 }} className="fill-muted-foreground" tickFormatter={(v) => `Bs${v}`} />
+                  <YAxis tick={{ fontSize: 11 }} className="fill-muted-foreground" tickFormatter={(v) => `${sym}${v}`} />
                   <Tooltip
                     contentStyle={{
                       borderRadius: 8,
