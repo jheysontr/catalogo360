@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Package, Store, ShoppingCart, BarChart3, CreditCard, Settings,
   ExternalLink, Eye, X, LogOut, FolderOpen, Ticket,
