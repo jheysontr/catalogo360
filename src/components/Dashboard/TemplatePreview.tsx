@@ -207,7 +207,7 @@ const TemplatePreview = ({
             <div className="absolute bottom-0 left-0 right-0 p-1.5">
               <p className={`text-[6px] font-semibold text-white ${theme.nameStyle === "uppercase" ? "uppercase tracking-wider" : ""}`}>{product.name}</p>
               <div className="flex items-center justify-between mt-0.5">
-                <span className="text-[7px] font-bold text-white">${product.price}</span>
+                <span className="text-[7px] font-bold text-white">{sym}{product.price}</span>
                 <div className="flex h-3.5 w-3.5 items-center justify-center rounded-sm" style={{ backgroundColor: `${primaryColor}cc` }}>
                   <Plus className="h-2 w-2 text-white" />
                 </div>
