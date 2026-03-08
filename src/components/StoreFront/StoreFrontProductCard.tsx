@@ -199,7 +199,7 @@ const StoreFrontProductCard = ({
           )}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

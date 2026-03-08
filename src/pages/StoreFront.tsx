@@ -214,23 +214,30 @@ const StoreFront = () => {
             <p className="text-sm text-muted-foreground">Intenta con otra búsqueda o categoría</p>
           </div>
         ) : (
-          <div className={viewMode === "grid" ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-3"}>
-            {filteredProducts.map((p) => (
-              <StoreFrontProductCard
-                key={p.id}
-                product={p}
-                viewMode={viewMode}
-                catName={getCategoryName(p.category_id)}
-                finalPrice={getFinalPrice(toCartProduct(p))}
-                currencySymbol={currencySymbol}
-                primaryColor={primaryColor}
-                isWishlisted={isInWishlist(p.id)}
-                onQuickAdd={handleQuickAdd}
-                onToggleWishlist={toggleWishlist}
-                onOpenDetail={setSelectedProduct}
-              />
-            ))}
-          </div>
+          <LayoutGroup>
+            <motion.div
+              layout
+              className={viewMode === "grid" ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-3"}
+            >
+              <AnimatePresence mode="popLayout">
+                {filteredProducts.map((p, i) => (
+                  <StoreFrontProductCard
+                    key={p.id}
+                    product={p}
+                    viewMode={viewMode}
+                    catName={getCategoryName(p.category_id)}
+                    finalPrice={getFinalPrice(toCartProduct(p))}
+                    currencySymbol={currencySymbol}
+                    primaryColor={primaryColor}
+                    isWishlisted={isInWishlist(p.id)}
+                    onQuickAdd={handleQuickAdd}
+                    onToggleWishlist={toggleWishlist}
+                    onOpenDetail={setSelectedProduct}
+                  />
+                ))}
+              </AnimatePresence>
+            </motion.div>
+          </LayoutGroup>
         )}
       </div>
 
