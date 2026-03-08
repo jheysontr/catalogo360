@@ -430,7 +430,7 @@ const StoreFront = () => {
                   return (
                     <div key={cartKey} className="flex gap-3 rounded-lg border p-3">
                       {item.product.image_url ? (
-                        <img src={item.product.image_url} alt={item.product.name} className="h-16 w-16 rounded-md object-cover" />
+                        <img src={item.product.image_url} alt={item.product.name} className="h-16 w-16 rounded-md object-cover" loading="lazy" />
                       ) : (
                         <div className="flex h-16 w-16 items-center justify-center rounded-md bg-muted">
                           <StoreIcon className="h-6 w-6 text-muted-foreground" />
