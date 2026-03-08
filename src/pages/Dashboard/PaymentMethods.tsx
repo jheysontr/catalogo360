@@ -81,9 +81,10 @@ const PaymentMethods = () => {
       return;
     }
     setUploadingQr(true);
-    const ext = file.name.split(".").pop();
+    const compressed = await compressImage(file);
+    const ext = compressed.name.split(".").pop();
     const path = `${storeId}/qr-payment-${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("stores").upload(path, file);
+    const { error } = await supabase.storage.from("stores").upload(path, compressed);
     if (error) {
       toast({ title: "Error al subir imagen", variant: "destructive" });
       setUploadingQr(false);

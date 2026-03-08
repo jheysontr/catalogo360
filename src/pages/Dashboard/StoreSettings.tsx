@@ -113,9 +113,10 @@ const StoreSettings = () => {
       return null;
     }
     setUploading(true);
-    const ext = file.name.split(".").pop();
+    const compressed = await compressImage(file);
+    const ext = compressed.name.split(".").pop();
     const path = `${store?.id}/${folder}-${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("stores").upload(path, file);
+    const { error } = await supabase.storage.from("stores").upload(path, compressed);
     setUploading(false);
     if (error) {
       toast.error("Error al subir imagen");
