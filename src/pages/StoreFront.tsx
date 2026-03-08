@@ -108,7 +108,7 @@ const StoreFront = () => {
     const load = async () => {
       setLoading(true);
       const { data: storeData } = await supabase
-        .from("stores")
+        .from("stores_public" as any)
         .select("*")
         .eq("store_slug", slug)
         .limit(1);
