@@ -17,6 +17,7 @@ import { Shield } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import SalesCalculator from "@/components/SalesCalculator";
+import NotificationPanel from "@/components/Dashboard/NotificationPanel";
 import Products from "@/pages/Dashboard/Products";
 import StoreSettings from "@/pages/Dashboard/StoreSettings";
 import Orders from "@/pages/Dashboard/Orders";
