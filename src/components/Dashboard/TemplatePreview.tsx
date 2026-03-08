@@ -30,6 +30,8 @@ interface TemplatePreviewProps {
   description: string;
   products?: RealProduct[];
   currency?: string;
+  customGreeting?: string;
+  customBannerDescription?: string;
 }
 
 const FALLBACK_PRODUCTS: PreviewProduct[] = [
@@ -53,10 +55,14 @@ const TemplatePreview = ({
   description,
   products,
   currency = "BOB",
+  customGreeting,
+  customBannerDescription,
 }: TemplatePreviewProps) => {
   const theme = getTheme(templateId);
   const isClassic = templateId === "classic";
   const sym = getCurrencySymbol(currency);
+  const greeting = customGreeting || theme.bannerGreeting;
+  const bannerDesc = customBannerDescription || description;
 
   const previewProducts: PreviewProduct[] = products && products.length > 0
     ? products.map((p) => {
@@ -97,10 +103,10 @@ const TemplatePreview = ({
         <div className="relative h-28 w-full" style={{ background: bannerUrl ? `url(${bannerUrl}) center/cover` : `linear-gradient(180deg, ${primaryColor}22, ${primaryColor}cc)` }}>
           <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
           <div className="absolute top-0 left-0 right-0 flex justify-center pt-2">
-            <span className="text-[5px] uppercase tracking-[0.5em] text-white/50 border-b border-white/20 pb-0.5 px-3">{theme.bannerGreeting}</span>
+            <span className="text-[5px] uppercase tracking-[0.5em] text-white/50 border-b border-white/20 pb-0.5 px-3">{greeting}</span>
           </div>
           <div className="absolute bottom-0 left-0 right-0 p-2 flex items-end justify-between">
-            {description && <p className="text-[6px] text-white/60 line-clamp-1 max-w-[120px]">{description}</p>}
+            {bannerDesc && <p className="text-[6px] text-white/60 line-clamp-1 max-w-[120px]">{bannerDesc}</p>}
             <span className="text-[5px] text-white/50 uppercase tracking-wider">Shop Now</span>
           </div>
         </div>
@@ -112,30 +118,28 @@ const TemplatePreview = ({
         return (
           <div className="relative h-24 w-full" style={{ background: bannerUrl ? `url(${bannerUrl}) center/cover` : `linear-gradient(160deg, ${primaryColor}, #000 80%)` }}>
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
-            {/* Corner decorations */}
             <div className="absolute top-1.5 left-1.5 w-3 h-3 border-l border-t border-white/30" />
             <div className="absolute bottom-1.5 right-1.5 w-3 h-3 border-r border-b border-white/30" />
             <div className="absolute bottom-0 left-0 p-2.5">
               <div className="flex items-center gap-1 mb-0.5">
                 <div className="h-px w-3" style={{ backgroundColor: `${primaryColor}99` }} />
-                <p className="text-[5px] uppercase tracking-[0.3em] text-white/60">{theme.bannerGreeting}</p>
+                <p className="text-[5px] uppercase tracking-[0.3em] text-white/60">{greeting}</p>
               </div>
-              {description && <p className="text-[6px] text-white/60 italic line-clamp-1 mt-0.5">{description}</p>}
+              {bannerDesc && <p className="text-[6px] text-white/60 italic line-clamp-1 mt-0.5">{bannerDesc}</p>}
             </div>
           </div>
         );
       case "split":
         return (
           <div className="mx-2.5 mt-2 flex overflow-hidden relative" style={{ backgroundColor: primaryColor, borderRadius: "8px" }}>
-            {/* Geometric circles */}
             <div className="absolute -right-3 -top-3 h-10 w-10 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.08)" }} />
             <div className="absolute -right-1 top-3 h-6 w-6 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.05)" }} />
             <div className="flex-1 p-3 relative z-10">
               <div className="flex items-center gap-1 mb-0.5">
                 <div className="h-1 w-1 rounded-full bg-white/70" />
-                <p className="text-[6px] uppercase tracking-widest text-white/70 font-semibold">{theme.bannerGreeting}</p>
+                <p className="text-[6px] uppercase tracking-widest text-white/70 font-semibold">{greeting}</p>
               </div>
-              {description && <p className="text-[6px] text-white/60 line-clamp-2 mt-0.5">{description}</p>}
+              {bannerDesc && <p className="text-[6px] text-white/60 line-clamp-2 mt-0.5">{bannerDesc}</p>}
             </div>
             {bannerUrl && (
               <div className="w-1/3 overflow-hidden relative">
@@ -156,8 +160,8 @@ const TemplatePreview = ({
                   <StoreIcon className="h-2.5 w-2.5" style={{ color: primaryColor }} />
                 </div>
                 <div>
-                  <p className="text-[6px] font-medium" style={{ color: primaryColor }}>{theme.bannerGreeting}</p>
-                  {description && <p className="text-[5px] text-muted-foreground line-clamp-1">{description}</p>}
+                  <p className="text-[6px] font-medium" style={{ color: primaryColor }}>{greeting}</p>
+                  {bannerDesc && <p className="text-[5px] text-muted-foreground line-clamp-1">{bannerDesc}</p>}
                 </div>
               </div>
             </div>
@@ -168,7 +172,6 @@ const TemplatePreview = ({
           <div className="mx-2.5 mt-2">
             <div className={`relative overflow-hidden ${theme.bannerRounded} p-3`} style={{ background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}bb)` }}>
               {bannerUrl && <img src={bannerUrl} alt="" className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`} />}
-              {/* Tech grid */}
               <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px)`, backgroundSize: "10px 10px" }} />
               <div className="absolute right-2 top-2 flex gap-0.5">
                 <div className="h-1 w-1 rounded-full bg-white/30" />
@@ -176,8 +179,8 @@ const TemplatePreview = ({
                 <div className="h-1 w-1 rounded-full bg-white/70" />
               </div>
               <div className="relative z-10">
-                <p className="text-[7px] text-white/70">{theme.bannerGreeting}</p>
-                {description && <p className="text-[6px] text-white/60 line-clamp-1 mt-0.5">{description}</p>}
+                <p className="text-[7px] text-white/70">{greeting}</p>
+                {bannerDesc && <p className="text-[6px] text-white/60 line-clamp-1 mt-0.5">{bannerDesc}</p>}
               </div>
             </div>
           </div>
@@ -187,18 +190,16 @@ const TemplatePreview = ({
           <div className="mx-2.5 mt-2">
             <div className={`relative overflow-hidden ${theme.bannerRounded} p-3`} style={{ background: `linear-gradient(160deg, ${primaryColor}, ${primaryColor}dd 60%, ${primaryColor}aa)` }}>
               {bannerUrl && <img src={bannerUrl} alt="" className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`} />}
-              {/* Wave decoration */}
               <svg className="absolute bottom-0 left-0 right-0 h-3 text-white/5" viewBox="0 0 200 12" preserveAspectRatio="none">
                 <path d="M0,12 Q50,0 100,6 Q150,12 200,3 L200,12 Z" fill="currentColor" />
               </svg>
-              {/* Floating circles */}
               <div className="absolute right-2 top-1.5 h-6 w-6 rounded-full border border-white/10" />
               <div className="absolute right-4 top-3 h-3 w-3 rounded-full bg-white/10" />
               <div className="relative z-10 space-y-0.5">
                 <div className="inline-flex items-center gap-1 rounded-full bg-white/15 px-1.5 py-0.5">
-                  <p className="text-[6px] font-semibold text-white">{theme.bannerGreeting}</p>
+                  <p className="text-[6px] font-semibold text-white">{greeting}</p>
                 </div>
-                {description && <p className="text-[6px] text-white/70 line-clamp-1">{description}</p>}
+                {bannerDesc && <p className="text-[6px] text-white/70 line-clamp-1">{bannerDesc}</p>}
               </div>
             </div>
           </div>

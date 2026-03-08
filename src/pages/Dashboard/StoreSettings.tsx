@@ -83,6 +83,8 @@ const StoreSettings = () => {
   const [whatsapp, setWhatsapp] = useState("");
   const [currency, setCurrency] = useState("BOB");
   const [storeTemplate, setStoreTemplate] = useState("classic");
+  const [bannerGreeting, setBannerGreeting] = useState("");
+  const [bannerDescription, setBannerDescription] = useState("");
 
   // Upload states
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -119,6 +121,8 @@ const StoreSettings = () => {
         setCurrency((s as any).currency ?? "BOB");
         const sfConfig = (data[0] as any).storefront_config as Record<string, any> | null;
         setStoreTemplate(sfConfig?.template || "classic");
+        setBannerGreeting(sfConfig?.banner_greeting || "");
+        setBannerDescription(sfConfig?.banner_description || "");
 
         // Fetch products for preview
         const { data: prods } = await supabase
@@ -200,7 +204,12 @@ const StoreSettings = () => {
     }
 
     const existingConfig = (store as any).storefront_config as Record<string, any> || {};
-    const updatedStorefrontConfig = { ...existingConfig, template: storeTemplate };
+    const updatedStorefrontConfig = {
+      ...existingConfig,
+      template: storeTemplate,
+      banner_greeting: bannerGreeting.trim() || null,
+      banner_description: bannerDescription.trim() || null,
+    };
 
     const { error } = await supabase
       .from("stores")
@@ -253,6 +262,8 @@ const StoreSettings = () => {
     setCurrency((store as any).currency ?? "BOB");
     const sfConfig = (store as any).storefront_config as Record<string, any> | null;
     setStoreTemplate(sfConfig?.template || "classic");
+    setBannerGreeting(sfConfig?.banner_greeting || "");
+    setBannerDescription(sfConfig?.banner_description || "");
     toast("Cambios descartados");
   };
 
@@ -528,6 +539,41 @@ const StoreSettings = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Banner Texts */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Textos del banner</CardTitle>
+              <CardDescription>Personaliza los textos que aparecen en el banner de tu tienda. Si los dejas vacíos, se usarán los textos por defecto de la plantilla.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="banner-greeting">Texto de saludo</Label>
+                <Input
+                  id="banner-greeting"
+                  value={bannerGreeting}
+                  onChange={(e) => setBannerGreeting(e.target.value.slice(0, 60))}
+                  maxLength={60}
+                  className="mt-1.5"
+                  placeholder="Ej: Bienvenido a, Explora, ¡Descubre lo nuevo!"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">{bannerGreeting.length}/60 — Deja vacío para usar el texto de la plantilla</p>
+              </div>
+              <div>
+                <Label htmlFor="banner-desc">Subtítulo del banner</Label>
+                <Textarea
+                  id="banner-desc"
+                  value={bannerDescription}
+                  onChange={(e) => setBannerDescription(e.target.value.slice(0, 120))}
+                  maxLength={120}
+                  rows={2}
+                  className="mt-1.5"
+                  placeholder="Ej: Los mejores productos al mejor precio"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">{bannerDescription.length}/120 — Deja vacío para usar la descripción de la tienda</p>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ═══════════════ TAB: PLANTILLA ═══════════════ */}
@@ -580,6 +626,8 @@ const StoreSettings = () => {
                 description={description}
                 products={storeProducts}
                 currency={currency}
+                customGreeting={bannerGreeting}
+                customBannerDescription={bannerDescription}
               />
               <p className="text-center text-[10px] text-muted-foreground">
                 Así se verá tu tienda con la plantilla <span className="font-semibold">{[...GENERAL_TEMPLATES, ...NICHE_TEMPLATES].find(t => t.value === storeTemplate)?.label || storeTemplate}</span>
