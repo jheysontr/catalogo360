@@ -52,7 +52,15 @@ const StoreFrontProductCard = ({
 
   if (viewMode === "list") {
     return (
-      <div className="group cursor-pointer flex overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg" onClick={() => onOpenDetail(p)}>
+      <motion.div
+        layout
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        transition={{ duration: 0.3 }}
+        className="group cursor-pointer flex overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg"
+        onClick={() => onOpenDetail(p)}
+      >
         <div className="relative h-36 w-36 flex-shrink-0 overflow-hidden bg-muted sm:h-40 sm:w-40">
           {p.image_url ? (
             <img src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
