@@ -261,22 +261,22 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
       )}
 
       {/* KPI Cards */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {kpis.map((kpi) => {
           const up = kpi.change >= 0;
           return (
             <Card key={kpi.label} className="transition-shadow hover:shadow-md">
-              <CardContent className="flex items-start justify-between p-5">
-                <div className="space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">{kpi.label}</p>
-                  <p className="text-2xl font-bold text-foreground">{kpi.fmt}</p>
-                  <div className={`flex items-center gap-1 text-xs font-medium ${up ? "text-green-600" : "text-red-500"}`}>
-                    {up ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+              <CardContent className="flex items-start justify-between p-3 sm:p-5">
+                <div className="space-y-0.5 sm:space-y-1 min-w-0">
+                  <p className="text-[10px] sm:text-xs font-medium text-muted-foreground truncate">{kpi.label}</p>
+                  <p className="text-lg sm:text-2xl font-bold text-foreground truncate">{kpi.fmt}</p>
+                  <div className={`flex items-center gap-1 text-[10px] sm:text-xs font-medium ${up ? "text-green-600" : "text-red-500"}`}>
+                    {up ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                     {up ? "+" : ""}{kpi.change}%
                   </div>
                 </div>
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                  <kpi.icon className="h-5 w-5 text-primary" />
+                <div className="flex h-8 w-8 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
+                  <kpi.icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
                 </div>
               </CardContent>
             </Card>
