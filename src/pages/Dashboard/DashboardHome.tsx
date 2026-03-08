@@ -294,10 +294,10 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
           <CardHeader className="pb-2">
             <CardTitle className="text-base font-semibold">Ventas últimos 14 días</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-64">
+          <CardContent className="px-2 sm:px-6">
+            <div className="h-48 sm:h-64">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData}>
+                <AreaChart data={chartData} margin={{ left: -10, right: 5, top: 5, bottom: 0 }}>
                   <defs>
                     <linearGradient id="salesGrad" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="0%" stopColor="hsl(165, 60%, 40%)" stopOpacity={0.3} />
@@ -305,14 +305,14 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="label" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                  <YAxis tick={{ fontSize: 11 }} className="fill-muted-foreground" tickFormatter={(v) => `${sym}${v}`} />
+                  <XAxis dataKey="label" tick={{ fontSize: 10 }} className="fill-muted-foreground" interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" tickFormatter={(v) => `${sym}${v}`} width={50} />
                   <Tooltip
                     contentStyle={{
                       borderRadius: 8,
                       border: "1px solid hsl(var(--border))",
                       background: "hsl(var(--card))",
-                      fontSize: 13,
+                      fontSize: 12,
                     }}
                     formatter={(value: number, name: string) => [
                       name === "ventas" ? fmtCurrency(value) : value,
