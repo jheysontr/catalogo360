@@ -109,6 +109,15 @@ const StoreFront = () => {
     return items;
   }, [products, search, activeCategory, sortBy]);
 
+  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const paginatedProducts = useMemo(
+    () => filteredProducts.slice((currentPage - 1) * PRODUCTS_PER_PAGE, currentPage * PRODUCTS_PER_PAGE),
+    [filteredProducts, currentPage]
+  );
+
+  // Reset page when filters change
+  useEffect(() => { setCurrentPage(1); }, [search, activeCategory, sortBy]);
+
   const getCategoryName = useCallback(
     (catId: string | null) => categories.find((c) => c.id === catId)?.name ?? null,
     [categories]
