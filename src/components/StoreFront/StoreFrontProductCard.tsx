@@ -122,13 +122,21 @@ const StoreFrontProductCard = ({
             </Button>
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
   // Grid view
   return (
-    <div className="group cursor-pointer" onClick={() => onOpenDetail(p)}>
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.3 }}
+      className="group cursor-pointer"
+      onClick={() => onOpenDetail(p)}
+    >
       <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
         {p.image_url ? (
           <img src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
