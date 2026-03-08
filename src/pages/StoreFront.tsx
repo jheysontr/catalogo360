@@ -427,63 +427,69 @@ const StoreFront = () => {
 
               if (viewMode === "list") {
                 return (
-                  <Card key={p.id} className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-lg" onClick={() => openProductDetail(p)}>
-                    <div className="flex">
-                      <div className="relative h-32 w-32 flex-shrink-0 overflow-hidden bg-muted sm:h-36 sm:w-36">
-                        {p.image_url ? (
-                          <img src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center">
-                            <StoreIcon className="h-10 w-10 text-muted-foreground/30" />
-                          </div>
-                        )}
-                        {p.on_sale && (
-                          <Badge className="absolute left-1.5 top-1.5 text-[10px] bg-destructive text-destructive-foreground hover:bg-destructive/90">-{p.discount_percent}%</Badge>
-                        )}
-                        <button
-                          onClick={(e) => toggleWishlist(p, e)}
-                          className="absolute right-1.5 top-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-all hover:scale-110 hover:bg-white"
-                        >
-                          <Heart className={`h-3.5 w-3.5 transition-colors ${isInWishlist(p.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
-                        </button>
-                      </div>
-                      <CardContent className="flex flex-1 flex-col justify-between p-3 sm:p-4">
-                        <div className="space-y-1">
-                          {catName && <Badge variant="outline" className="text-[10px] sm:text-xs">{catName}</Badge>}
-                          <h3 className="text-sm font-semibold text-foreground sm:text-base line-clamp-1">{p.name}</h3>
-                          {p.description && (
-                            <p className="line-clamp-2 text-xs text-muted-foreground">{p.description}</p>
-                          )}
-                          <div className="flex items-baseline gap-1.5">
-                            {p.on_sale && p.discount_percent ? (
-                              <>
-                                <span className="text-base font-bold text-destructive">{currencySymbol}{finalPrice.toFixed(2)}</span>
-                                <span className="text-[10px] text-muted-foreground line-through">{currencySymbol}{p.price.toFixed(2)}</span>
-                              </>
-                            ) : (
-                              <span className="text-base font-bold" style={{ color: primaryColor }}>{currencySymbol}{p.price.toFixed(2)}</span>
-                            )}
-                          </div>
+                  <div key={p.id} className="group cursor-pointer flex overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg" onClick={() => openProductDetail(p)}>
+                    <div className="relative h-36 w-36 flex-shrink-0 overflow-hidden bg-muted sm:h-40 sm:w-40">
+                      {p.image_url ? (
+                        <img src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/60">
+                          <StoreIcon className="h-10 w-10 text-muted-foreground/20" />
                         </div>
-                        <div className="mt-2 flex items-center justify-between">
-                          {p.stock < 5 && (
-                            <p className="text-[10px] sm:text-xs font-medium text-destructive">
-                              ¡Quedan {p.stock}!
-                            </p>
-                          )}
-                          <Button
-                            className="ml-auto gap-1.5 text-xs text-white transition-all duration-150 active:scale-90"
-                            size="sm"
-                            style={{ backgroundColor: primaryColor }}
-                            onClick={(e) => handleQuickAdd(p, e)}
-                          >
-                            <ShoppingCart className="h-3.5 w-3.5" />
-                            {hasAttrs ? "Ver opciones" : "Agregar"}
-                          </Button>
-                        </div>
-                      </CardContent>
+                      )}
+                      {p.on_sale && (
+                        <span className="absolute left-1.5 top-1.5 inline-flex items-center rounded-lg bg-destructive px-2 py-0.5 text-[10px] font-bold text-destructive-foreground shadow-sm">-{p.discount_percent}%</span>
+                      )}
+                      <button
+                        onClick={(e) => toggleWishlist(p, e)}
+                        className={`absolute right-1.5 top-1.5 flex h-8 w-8 items-center justify-center rounded-full shadow-md transition-all duration-200 hover:scale-110 ${
+                          isInWishlist(p.id)
+                            ? "bg-red-500 text-white"
+                            : "bg-white/90 backdrop-blur-sm text-muted-foreground hover:bg-white"
+                        }`}
+                      >
+                        <Heart className={`h-3.5 w-3.5 transition-colors ${isInWishlist(p.id) ? "fill-white" : ""}`} />
+                      </button>
                     </div>
-                  </Card>
+                    <div className="flex flex-1 flex-col justify-between p-3.5 sm:p-4">
+                      <div className="space-y-1">
+                        {catName && (
+                          <p className="text-[10px] font-semibold uppercase tracking-widest sm:text-[11px]" style={{ color: primaryColor }}>
+                            {catName}
+                          </p>
+                        )}
+                        <h3 className="text-sm font-semibold text-foreground sm:text-base line-clamp-1">{p.name}</h3>
+                        {p.description && (
+                          <p className="line-clamp-2 text-xs text-muted-foreground leading-relaxed">{p.description}</p>
+                        )}
+                        <div className="flex items-baseline gap-2 pt-0.5">
+                          {p.on_sale && p.discount_percent ? (
+                            <>
+                              <span className="text-base font-bold text-destructive sm:text-lg">{currencySymbol}{finalPrice.toFixed(2)}</span>
+                              <span className="text-[10px] text-muted-foreground line-through">{currencySymbol}{p.price.toFixed(2)}</span>
+                            </>
+                          ) : (
+                            <span className="text-base font-bold sm:text-lg" style={{ color: primaryColor }}>{currencySymbol}{p.price.toFixed(2)}</span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="mt-2 flex items-center justify-between">
+                        {p.stock < 5 && (
+                          <span className="inline-flex items-center rounded-lg bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 sm:text-xs">
+                            ¡Quedan {p.stock}!
+                          </span>
+                        )}
+                        <Button
+                          className="ml-auto gap-1.5 rounded-xl text-xs text-white transition-all duration-150 active:scale-95 hover:brightness-110"
+                          size="sm"
+                          style={{ backgroundColor: primaryColor }}
+                          onClick={(e) => handleQuickAdd(p, e)}
+                        >
+                          <ShoppingCart className="h-3.5 w-3.5" />
+                          {hasAttrs ? "Ver opciones" : "Agregar"}
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
                 );
               }
 
