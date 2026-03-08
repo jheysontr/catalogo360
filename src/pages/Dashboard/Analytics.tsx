@@ -17,6 +17,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, Legend,
 } from "recharts";
 import type { Json } from "@/integrations/supabase/types";
+import { getCurrencySymbol } from "@/lib/currency";
 
 /* ─── Types ──────────────────────────────────────── */
 
