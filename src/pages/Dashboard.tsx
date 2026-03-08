@@ -36,6 +36,7 @@ interface StoreData {
   store_name: string;
   store_slug: string;
   plan_id: string | null;
+  currency: string;
 }
 
 const MODULE_SIDEBAR_MAP: Record<string, string> = {
@@ -107,7 +108,7 @@ const Dashboard = () => {
     const fetchData = async () => {
       const { data: stores } = await supabase
         .from("stores")
-        .select("id, store_name, store_slug, plan_id")
+        .select("id, store_name, store_slug, plan_id, currency")
         .eq("user_id", user.id)
         .limit(1);
 
@@ -346,6 +347,7 @@ const Dashboard = () => {
               storeName={store.store_name}
               storeSlug={store.store_slug}
               productCount={productCount}
+              currency={store.currency}
               onNavigate={(section) => setActiveSection(section)}
             />
           ) : (

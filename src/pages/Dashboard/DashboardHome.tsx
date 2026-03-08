@@ -20,6 +20,7 @@ interface DashboardHomeProps {
   storeName: string;
   storeSlug: string;
   productCount: number;
+  currency?: string;
   onNavigate: (section: string) => void;
 }
 
@@ -41,10 +42,9 @@ interface ProductRow {
   price: number;
 }
 
-const fmtCurrency = (n: number) => `Bs ${n.toFixed(2)}`;
-const fmtShort = (n: number) => {
-  if (n >= 1000) return `Bs ${(n / 1000).toFixed(1)}k`;
-  return `Bs ${n.toFixed(0)}`;
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: "$", EUR: "€", BOB: "Bs", ARS: "$", MXN: "$", CLP: "$",
+  COP: "$", PEN: "S/", UYU: "$U", BRL: "R$", PYG: "₲", GBP: "£",
 };
 
 const statusLabel: Record<string, string> = {
@@ -64,7 +64,13 @@ const statusStyles: Record<string, string> = {
 const parseItems = (raw: Json): Array<{ name?: string; product_name?: string; quantity?: number; qty?: number; price?: number }> =>
   Array.isArray(raw) ? raw as any : [];
 
-const DashboardHome = ({ storeId, storeName, storeSlug, productCount, onNavigate }: DashboardHomeProps) => {
+const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency = "BOB", onNavigate }: DashboardHomeProps) => {
+  const sym = CURRENCY_SYMBOLS[currency] || currency;
+  const fmtCurrency = (n: number) => `${sym} ${n.toFixed(2)}`;
+  const fmtShort = (n: number) => {
+    if (n >= 1000) return `${sym} ${(n / 1000).toFixed(1)}k`;
+    return `${sym} ${n.toFixed(0)}`;
+  };
   const [loading, setLoading] = useState(true);
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [allTimeOrders, setAllTimeOrders] = useState(0);
@@ -302,7 +308,7 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, onNavigate
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
                   <XAxis dataKey="label" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                  <YAxis tick={{ fontSize: 11 }} className="fill-muted-foreground" tickFormatter={(v) => `Bs${v}`} />
+                  <YAxis tick={{ fontSize: 11 }} className="fill-muted-foreground" tickFormatter={(v) => `${sym}${v}`} />
                   <Tooltip
                     contentStyle={{
                       borderRadius: 8,
