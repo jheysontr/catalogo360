@@ -223,6 +223,8 @@ const StoreSettings = () => {
     setWhatsapp(social.whatsapp ?? "");
     setPhone(social.phone ?? "");
     setCurrency((store as any).currency ?? "BOB");
+    const sfConfig = (store as any).storefront_config as Record<string, any> | null;
+    setStoreTemplate(sfConfig?.template || "classic");
     toast("Cambios descartados");
   };
 
