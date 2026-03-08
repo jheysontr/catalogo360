@@ -1,6 +1,8 @@
+import { memo } from "react";
 import { Heart, ShoppingCart, Store as StoreIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import ProgressiveImage from "./ProgressiveImage";
 
 interface ProductAttribute {
   name: string;
