@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import toast from "react-hot-toast";
 
@@ -30,9 +30,53 @@ const playNotificationSound = () => {
   }
 };
 
+const showBrowserNotification = (order: any, itemCount: number) => {
+  if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+  try {
+    const title = `🛒 Nueva orden de ${order.customer_name || "Cliente"}`;
+    const body = `💰 Bs ${(order.total_price || 0).toFixed(2)} • ${itemCount} producto${itemCount !== 1 ? "s" : ""}\n📱 ${order.customer_phone || order.customer_email || ""}`;
+
+    // Try service worker notification first (works in background), fallback to basic
+    if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
+      navigator.serviceWorker.ready.then((reg) => {
+        reg.showNotification(title, {
+          body,
+          icon: "/icons/icon-192x192.png",
+          badge: "/icons/icon-192x192.png",
+          tag: `order-${order.id}`,
+          vibrate: [200, 100, 200],
+          data: { url: "/dashboard" },
+        });
+      });
+    } else {
+      new Notification(title, {
+        body,
+        icon: "/icons/icon-192x192.png",
+        tag: `order-${order.id}`,
+      });
+    }
+  } catch {
+    // Notification API not available
+  }
+};
+
+export const requestNotificationPermission = async (): Promise<boolean> => {
+  if (!("Notification" in window)) return false;
+  if (Notification.permission === "granted") return true;
+  if (Notification.permission === "denied") return false;
+  const result = await Notification.requestPermission();
+  return result === "granted";
+};
+
 export const useRealtimeOrders = (storeId: string | null) => {
   const storeIdRef = useRef(storeId);
   storeIdRef.current = storeId;
+
+  // Request permission on mount
+  useEffect(() => {
+    if (storeId) requestNotificationPermission();
+  }, [storeId]);
 
   useEffect(() => {
     if (!storeId) return;
@@ -68,6 +112,11 @@ export const useRealtimeOrders = (storeId: string | null) => {
               },
             }
           );
+
+          // Show browser push notification when tab is not visible
+          if (document.hidden) {
+            showBrowserNotification(order, itemCount);
+          }
         }
       )
       .subscribe();
