@@ -83,6 +83,8 @@ const StoreSettings = () => {
   const [whatsapp, setWhatsapp] = useState("");
   const [currency, setCurrency] = useState("BOB");
   const [storeTemplate, setStoreTemplate] = useState("classic");
+  const [bannerGreeting, setBannerGreeting] = useState("");
+  const [bannerDescription, setBannerDescription] = useState("");
 
   // Upload states
   const [uploadingLogo, setUploadingLogo] = useState(false);
