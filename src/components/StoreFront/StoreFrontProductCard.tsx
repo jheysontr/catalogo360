@@ -205,4 +205,4 @@ const StoreFrontProductCard = ({
   );
 };
 
-export default StoreFrontProductCard;
+export default memo(StoreFrontProductCard);
