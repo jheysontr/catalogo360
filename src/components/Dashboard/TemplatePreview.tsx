@@ -183,7 +183,18 @@ const TemplatePreview = ({
     );
   };
 
-  const renderProductCard = (product: typeof MOCK_PRODUCTS[0], i: number) => {
+  const renderImage = (imageUrl: string | null) => {
+    if (imageUrl) {
+      return <img src={imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />;
+    }
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
+        <StoreIcon className="h-3 w-3 text-muted-foreground/20" />
+      </div>
+    );
+  };
+
+  const renderProductCard = (product: PreviewProduct, i: number) => {
     switch (theme.cardLayout) {
       case "overlay":
         return (
