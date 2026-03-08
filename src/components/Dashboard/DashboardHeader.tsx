@@ -1,4 +1,3 @@
-import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, Eye, QrCode, Settings, LogOut } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -43,10 +42,10 @@ const DashboardHeader = ({
     {storeSlug && (
       <>
         <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
-          <Link to={`/store/${storeSlug}`} target="_blank">
+          <a href={`/store/${storeSlug}`} target="_blank" rel="noopener noreferrer">
             <Eye className="h-4 w-4 mr-2" />
             Ver tienda
-          </Link>
+          </a>
         </Button>
         <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={onOpenQR}>
           <QrCode className="h-4 w-4" />

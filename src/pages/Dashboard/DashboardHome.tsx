@@ -265,7 +265,14 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
             {quickActions.map((a) => (
               <button
                 key={a.section}
-                onClick={() => a.section === "_store_link" ? window.open(`/store/${storeSlug}`, "_blank") : onNavigate(a.section)}
+                onClick={() => {
+                  if (a.section === "_store_link") {
+                    const w = window.open(`/store/${storeSlug}`, "_blank");
+                    if (!w) window.location.href = `/store/${storeSlug}`;
+                  } else {
+                    onNavigate(a.section);
+                  }
+                }}
                 className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-accent/60 transition-colors group"
               >
                 <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/15">

@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Package, Store, ShoppingCart, BarChart3, CreditCard, Settings,
   ExternalLink, Eye, X, LogOut, FolderOpen, Ticket,
@@ -128,15 +128,16 @@ const DashboardSidebar = ({
 
         <div className="border-t p-4 space-y-1">
           {storeSlug && (
-            <Link
-              to={`/store/${storeSlug}`}
+            <a
+              href={`/store/${storeSlug}`}
               target="_blank"
+              rel="noopener noreferrer"
               className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
             >
               <Eye className="h-4 w-4" />
               Ver tienda
               <ExternalLink className="h-3 w-3 ml-auto" />
-            </Link>
+            </a>
           )}
           {isAdmin && (
             <Link
