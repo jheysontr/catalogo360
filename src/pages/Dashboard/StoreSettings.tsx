@@ -457,6 +457,36 @@ const StoreSettings = () => {
             </CardContent>
           </Card>
 
+          {/* Template selector */}
+          <Card>
+            <CardHeader className="flex flex-row items-center gap-3 pb-2">
+              <Layout className="h-5 w-5 text-primary" />
+              <CardTitle className="text-base">Plantilla de Tienda</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">Elige el estilo visual de tu tienda pública</p>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { value: "classic", label: "Clásica", desc: "Banner + logo circular" },
+                  { value: "app", label: "App", desc: "Estilo app móvil moderno" },
+                ].map((t) => (
+                  <button
+                    key={t.value}
+                    onClick={() => setStoreTemplate(t.value)}
+                    className={`rounded-xl border-2 p-3 text-left transition-all ${
+                      storeTemplate === t.value
+                        ? "border-primary bg-primary/5 shadow-sm"
+                        : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <p className="text-sm font-semibold text-foreground">{t.label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t.desc}</p>
+                  </button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
           {/* Currency */}
           <Card>
             <CardHeader className="flex flex-row items-center gap-3 pb-2">
