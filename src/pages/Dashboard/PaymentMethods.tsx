@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Upload, Banknote, Building2, QrCode, X, ImagePlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { compressImage } from "@/lib/imageCompression";
 
 export interface PaymentMethodsConfig {
   cash: { enabled: boolean; label: string; instructions: string };
