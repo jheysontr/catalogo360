@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Upload, Banknote, Building2, QrCode, X, ImagePlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { compressImage } from "@/lib/imageCompression";
 
 export interface PaymentMethodsConfig {
   cash: { enabled: boolean; label: string; instructions: string };
@@ -80,9 +81,10 @@ const PaymentMethods = () => {
       return;
     }
     setUploadingQr(true);
-    const ext = file.name.split(".").pop();
+    const compressed = await compressImage(file);
+    const ext = compressed.name.split(".").pop();
     const path = `${storeId}/qr-payment-${Date.now()}.${ext}`;
-    const { error } = await supabase.storage.from("stores").upload(path, file);
+    const { error } = await supabase.storage.from("stores").upload(path, compressed);
     if (error) {
       toast({ title: "Error al subir imagen", variant: "destructive" });
       setUploadingQr(false);

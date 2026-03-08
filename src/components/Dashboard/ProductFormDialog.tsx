@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Plus, ImagePlus, Loader2, Trash2, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { compressImage } from "@/lib/imageCompression";
 
 /* ─── Types ──────────────────────────────────────── */
 
@@ -143,9 +144,10 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
   };
 
   const uploadImage = async (file: File): Promise<string | null> => {
-    const ext = file.name.split(".").pop();
+    const compressed = await compressImage(file);
+    const ext = compressed.name.split(".").pop();
     const path = `${storeId}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-    const { error } = await supabase.storage.from("products").upload(path, file);
+    const { error } = await supabase.storage.from("products").upload(path, compressed);
     if (error) {
       toast({ title: "Error", description: "Error al subir imagen", variant: "destructive" });
       return null;
