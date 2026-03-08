@@ -170,6 +170,10 @@ const StoreSettings = () => {
       return;
     }
 
+    // Build storefront_config preserving existing fields
+    const existingConfig = (store as any).storefront_config as Record<string, any> || {};
+    const updatedStorefrontConfig = { ...existingConfig, template: storeTemplate };
+
     const { error } = await supabase
       .from("stores")
       .update({
@@ -183,6 +187,7 @@ const StoreSettings = () => {
         logo_url: logoUrl,
         banner_url: bannerUrl,
         currency,
+        storefront_config: updatedStorefrontConfig,
         social_media: {
           facebook: facebook.trim(),
           instagram: instagram.trim(),
