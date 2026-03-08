@@ -539,6 +539,41 @@ const StoreSettings = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Banner Texts */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Textos del banner</CardTitle>
+              <CardDescription>Personaliza los textos que aparecen en el banner de tu tienda. Si los dejas vacíos, se usarán los textos por defecto de la plantilla.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label htmlFor="banner-greeting">Texto de saludo</Label>
+                <Input
+                  id="banner-greeting"
+                  value={bannerGreeting}
+                  onChange={(e) => setBannerGreeting(e.target.value.slice(0, 60))}
+                  maxLength={60}
+                  className="mt-1.5"
+                  placeholder="Ej: Bienvenido a, Explora, ¡Descubre lo nuevo!"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">{bannerGreeting.length}/60 — Deja vacío para usar el texto de la plantilla</p>
+              </div>
+              <div>
+                <Label htmlFor="banner-desc">Subtítulo del banner</Label>
+                <Textarea
+                  id="banner-desc"
+                  value={bannerDescription}
+                  onChange={(e) => setBannerDescription(e.target.value.slice(0, 120))}
+                  maxLength={120}
+                  rows={2}
+                  className="mt-1.5"
+                  placeholder="Ej: Los mejores productos al mejor precio"
+                />
+                <p className="mt-1 text-xs text-muted-foreground">{bannerDescription.length}/120 — Deja vacío para usar la descripción de la tienda</p>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ═══════════════ TAB: PLANTILLA ═══════════════ */}
