@@ -18,12 +18,15 @@ interface StoreFiltersProps {
   primaryColor: string;
   productCount: number;
   activeCategoryName: string | null;
+  perPage: number;
+  onPerPageChange: (v: number) => void;
 }
 
 const StoreFilters = ({
   search, onSearchChange, sortBy, onSortChange,
   viewMode, onViewModeChange, categories, activeCategory,
   onCategoryChange, primaryColor, productCount, activeCategoryName,
+  perPage, onPerPageChange,
 }: StoreFiltersProps) => (
   <div className="container mt-6 space-y-3 px-4">
     <div className="flex items-center gap-2">
@@ -84,10 +87,24 @@ const StoreFilters = ({
       </div>
     )}
 
-    <p className="text-xs text-muted-foreground">
-      {productCount} {productCount === 1 ? "producto" : "productos"}
-      {activeCategory !== "all" && ` en ${activeCategoryName || "categoría"}`}
-    </p>
+    <div className="flex items-center justify-between">
+      <p className="text-xs text-muted-foreground">
+        {productCount} {productCount === 1 ? "producto" : "productos"}
+        {activeCategory !== "all" && ` en ${activeCategoryName || "categoría"}`}
+      </p>
+      {productCount > 12 && (
+        <Select value={String(perPage)} onValueChange={(v) => onPerPageChange(Number(v))}>
+          <SelectTrigger className="h-7 w-auto gap-1 border-0 px-2 text-xs text-muted-foreground hover:text-foreground">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent align="end">
+            <SelectItem value="12">12 / pág</SelectItem>
+            <SelectItem value="20">20 / pág</SelectItem>
+            <SelectItem value="40">40 / pág</SelectItem>
+          </SelectContent>
+        </Select>
+      )}
+    </div>
   </div>
 );
 

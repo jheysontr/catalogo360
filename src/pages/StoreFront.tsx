@@ -42,7 +42,7 @@ const StoreFront = () => {
   const [activeCategory, setActiveCategory] = useState("all");
   const [sortBy, setSortBy] = useState("newest");
   const [currentPage, setCurrentPage] = useState(1);
-  const PRODUCTS_PER_PAGE = 20;
+  const [perPage, setPerPage] = useState(20);
 
   const [cartOpen, setCartOpen] = useState(false);
   const [wishlistOpen, setWishlistOpen] = useState(false);
@@ -109,14 +109,14 @@ const StoreFront = () => {
     return items;
   }, [products, search, activeCategory, sortBy]);
 
-  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const totalPages = Math.ceil(filteredProducts.length / perPage);
   const paginatedProducts = useMemo(
-    () => filteredProducts.slice((currentPage - 1) * PRODUCTS_PER_PAGE, currentPage * PRODUCTS_PER_PAGE),
-    [filteredProducts, currentPage]
+    () => filteredProducts.slice((currentPage - 1) * perPage, currentPage * perPage),
+    [filteredProducts, currentPage, perPage]
   );
 
   // Reset page when filters change
-  useEffect(() => { setCurrentPage(1); }, [search, activeCategory, sortBy]);
+  useEffect(() => { setCurrentPage(1); }, [search, activeCategory, sortBy, perPage]);
 
   const getCategoryName = useCallback(
     (catId: string | null) => categories.find((c) => c.id === catId)?.name ?? null,
@@ -234,6 +234,8 @@ const StoreFront = () => {
         primaryColor={primaryColor}
         productCount={filteredProducts.length}
         activeCategoryName={getCategoryName(activeCategory)}
+        perPage={perPage}
+        onPerPageChange={setPerPage}
       />
 
       {/* ── PRODUCTS GRID ── */}
