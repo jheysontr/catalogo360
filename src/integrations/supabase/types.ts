@@ -862,12 +862,10 @@ export type Database = {
     Views: {
       stores_public: {
         Row: {
-          address: string | null
           banner_url: string | null
           created_at: string | null
           currency: string | null
           description: string | null
-          email: string | null
           id: string | null
           is_active: boolean | null
           linkbox_config: Json | null
@@ -884,12 +882,10 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          address?: string | null
           banner_url?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
-          email?: string | null
           id?: string | null
           is_active?: boolean | null
           linkbox_config?: Json | null
@@ -906,12 +902,10 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          address?: string | null
           banner_url?: string | null
           created_at?: string | null
           currency?: string | null
           description?: string | null
-          email?: string | null
           id?: string | null
           is_active?: boolean | null
           linkbox_config?: Json | null
@@ -948,6 +942,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_active_store: { Args: { store_uuid: string }; Returns: boolean }
       validate_coupon: {
         Args: { p_code: string; p_store_id: string }
         Returns: Json
