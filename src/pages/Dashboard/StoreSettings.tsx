@@ -98,6 +98,8 @@ const StoreSettings = () => {
         setWhatsapp(social.whatsapp ?? "");
         setPhone(social.phone ?? "");
         setCurrency((s as any).currency ?? "BOB");
+        const sfConfig = (data[0] as any).storefront_config as Record<string, any> | null;
+        setStoreTemplate(sfConfig?.template || "classic");
       }
       setLoading(false);
     };
