@@ -11,6 +11,8 @@ interface AppHeroBannerProps {
   };
   primaryColor: string;
   theme: TemplateTheme;
+  customGreeting?: string;
+  customDescription?: string;
 }
 
 /* ── Full-bleed cinematic banner (Elegante) ── */
