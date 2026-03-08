@@ -3,8 +3,6 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
@@ -15,15 +13,18 @@ import {
   Sheet, SheetContent, SheetHeader, SheetTitle,
 } from "@/components/ui/sheet";
 import {
-  Search, ShoppingCart, Share2, Info, Plus, Minus, X, Loader2,
+  Search, ShoppingCart, Plus, Minus, X, Loader2,
   Store as StoreIcon, Facebook, Instagram, Mail, MapPin, Phone, ExternalLink,
-  LayoutGrid, List, ChevronLeft, ChevronRight, Heart,
+  LayoutGrid, List, Heart,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCart, getFinalPrice } from "@/lib/CartContext";
 import { getCurrencySymbol } from "@/lib/currency";
 import CartModal from "@/components/Cart/CartModal";
 import { useWishlist } from "@/lib/WishlistContext";
+import StoreHeader from "@/components/StoreFront/StoreHeader";
+import StoreFrontProductCard from "@/components/StoreFront/StoreFrontProductCard";
+import ProductDetailDialog from "@/components/StoreFront/ProductDetailDialog";
 
 /* ─── Types ─── */
 interface StoreData {
@@ -40,8 +41,6 @@ interface StoreData {
   social_media: Record<string, string> | null;
   currency: string;
 }
-
-// Using centralized currency from @/lib/currency
 
 interface ProductAttribute {
   name: string;
@@ -94,9 +93,6 @@ const StoreFront = () => {
   const [infoOpen, setInfoOpen] = useState(false);
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [selectedAttrs, setSelectedAttrs] = useState<Record<string, string>>({});
-  const [detailQty, setDetailQty] = useState(1);
-  const [galleryIndex, setGalleryIndex] = useState(0);
   const [showStickyBar, setShowStickyBar] = useState(false);
 
   /* ── Sticky bar on scroll ── */
@@ -171,15 +167,6 @@ const StoreFront = () => {
 
   const openProductDetail = (product: Product) => {
     setSelectedProduct(product);
-    setDetailQty(1);
-    setGalleryIndex(0);
-    const attrs: Record<string, string> = {};
-    if (Array.isArray(product.attributes)) {
-      (product.attributes as ProductAttribute[]).forEach((attr) => {
-        if (attr.values.length > 0) attrs[attr.name] = attr.values[0];
-      });
-    }
-    setSelectedAttrs(attrs);
   };
 
   const toCartProduct = (p: Product) => ({
@@ -192,15 +179,6 @@ const StoreFront = () => {
       : undefined,
   });
 
-  const handleAddFromDetail = () => {
-    if (!selectedProduct) return;
-    const hasAttrs = Array.isArray(selectedProduct.attributes) && (selectedProduct.attributes as ProductAttribute[]).length > 0;
-    addToCart(toCartProduct(selectedProduct), detailQty, hasAttrs ? selectedAttrs : undefined);
-    toast({ title: "✓ Agregado", description: selectedProduct.name, duration: 1500 });
-    setSelectedProduct(null);
-  };
-
-  /** Quick add for products without attributes */
   const handleQuickAdd = (p: Product, e: React.MouseEvent) => {
     e.stopPropagation();
     const hasAttrs = Array.isArray(p.attributes) && (p.attributes as ProductAttribute[]).length > 0;
@@ -223,16 +201,9 @@ const StoreFront = () => {
     }
   };
 
-  const getVariantStock = (product: Product, attrs: Record<string, string>): number => {
-    const vs = product.variant_stock;
-    if (!vs || typeof vs !== "object" || Array.isArray(vs)) return product.stock;
-    const vsMap = vs as Record<string, number>;
-    if (Object.keys(vsMap).length === 0) return product.stock;
-    const stocks: number[] = Object.entries(attrs).map(([attrName, val]) => {
-      const key = `${attrName}||${val}`;
-      return vsMap[key] !== undefined ? vsMap[key] : product.stock;
-    });
-    return stocks.length > 0 ? Math.min(...stocks) : product.stock;
+  const handleAddFromDetail = (product: Product, qty: number, attrs?: Record<string, string>) => {
+    addToCart(toCartProduct(product), qty, attrs);
+    toast({ title: "✓ Agregado", description: product.name, duration: 1500 });
   };
 
   if (loading) {
@@ -305,41 +276,13 @@ const StoreFront = () => {
       </div>
 
       {/* ── BANNER & HEADER ── */}
-      <div className="relative">
-        <div
-          className="h-44 w-full bg-cover bg-center sm:h-56 md:h-64"
-          style={{
-            backgroundColor: secondaryColor,
-            backgroundImage: store.banner_url ? `url(${store.banner_url})` : undefined,
-          }}
-        />
-        <div className="container relative -mt-12 flex flex-col items-center gap-3 px-4 sm:-mt-14 sm:flex-row sm:items-end sm:gap-5">
-          <div
-            className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-4 border-background shadow-lg sm:h-28 sm:w-28"
-            style={{ backgroundColor: primaryColor }}
-          >
-            {store.logo_url ? (
-              <img src={store.logo_url} alt={store.store_name} className="h-full w-full object-cover" />
-            ) : (
-              <StoreIcon className="h-10 w-10 text-white" />
-            )}
-          </div>
-          <div className="flex flex-1 flex-col items-center gap-1.5 pb-2 sm:items-start">
-            <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{store.store_name}</h1>
-            {store.description && (
-              <p className="max-w-lg text-center text-sm text-muted-foreground sm:text-left line-clamp-2">{store.description}</p>
-            )}
-          </div>
-          <div className="flex gap-2 pb-2">
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={() => setInfoOpen(true)}>
-              <Info className="h-4 w-4" /> <span className="hidden sm:inline">Información</span><span className="sm:hidden">Info</span>
-            </Button>
-            <Button variant="outline" size="sm" className="gap-1.5" onClick={handleShare}>
-              <Share2 className="h-4 w-4" /> <span className="hidden sm:inline">Compartir</span>
-            </Button>
-          </div>
-        </div>
-      </div>
+      <StoreHeader
+        store={store}
+        primaryColor={primaryColor}
+        secondaryColor={secondaryColor}
+        onInfoClick={() => setInfoOpen(true)}
+        onShareClick={handleShare}
+      />
 
       {/* ── FILTERS ── */}
       <div className="container mt-6 space-y-3 px-4">
@@ -401,7 +344,6 @@ const StoreFront = () => {
           </div>
         )}
 
-        {/* Product count */}
         <p className="text-xs text-muted-foreground">
           {filteredProducts.length} {filteredProducts.length === 1 ? "producto" : "productos"}
           {activeCategory !== "all" && ` en ${getCategoryName(activeCategory) || "categoría"}`}
@@ -418,153 +360,21 @@ const StoreFront = () => {
           </div>
         ) : (
           <div className={viewMode === "grid" ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-3"}>
-            {filteredProducts.map((p) => {
-              const catName = getCategoryName(p.category_id);
-              const finalPrice = getFinalPrice(toCartProduct(p));
-              const hasAttrs = Array.isArray(p.attributes) && (p.attributes as ProductAttribute[]).length > 0;
-
-              if (viewMode === "list") {
-                return (
-                  <div key={p.id} className="group cursor-pointer flex overflow-hidden rounded-2xl border bg-card transition-all hover:shadow-lg" onClick={() => openProductDetail(p)}>
-                    <div className="relative h-36 w-36 flex-shrink-0 overflow-hidden bg-muted sm:h-40 sm:w-40">
-                      {p.image_url ? (
-                        <img src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
-                      ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/60">
-                          <StoreIcon className="h-10 w-10 text-muted-foreground/20" />
-                        </div>
-                      )}
-                      {p.on_sale && (
-                        <span className="absolute left-1.5 top-1.5 inline-flex items-center rounded-lg bg-destructive px-2 py-0.5 text-[10px] font-bold text-destructive-foreground shadow-sm">-{p.discount_percent}%</span>
-                      )}
-                      <button
-                        onClick={(e) => toggleWishlist(p, e)}
-                        className={`absolute right-1.5 top-1.5 flex h-8 w-8 items-center justify-center rounded-full shadow-md transition-all duration-200 hover:scale-110 ${
-                          isInWishlist(p.id)
-                            ? "bg-red-500 text-white"
-                            : "bg-white/90 backdrop-blur-sm text-muted-foreground hover:bg-white"
-                        }`}
-                      >
-                        <Heart className={`h-3.5 w-3.5 transition-colors ${isInWishlist(p.id) ? "fill-white" : ""}`} />
-                      </button>
-                    </div>
-                    <div className="flex flex-1 flex-col justify-between p-3.5 sm:p-4">
-                      <div className="space-y-1">
-                        {catName && (
-                          <p className="text-[10px] font-semibold uppercase tracking-widest sm:text-[11px]" style={{ color: primaryColor }}>
-                            {catName}
-                          </p>
-                        )}
-                        <h3 className="text-sm font-semibold text-foreground sm:text-base line-clamp-1">{p.name}</h3>
-                        {p.description && (
-                          <p className="line-clamp-2 text-xs text-muted-foreground leading-relaxed">{p.description}</p>
-                        )}
-                        <div className="flex items-baseline gap-2 pt-0.5">
-                          {p.on_sale && p.discount_percent ? (
-                            <>
-                              <span className="text-base font-bold text-destructive sm:text-lg">{currencySymbol}{finalPrice.toFixed(2)}</span>
-                              <span className="text-[10px] text-muted-foreground line-through">{currencySymbol}{p.price.toFixed(2)}</span>
-                            </>
-                          ) : (
-                            <span className="text-base font-bold sm:text-lg" style={{ color: primaryColor }}>{currencySymbol}{p.price.toFixed(2)}</span>
-                          )}
-                        </div>
-                      </div>
-                      <div className="mt-2 flex items-center justify-between">
-                        {p.stock < 5 && (
-                          <span className="inline-flex items-center rounded-lg bg-amber-500/10 px-2 py-0.5 text-[10px] font-bold text-amber-600 sm:text-xs">
-                            ¡Quedan {p.stock}!
-                          </span>
-                        )}
-                        <Button
-                          className="ml-auto gap-1.5 rounded-xl text-xs text-white transition-all duration-150 active:scale-95 hover:brightness-110"
-                          size="sm"
-                          style={{ backgroundColor: primaryColor }}
-                          onClick={(e) => handleQuickAdd(p, e)}
-                        >
-                          <ShoppingCart className="h-3.5 w-3.5" />
-                          {hasAttrs ? "Ver opciones" : "Agregar"}
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              }
-
-              return (
-                <div key={p.id} className="group cursor-pointer" onClick={() => openProductDetail(p)}>
-                  {/* Image container */}
-                  <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
-                    {p.image_url ? (
-                      <img src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/60">
-                        <StoreIcon className="h-12 w-12 text-muted-foreground/20" />
-                      </div>
-                    )}
-                    {/* Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                    {/* Sale badge */}
-                    {p.on_sale && p.discount_percent && (
-                      <div className="absolute left-2 top-2 sm:left-2.5 sm:top-2.5">
-                        <span className="inline-flex items-center rounded-lg bg-destructive px-2 py-1 text-[10px] font-bold text-destructive-foreground shadow-sm sm:text-xs">
-                          -{p.discount_percent}%
-                        </span>
-                      </div>
-                    )}
-                    {/* Low stock badge */}
-                    {p.stock < 5 && (
-                      <div className="absolute left-2 sm:left-2.5" style={{ top: p.on_sale && p.discount_percent ? '2.25rem' : '0.5rem' }}>
-                        <span className="inline-flex items-center rounded-lg bg-amber-500/90 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm sm:text-[10px]">
-                          ¡Quedan {p.stock}!
-                        </span>
-                      </div>
-                    )}
-                    {/* Wishlist button */}
-                    <button
-                      onClick={(e) => toggleWishlist(p, e)}
-                      className={`absolute right-2 top-2 sm:right-2.5 sm:top-2.5 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-all duration-200 hover:scale-110 ${
-                        isInWishlist(p.id)
-                          ? "bg-red-500 text-white"
-                          : "bg-white/90 backdrop-blur-sm text-muted-foreground hover:bg-white"
-                      }`}
-                    >
-                      <Heart className={`h-4 w-4 transition-colors ${isInWishlist(p.id) ? "fill-white" : ""}`} />
-                    </button>
-                    {/* Quick add button */}
-                    <div className="absolute bottom-0 left-0 right-0 translate-y-full p-2.5 transition-transform duration-300 group-hover:translate-y-0">
-                      <button
-                        onClick={(e) => handleQuickAdd(p, e)}
-                        className="flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-semibold text-white shadow-lg backdrop-blur-sm transition-all hover:brightness-110 sm:text-sm"
-                        style={{ backgroundColor: primaryColor }}
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                        {hasAttrs ? "Ver opciones" : "Agregar al carrito"}
-                      </button>
-                    </div>
-                  </div>
-                  {/* Info */}
-                  <div className="mt-2.5 space-y-1 px-0.5">
-                    {catName && (
-                      <p className="text-[10px] font-semibold uppercase tracking-widest sm:text-[11px]" style={{ color: primaryColor }}>
-                        {catName}
-                      </p>
-                    )}
-                    <h3 className="truncate text-sm font-semibold text-foreground sm:text-[15px]">{p.name}</h3>
-                    <div className="flex items-baseline gap-2">
-                      {p.on_sale && p.discount_percent ? (
-                        <>
-                          <span className="text-base font-bold text-destructive sm:text-lg">{currencySymbol}{finalPrice.toFixed(2)}</span>
-                          <span className="text-[11px] text-muted-foreground line-through sm:text-xs">{currencySymbol}{p.price.toFixed(2)}</span>
-                        </>
-                      ) : (
-                        <span className="text-base font-bold sm:text-lg" style={{ color: primaryColor }}>{currencySymbol}{p.price.toFixed(2)}</span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {filteredProducts.map((p) => (
+              <StoreFrontProductCard
+                key={p.id}
+                product={p}
+                viewMode={viewMode}
+                catName={getCategoryName(p.category_id)}
+                finalPrice={getFinalPrice(toCartProduct(p))}
+                currencySymbol={currencySymbol}
+                primaryColor={primaryColor}
+                isWishlisted={isInWishlist(p.id)}
+                onQuickAdd={handleQuickAdd}
+                onToggleWishlist={toggleWishlist}
+                onOpenDetail={openProductDetail}
+              />
+            ))}
           </div>
         )}
       </div>
@@ -763,7 +573,6 @@ const StoreFront = () => {
         storeName={store.store_name}
         primaryColor={primaryColor}
         currencySymbol={currencySymbol}
-        
         onOrderComplete={() => {
           setCartOpen(false);
           setActiveCategory("all");
@@ -773,211 +582,18 @@ const StoreFront = () => {
       />
 
       {/* ── PRODUCT DETAIL DIALOG ── */}
-      <Dialog open={!!selectedProduct} onOpenChange={(open) => !open && setSelectedProduct(null)}>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md p-0 [&>button]:z-50 [&>button]:bg-white/80 [&>button]:backdrop-blur-sm [&>button]:rounded-full [&>button]:shadow-sm [&>button]:hover:bg-white">
-          {selectedProduct && (() => {
-            const sp = selectedProduct;
-            const spCartProduct = toCartProduct(sp);
-            const spFinalPrice = getFinalPrice(spCartProduct, selectedAttrs);
-            const spBasePrice = spCartProduct.variant_prices
-              ? (() => {
-                  const prices = Object.entries(selectedAttrs)
-                    .map(([k, v]) => spCartProduct.variant_prices![`${k}||${v}`])
-                    .filter((v): v is number => v !== undefined && v > 0);
-                  return prices.length > 0 ? Math.max(...prices) : sp.price;
-                })()
-              : sp.price;
-            const spCatName = getCategoryName(sp.category_id);
-            const spAttrs = Array.isArray(sp.attributes) ? (sp.attributes as ProductAttribute[]) : [];
-            const extraImgs = Array.isArray(sp.extra_images) ? (sp.extra_images as string[]) : [];
-            const allImages = [sp.image_url, ...extraImgs].filter(Boolean) as string[];
-            const activeImg = allImages[galleryIndex] ?? null;
-            const effectiveStock = getVariantStock(sp, selectedAttrs);
-            const variantOutOfStock = effectiveStock <= 0;
-            return (
-              <>
-                {/* Gallery */}
-                <div className="relative aspect-square w-full overflow-hidden bg-muted select-none">
-                  {activeImg ? (
-                    <img src={activeImg} alt={sp.name} className="h-full w-full object-cover transition-opacity duration-200" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                      <StoreIcon className="h-16 w-16 text-muted-foreground/30" />
-                    </div>
-                  )}
-                  {sp.on_sale && sp.discount_percent && (
-                    <Badge className="absolute left-3 top-3 bg-destructive text-destructive-foreground hover:bg-destructive/90">-{sp.discount_percent}%</Badge>
-                  )}
-                  <button
-                    onClick={() => toggleWishlist(sp)}
-                    className="absolute left-3 bottom-3 flex h-9 w-9 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-all hover:scale-110 hover:bg-white z-10"
-                  >
-                    <Heart className={`h-5 w-5 transition-colors ${isInWishlist(sp.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
-                  </button>
-                  {allImages.length > 1 && (
-                    <>
-                      <button
-                        onClick={() => setGalleryIndex((i) => (i - 1 + allImages.length) % allImages.length)}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
-                      >
-                        <ChevronLeft className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => setGalleryIndex((i) => (i + 1) % allImages.length)}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 flex h-8 w-8 items-center justify-center rounded-full bg-black/40 text-white hover:bg-black/60 transition-colors"
-                      >
-                        <ChevronRight className="h-4 w-4" />
-                      </button>
-                    </>
-                  )}
-                  {/* Image dots indicator */}
-                  {allImages.length > 1 && (
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
-                      {allImages.map((_, idx) => (
-                        <button
-                          key={idx}
-                          onClick={() => setGalleryIndex(idx)}
-                          className={`h-2 w-2 rounded-full transition-all ${galleryIndex === idx ? "bg-white w-4" : "bg-white/50"}`}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
+      <ProductDetailDialog
+        product={selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+        currencySymbol={currencySymbol}
+        primaryColor={primaryColor}
+        isWishlisted={selectedProduct ? isInWishlist(selectedProduct.id) : false}
+        onToggleWishlist={(p) => toggleWishlist(p)}
+        onAddToCart={handleAddFromDetail}
+        getCategoryName={getCategoryName}
+      />
 
-                {/* Thumbnails */}
-                {allImages.length > 1 && (
-                  <div className="flex gap-2 overflow-x-auto px-5 pt-3 pb-0 scrollbar-hide">
-                    {allImages.map((img, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setGalleryIndex(idx)}
-                        className={`shrink-0 h-14 w-14 overflow-hidden rounded-md border-2 transition-all ${
-                          galleryIndex === idx ? "border-primary shadow-md" : "border-transparent opacity-60 hover:opacity-100"
-                        }`}
-                      >
-                        <img src={img} alt={`Foto ${idx + 1}`} className="h-full w-full object-cover" />
-                      </button>
-                    ))}
-                  </div>
-                )}
-
-                <div className="space-y-4 p-5">
-                  <DialogHeader className="space-y-1">
-                    {spCatName && <Badge variant="outline" className="w-fit text-xs">{spCatName}</Badge>}
-                    <DialogTitle className="text-xl">{sp.name}</DialogTitle>
-                    <DialogDescription className="sr-only">Detalles del producto {sp.name}</DialogDescription>
-                  </DialogHeader>
-
-                  {/* Price */}
-                  <div className="flex items-baseline gap-2">
-                    {sp.on_sale && sp.discount_percent ? (
-                      <>
-                        <span className="text-2xl font-bold text-destructive">{currencySymbol}{spFinalPrice.toFixed(2)}</span>
-                        <span className="text-sm text-muted-foreground line-through">{currencySymbol}{spBasePrice.toFixed(2)}</span>
-                        <Badge variant="secondary" className="text-xs">-{sp.discount_percent}%</Badge>
-                      </>
-                    ) : (
-                      <span className="text-2xl font-bold" style={{ color: primaryColor }}>{currencySymbol}{spFinalPrice.toFixed(2)}</span>
-                    )}
-                  </div>
-
-                  {/* Description */}
-                  {sp.description && (
-                    <p className="text-sm text-muted-foreground leading-relaxed">{sp.description}</p>
-                  )}
-
-                  {/* Attributes selectors */}
-                  {spAttrs.length > 0 && (
-                    <div className="space-y-3">
-                      {spAttrs.map((attr) => {
-                        const vs = sp.variant_stock;
-                        const vsMap = (vs && typeof vs === "object" && !Array.isArray(vs)) ? vs as Record<string, number> : {};
-                        const hasVariantStock = Object.keys(vsMap).length > 0;
-                        return (
-                          <div key={attr.name} className="space-y-1.5">
-                            <label className="text-sm font-medium text-foreground">{attr.name}</label>
-                            <div className="flex flex-wrap gap-2">
-                              {attr.values.map((val) => {
-                                const isSelected = selectedAttrs[attr.name] === val;
-                                const vKey = `${attr.name}||${val}`;
-                                const vStock = vsMap[vKey];
-                                const vOutOfStock = hasVariantStock && vStock !== undefined && vStock <= 0;
-                                return (
-                                  <button
-                                    key={val}
-                                    onClick={() => {
-                                      if (!vOutOfStock) setSelectedAttrs((prev) => ({ ...prev, [attr.name]: val }));
-                                    }}
-                                    disabled={vOutOfStock}
-                                    className={`relative rounded-lg border px-3 py-1.5 text-sm font-medium transition-all ${
-                                      vOutOfStock
-                                        ? "border-border text-muted-foreground opacity-40 cursor-not-allowed line-through"
-                                        : isSelected
-                                          ? "border-transparent text-white shadow-sm"
-                                          : "border-border text-foreground hover:border-muted-foreground"
-                                    }`}
-                                    style={isSelected && !vOutOfStock ? { backgroundColor: primaryColor } : undefined}
-                                  >
-                                    {val}
-                                    {hasVariantStock && vStock !== undefined && vStock > 0 && vStock <= 5 && (
-                                      <span className="ml-1.5 text-[10px] font-normal opacity-70">({vStock})</span>
-                                    )}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-
-                  {/* Stock */}
-                  <p className={`text-xs ${effectiveStock < 5 ? "font-medium text-destructive" : "text-muted-foreground"}`}>
-                    {variantOutOfStock
-                      ? "❌ Variante sin stock"
-                      : effectiveStock < 5
-                        ? `¡Solo quedan ${effectiveStock}!`
-                        : `Stock disponible: ${effectiveStock}`}
-                  </p>
-
-                  {/* Quantity + Add to cart */}
-                  <div className="flex items-center gap-3 pt-2">
-                    <div className="flex items-center rounded-lg border">
-                      <button
-                        onClick={() => setDetailQty((q) => Math.max(1, q - 1))}
-                        disabled={variantOutOfStock}
-                        className="flex h-10 w-10 items-center justify-center text-foreground hover:bg-accent transition-colors rounded-l-lg disabled:opacity-40"
-                      >
-                        <Minus className="h-4 w-4" />
-                      </button>
-                      <span className="flex h-10 w-10 items-center justify-center text-sm font-semibold">{detailQty}</span>
-                      <button
-                        onClick={() => setDetailQty((q) => Math.min(effectiveStock, q + 1))}
-                        disabled={variantOutOfStock || detailQty >= effectiveStock}
-                        className="flex h-10 w-10 items-center justify-center text-foreground hover:bg-accent transition-colors rounded-r-lg disabled:opacity-40"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </button>
-                    </div>
-                    <Button
-                      className="flex-1 gap-2 text-white transition-all duration-150 active:scale-95 disabled:opacity-60"
-                      size="lg"
-                      style={{ backgroundColor: variantOutOfStock ? undefined : primaryColor }}
-                      onClick={handleAddFromDetail}
-                      disabled={variantOutOfStock}
-                    >
-                      <ShoppingCart className="h-4 w-4" />
-                      {variantOutOfStock ? "Sin stock" : "Agregar al carrito"}
-                    </Button>
-                  </div>
-                </div>
-              </>
-            );
-          })()}
-        </DialogContent>
-      </Dialog>
-
+      {/* ── INFO DIALOG ── */}
       <Dialog open={infoOpen} onOpenChange={setInfoOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
