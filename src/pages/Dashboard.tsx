@@ -87,6 +87,7 @@ const Dashboard = () => {
   const [activeCouponCount, setActiveCouponCount] = useState(0);
   const [lastOrder, setLastOrder] = useState<{ customer_name: string; items: any } | null>(null);
   const [enabledModules, setEnabledModules] = useState<Record<string, boolean>>({});
+  const [maxProducts, setMaxProducts] = useState(10);
   const [qrOpen, setQrOpen] = useState(false);
 
   // Badge counts map for sidebar
@@ -121,11 +122,16 @@ const Dashboard = () => {
         if (s.plan_id) {
           const { data: planData } = await supabase
             .from("pricing_plans")
-            .select("enabled_modules")
+            .select("enabled_modules, max_products")
             .eq("id", s.plan_id)
             .single();
-          if (planData?.enabled_modules && typeof planData.enabled_modules === "object") {
-            setEnabledModules(planData.enabled_modules as Record<string, boolean>);
+          if (planData) {
+            if (planData.enabled_modules && typeof planData.enabled_modules === "object") {
+              setEnabledModules(planData.enabled_modules as Record<string, boolean>);
+            }
+            if (typeof planData.max_products === "number") {
+              setMaxProducts(planData.max_products);
+            }
           }
         }
 
@@ -181,7 +187,7 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  const maxProducts = 60;
+  
 
   return (
     <div className="flex min-h-screen bg-secondary/20">
