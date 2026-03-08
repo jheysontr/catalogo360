@@ -63,6 +63,7 @@ const StoreSettings = () => {
   const [tiktok, setTiktok] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [currency, setCurrency] = useState("BOB");
+  const [storeTemplate, setStoreTemplate] = useState("classic");
 
   // Upload states
   const [uploadingLogo, setUploadingLogo] = useState(false);
