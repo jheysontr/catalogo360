@@ -234,6 +234,8 @@ const StoreFront = () => {
         primaryColor={primaryColor}
         productCount={filteredProducts.length}
         activeCategoryName={getCategoryName(activeCategory)}
+        perPage={perPage}
+        onPerPageChange={setPerPage}
       />
 
       {/* ── PRODUCTS GRID ── */}
