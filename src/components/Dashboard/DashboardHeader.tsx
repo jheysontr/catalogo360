@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Button } from "@/components/ui/button";
 import { Menu, Eye, QrCode, Settings, LogOut } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import SalesCalculator from "@/components/SalesCalculator";
