@@ -33,10 +33,9 @@ const FullBanner = ({ store, primaryColor, theme }: AppHeroBannerProps) => (
       )}
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
       <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8">
-        <p className="text-[10px] uppercase tracking-[0.3em] text-white/60 mb-1">{theme.bannerGreeting}</p>
-        <h2 className="text-2xl font-bold text-white sm:text-3xl tracking-tight">{store.store_name}</h2>
+        <p className="text-xs uppercase tracking-[0.3em] text-white/70 mb-1">{theme.bannerGreeting}</p>
         {store.description && (
-          <p className="text-sm text-white/70 line-clamp-1 mt-1 max-w-md">{store.description}</p>
+          <p className="text-sm text-white/80 line-clamp-2 max-w-md">{store.description}</p>
         )}
       </div>
     </div>
@@ -53,10 +52,9 @@ const SplitBanner = ({ store, primaryColor, theme }: AppHeroBannerProps) => (
   >
     <div className={`flex overflow-hidden ${theme.bannerRounded} ${theme.cardShadow}`} style={{ backgroundColor: primaryColor }}>
       <div className="flex-1 p-5 sm:p-6 flex flex-col justify-center">
-        <p className="text-[10px] uppercase tracking-widest text-white/60 mb-1">{theme.bannerGreeting}</p>
-        <h2 className="text-lg font-bold text-white sm:text-xl">{store.store_name}</h2>
+        <p className="text-xs uppercase tracking-widest text-white/70 mb-1">{theme.bannerGreeting}</p>
         {store.description && (
-          <p className="text-xs text-white/70 line-clamp-2 mt-1">{store.description}</p>
+          <p className="text-xs text-white/80 line-clamp-2 mt-1">{store.description}</p>
         )}
       </div>
       {store.banner_url && (
@@ -69,29 +67,15 @@ const SplitBanner = ({ store, primaryColor, theme }: AppHeroBannerProps) => (
 );
 
 /* ── Minimal banner (Frutas) ── */
-const MinimalBanner = ({ store, primaryColor, theme }: AppHeroBannerProps) => (
+const MinimalBanner = ({ store, primaryColor }: AppHeroBannerProps) => (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     transition={{ duration: 0.4 }}
     className="container px-4 pt-4"
   >
-    <div className="flex items-center gap-3">
-      <div
-        className="h-1 flex-1 rounded-full"
-        style={{ background: `linear-gradient(90deg, ${primaryColor}, transparent)` }}
-      />
-      <div className="text-center">
-        <p className="text-[10px] text-muted-foreground">{theme.bannerGreeting}</p>
-        <h2 className="text-lg font-bold text-foreground">{store.store_name}</h2>
-      </div>
-      <div
-        className="h-1 flex-1 rounded-full"
-        style={{ background: `linear-gradient(270deg, ${primaryColor}, transparent)` }}
-      />
-    </div>
     {store.description && (
-      <p className="text-center text-xs text-muted-foreground mt-1">{store.description}</p>
+      <p className="text-center text-sm text-muted-foreground">{store.description}</p>
     )}
   </motion.div>
 );
@@ -122,7 +106,6 @@ const CompactBanner = ({ store, primaryColor, theme }: AppHeroBannerProps) => (
       )}
       <div className="relative z-10 space-y-1">
         <p className="text-xs font-medium text-white/80">{theme.bannerGreeting}</p>
-        <h2 className="text-lg font-bold text-white sm:text-xl">{store.store_name}</h2>
         {store.description && (
           <p className="text-xs text-white/80 line-clamp-2 max-w-sm">{store.description}</p>
         )}
@@ -157,7 +140,6 @@ const HeroBanner = ({ store, primaryColor, theme }: AppHeroBannerProps) => (
       )}
       <div className="relative z-10 space-y-1.5">
         <p className="text-sm font-medium text-white/80">{theme.bannerGreeting}</p>
-        <h2 className="text-xl font-bold text-white sm:text-2xl">{store.store_name}</h2>
         {store.description && (
           <p className="text-sm text-white/80 line-clamp-2 max-w-sm">{store.description}</p>
         )}
