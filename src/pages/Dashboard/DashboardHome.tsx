@@ -43,10 +43,7 @@ interface ProductRow {
   price: number;
 }
 
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: "$", EUR: "€", BOB: "Bs", ARS: "$", MXN: "$", CLP: "$",
-  COP: "$", PEN: "S/", UYU: "$U", BRL: "R$", PYG: "₲", GBP: "£",
-};
+// Using centralized currency from @/lib/currency
 
 const statusLabel: Record<string, string> = {
   pending: "Pendiente",
