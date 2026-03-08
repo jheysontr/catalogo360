@@ -578,6 +578,8 @@ const StoreSettings = () => {
                 primaryColor={primaryColor}
                 secondaryColor={secondaryColor}
                 description={description}
+                products={storeProducts}
+                currency={currency}
               />
               <p className="text-center text-[10px] text-muted-foreground">
                 Así se verá tu tienda con la plantilla <span className="font-semibold">{[...GENERAL_TEMPLATES, ...NICHE_TEMPLATES].find(t => t.value === storeTemplate)?.label || storeTemplate}</span>
