@@ -463,26 +463,59 @@ const StoreSettings = () => {
               <Layout className="h-5 w-5 text-primary" />
               <CardTitle className="text-base">Plantilla de Tienda</CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               <p className="text-xs text-muted-foreground">Elige el estilo visual de tu tienda pública</p>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { value: "classic", label: "Clásica", desc: "Banner + logo circular" },
-                  { value: "app", label: "App", desc: "Estilo app móvil moderno" },
-                ].map((t) => (
-                  <button
-                    key={t.value}
-                    onClick={() => setStoreTemplate(t.value)}
-                    className={`rounded-xl border-2 p-3 text-left transition-all ${
-                      storeTemplate === t.value
-                        ? "border-primary bg-primary/5 shadow-sm"
-                        : "border-border hover:border-primary/40"
-                    }`}
-                  >
-                    <p className="text-sm font-semibold text-foreground">{t.label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{t.desc}</p>
-                  </button>
-                ))}
+              
+              {/* General templates */}
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Generales</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: "classic", emoji: "🏪", label: "Clásica", desc: "Banner + logo circular" },
+                    { value: "app", emoji: "📱", label: "App", desc: "Estilo app móvil moderno" },
+                    { value: "elegante", emoji: "✨", label: "Elegante", desc: "Minimalista y sofisticado" },
+                    { value: "moderna", emoji: "🚀", label: "Moderna", desc: "Audaz y dinámica" },
+                  ].map((t) => (
+                    <button
+                      key={t.value}
+                      onClick={() => setStoreTemplate(t.value)}
+                      className={`rounded-xl border-2 p-3 text-left transition-all ${
+                        storeTemplate === t.value
+                          ? "border-primary bg-primary/5 shadow-sm"
+                          : "border-border hover:border-primary/40"
+                      }`}
+                    >
+                      <p className="text-sm font-semibold text-foreground">{t.emoji} {t.label}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{t.desc}</p>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Niche templates */}
+              <div>
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Por categoría</p>
+                <div className="grid grid-cols-2 gap-2">
+                  {[
+                    { value: "comida", emoji: "🍔", label: "Comida", desc: "Restaurantes y delivery" },
+                    { value: "frutas", emoji: "🍎", label: "Frutas y Orgánicos", desc: "Productos frescos y naturales" },
+                    { value: "moda", emoji: "👗", label: "Moda y Ropa", desc: "Estilo editorial fashion" },
+                    { value: "electronica", emoji: "🔌", label: "Electrónica", desc: "Tech y repuestos" },
+                  ].map((t) => (
+                    <button
+                      key={t.value}
+                      onClick={() => setStoreTemplate(t.value)}
+                      className={`rounded-xl border-2 p-3 text-left transition-all ${
+                        storeTemplate === t.value
+                          ? "border-primary bg-primary/5 shadow-sm"
+                          : "border-border hover:border-primary/40"
+                      }`}
+                    >
+                      <p className="text-sm font-semibold text-foreground">{t.emoji} {t.label}</p>
+                      <p className="text-[11px] text-muted-foreground mt-0.5">{t.desc}</p>
+                    </button>
+                  ))}
+                </div>
               </div>
             </CardContent>
           </Card>
