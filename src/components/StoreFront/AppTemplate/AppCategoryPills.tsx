@@ -1,13 +1,15 @@
 import type { Category } from "../types";
+import type { TemplateTheme } from "./templateThemes";
 
 interface AppCategoryPillsProps {
   categories: Category[];
   activeCategory: string;
   onCategoryChange: (v: string) => void;
   primaryColor: string;
+  theme: TemplateTheme;
 }
 
-const AppCategoryPills = ({ categories, activeCategory, onCategoryChange, primaryColor }: AppCategoryPillsProps) => {
+const AppCategoryPills = ({ categories, activeCategory, onCategoryChange, primaryColor, theme }: AppCategoryPillsProps) => {
   if (categories.length === 0) return null;
 
   return (
@@ -18,7 +20,7 @@ const AppCategoryPills = ({ categories, activeCategory, onCategoryChange, primar
       <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4">
         <button
           onClick={() => onCategoryChange("all")}
-          className={`whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+          className={`whitespace-nowrap ${theme.pillRounded} px-4 py-2 text-sm font-medium transition-all ${
             activeCategory === "all"
               ? "text-white shadow-md scale-[1.02]"
               : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
@@ -31,7 +33,7 @@ const AppCategoryPills = ({ categories, activeCategory, onCategoryChange, primar
           <button
             key={cat.id}
             onClick={() => onCategoryChange(cat.id)}
-            className={`whitespace-nowrap rounded-xl px-4 py-2 text-sm font-medium transition-all ${
+            className={`whitespace-nowrap ${theme.pillRounded} px-4 py-2 text-sm font-medium transition-all ${
               activeCategory === cat.id
                 ? "text-white shadow-md scale-[1.02]"
                 : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
