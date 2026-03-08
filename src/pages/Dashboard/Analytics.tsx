@@ -285,21 +285,21 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
       </div>
 
       {/* Charts row */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {/* Line chart */}
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Vistas y órdenes en el tiempo</CardTitle>
+          <CardHeader className="pb-2 px-3 sm:px-6">
+            <CardTitle className="text-sm sm:text-base font-semibold">Vistas y órdenes en el tiempo</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-72">
+          <CardContent className="px-2 sm:px-6">
+            <div className="h-52 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={lineData}>
+                <LineChart data={lineData} margin={{ left: -15, right: 5, top: 5, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="date" tickFormatter={(d) => fmtDate(d)} tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                  <YAxis tick={{ fontSize: 11 }} className="fill-muted-foreground" />
+                  <XAxis dataKey="date" tickFormatter={(d) => fmtDate(d)} tick={{ fontSize: 10 }} className="fill-muted-foreground" interval="preserveStartEnd" />
+                  <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" width={35} />
                   <Tooltip
-                    contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }}
+                    contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }}
                     labelFormatter={(d) => fmtDate(d as string)}
                   />
                   <Line type="monotone" dataKey="views" stroke="hsl(200, 65%, 50%)" strokeWidth={2} dot={false} name="Vistas" />
@@ -313,17 +313,17 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
 
         {/* Bar chart */}
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Productos más vendidos</CardTitle>
+          <CardHeader className="pb-2 px-3 sm:px-6">
+            <CardTitle className="text-sm sm:text-base font-semibold">Productos más vendidos</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-72">
+          <CardContent className="px-2 sm:px-6">
+            <div className="h-52 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topProducts} layout="vertical">
+                <BarChart data={topProducts} layout="vertical" margin={{ left: -10, right: 5, top: 5, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis type="number" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                  <YAxis dataKey="name" type="category" width={120} tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                  <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />
+                  <XAxis type="number" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                  <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }} />
                   <Bar dataKey="sold" fill="hsl(165, 60%, 40%)" radius={[0, 6, 6, 0]} name="Vendidos" />
                 </BarChart>
               </ResponsiveContainer>
