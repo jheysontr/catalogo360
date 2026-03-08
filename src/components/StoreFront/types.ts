@@ -7,7 +7,8 @@ export interface StoreData {
   banner_url: string | null;
   primary_color: string | null;
   secondary_color: string | null;
-  social_media: Record<string, string> | null;
+  email?: string | null;
+  address?: string | null;
   social_media: Record<string, string> | null;
   currency: string;
 }
