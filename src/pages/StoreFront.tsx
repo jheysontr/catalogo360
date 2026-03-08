@@ -310,7 +310,7 @@ const StoreFront = () => {
                   <motion.div
                     layout
                     className={viewMode === "grid"
-                      ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4"
+                      ? `grid ${theme.gridCols} ${theme.gridGap}`
                       : "flex flex-col gap-3"
                     }
                   >
@@ -342,6 +342,7 @@ const StoreFront = () => {
                             onToggleWishlist={toggleWishlist}
                             onOpenDetail={setSelectedProduct}
                             theme={theme}
+                            catName={getCategoryName(p.category_id)}
                           />
                         )
                       )}
