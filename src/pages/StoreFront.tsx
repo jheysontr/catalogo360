@@ -237,7 +237,7 @@ const StoreFront = () => {
         <div className="container flex h-14 items-center justify-between px-4">
           <div className="flex items-center gap-3 min-w-0">
             {store.logo_url ? (
-              <img src={store.logo_url} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" />
+              <img src={store.logo_url} alt="" className="h-8 w-8 shrink-0 rounded-full object-cover" loading="lazy" />
             ) : (
               <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full" style={{ backgroundColor: primaryColor }}>
                 <StoreIcon className="h-4 w-4 text-white" />
@@ -430,7 +430,7 @@ const StoreFront = () => {
                   return (
                     <div key={cartKey} className="flex gap-3 rounded-lg border p-3">
                       {item.product.image_url ? (
-                        <img src={item.product.image_url} alt={item.product.name} className="h-16 w-16 rounded-md object-cover" />
+                        <img src={item.product.image_url} alt={item.product.name} className="h-16 w-16 rounded-md object-cover" loading="lazy" />
                       ) : (
                         <div className="flex h-16 w-16 items-center justify-center rounded-md bg-muted">
                           <StoreIcon className="h-6 w-6 text-muted-foreground" />
@@ -516,6 +516,7 @@ const StoreFront = () => {
                         src={item.image_url}
                         alt={item.name}
                         className="h-16 w-16 cursor-pointer rounded-md object-cover"
+                        loading="lazy"
                         onClick={() => { setWishlistOpen(false); if (product) openProductDetail(product); }}
                       />
                     ) : (
