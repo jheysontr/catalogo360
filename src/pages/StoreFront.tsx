@@ -245,30 +245,82 @@ const StoreFront = () => {
             <p className="text-sm text-muted-foreground">Intenta con otra búsqueda o categoría</p>
           </div>
         ) : (
-          <LayoutGroup>
-            <motion.div
-              layout
-              className={viewMode === "grid" ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-3"}
-            >
-              <AnimatePresence mode="popLayout">
-                {filteredProducts.map((p, i) => (
-                  <StoreFrontProductCard
-                    key={p.id}
-                    product={p}
-                    viewMode={viewMode}
-                    catName={getCategoryName(p.category_id)}
-                    finalPrice={getFinalPrice(toCartProduct(p))}
-                    currencySymbol={currencySymbol}
-                    primaryColor={primaryColor}
-                    isWishlisted={isInWishlist(p.id)}
-                    onQuickAdd={handleQuickAdd}
-                    onToggleWishlist={toggleWishlist}
-                    onOpenDetail={setSelectedProduct}
-                  />
-                ))}
-              </AnimatePresence>
-            </motion.div>
-          </LayoutGroup>
+          <>
+            <LayoutGroup>
+              <motion.div
+                layout
+                className={viewMode === "grid" ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-3"}
+              >
+                <AnimatePresence mode="popLayout">
+                  {paginatedProducts.map((p) => (
+                    <StoreFrontProductCard
+                      key={p.id}
+                      product={p}
+                      viewMode={viewMode}
+                      catName={getCategoryName(p.category_id)}
+                      finalPrice={getFinalPrice(toCartProduct(p))}
+                      currencySymbol={currencySymbol}
+                      primaryColor={primaryColor}
+                      isWishlisted={isInWishlist(p.id)}
+                      onQuickAdd={handleQuickAdd}
+                      onToggleWishlist={toggleWishlist}
+                      onOpenDetail={setSelectedProduct}
+                    />
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            </LayoutGroup>
+
+            {/* ── PAGINATION ── */}
+            {totalPages > 1 && (
+              <div className="mt-8 flex items-center justify-center gap-1.5">
+                <button
+                  onClick={() => { setCurrentPage((p) => Math.max(1, p - 1)); window.scrollTo({ top: 400, behavior: "smooth" }); }}
+                  disabled={currentPage === 1}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-accent"
+                >
+                  ←
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((page) => {
+                    if (totalPages <= 7) return true;
+                    if (page === 1 || page === totalPages) return true;
+                    if (Math.abs(page - currentPage) <= 1) return true;
+                    return false;
+                  })
+                  .reduce<(number | "...")[]>((acc, page, idx, arr) => {
+                    if (idx > 0 && page - (arr[idx - 1] as number) > 1) acc.push("...");
+                    acc.push(page);
+                    return acc;
+                  }, [])
+                  .map((page, idx) =>
+                    page === "..." ? (
+                      <span key={`ellipsis-${idx}`} className="px-1 text-muted-foreground">…</span>
+                    ) : (
+                      <button
+                        key={page}
+                        onClick={() => { setCurrentPage(page as number); window.scrollTo({ top: 400, behavior: "smooth" }); }}
+                        className={`flex h-9 min-w-[2.25rem] items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                          currentPage === page
+                            ? "text-white shadow-sm"
+                            : "border hover:bg-accent"
+                        }`}
+                        style={currentPage === page ? { backgroundColor: primaryColor } : undefined}
+                      >
+                        {page}
+                      </button>
+                    )
+                  )}
+                <button
+                  onClick={() => { setCurrentPage((p) => Math.min(totalPages, p + 1)); window.scrollTo({ top: 400, behavior: "smooth" }); }}
+                  disabled={currentPage === totalPages}
+                  className="flex h-9 w-9 items-center justify-center rounded-lg border text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-accent"
+                >
+                  →
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
 
