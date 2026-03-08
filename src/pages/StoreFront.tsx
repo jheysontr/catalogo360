@@ -109,14 +109,14 @@ const StoreFront = () => {
     return items;
   }, [products, search, activeCategory, sortBy]);
 
-  const totalPages = Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE);
+  const totalPages = Math.ceil(filteredProducts.length / perPage);
   const paginatedProducts = useMemo(
-    () => filteredProducts.slice((currentPage - 1) * PRODUCTS_PER_PAGE, currentPage * PRODUCTS_PER_PAGE),
-    [filteredProducts, currentPage]
+    () => filteredProducts.slice((currentPage - 1) * perPage, currentPage * perPage),
+    [filteredProducts, currentPage, perPage]
   );
 
   // Reset page when filters change
-  useEffect(() => { setCurrentPage(1); }, [search, activeCategory, sortBy]);
+  useEffect(() => { setCurrentPage(1); }, [search, activeCategory, sortBy, perPage]);
 
   const getCategoryName = useCallback(
     (catId: string | null) => categories.find((c) => c.id === catId)?.name ?? null,
