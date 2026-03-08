@@ -63,7 +63,7 @@ const parseItems = (raw: Json): Array<{ name?: string; product_name?: string; qu
   Array.isArray(raw) ? raw as any : [];
 
 const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency = "BOB", onNavigate }: DashboardHomeProps) => {
-  const sym = CURRENCY_SYMBOLS[currency] || currency;
+  const sym = getCurrencySymbol(currency);
   const fmtCurrency = (n: number) => `${sym} ${n.toFixed(2)}`;
   const fmtShort = (n: number) => {
     if (n >= 1000) return `${sym} ${(n / 1000).toFixed(1)}k`;
