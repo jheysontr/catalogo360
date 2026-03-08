@@ -488,54 +488,77 @@ const StoreFront = () => {
               }
 
               return (
-                <Card key={p.id} className="group cursor-pointer overflow-hidden transition-shadow hover:shadow-lg" onClick={() => openProductDetail(p)}>
-                  <div className="relative aspect-square overflow-hidden bg-muted">
+                <div key={p.id} className="group cursor-pointer" onClick={() => openProductDetail(p)}>
+                  {/* Image container */}
+                  <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
                     {p.image_url ? (
-                      <img src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105" loading="lazy" />
+                      <img src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
                     ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <StoreIcon className="h-12 w-12 text-muted-foreground/30" />
+                      <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/60">
+                        <StoreIcon className="h-12 w-12 text-muted-foreground/20" />
                       </div>
                     )}
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+                    {/* Sale badge */}
                     {p.on_sale && p.discount_percent && (
-                      <Badge className="absolute left-1.5 top-1.5 text-[10px] sm:left-2 sm:top-2 sm:text-xs bg-destructive text-destructive-foreground hover:bg-destructive/90">-{p.discount_percent}%</Badge>
+                      <div className="absolute left-2 top-2 sm:left-2.5 sm:top-2.5">
+                        <span className="inline-flex items-center rounded-lg bg-destructive px-2 py-1 text-[10px] font-bold text-destructive-foreground shadow-sm sm:text-xs">
+                          -{p.discount_percent}%
+                        </span>
+                      </div>
                     )}
+                    {/* Low stock badge */}
+                    {p.stock < 5 && (
+                      <div className="absolute left-2 sm:left-2.5" style={{ top: p.on_sale && p.discount_percent ? '2.25rem' : '0.5rem' }}>
+                        <span className="inline-flex items-center rounded-lg bg-amber-500/90 px-2 py-0.5 text-[9px] font-bold text-white backdrop-blur-sm sm:text-[10px]">
+                          ¡Quedan {p.stock}!
+                        </span>
+                      </div>
+                    )}
+                    {/* Wishlist button */}
                     <button
                       onClick={(e) => toggleWishlist(p, e)}
-                      className="absolute right-1.5 top-1.5 sm:right-2 sm:top-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/80 backdrop-blur-sm shadow-sm transition-all hover:scale-110 hover:bg-white"
+                      className={`absolute right-2 top-2 sm:right-2.5 sm:top-2.5 flex h-9 w-9 items-center justify-center rounded-full shadow-md transition-all duration-200 hover:scale-110 ${
+                        isInWishlist(p.id)
+                          ? "bg-red-500 text-white"
+                          : "bg-white/90 backdrop-blur-sm text-muted-foreground hover:bg-white"
+                      }`}
                     >
-                      <Heart className={`h-4 w-4 transition-colors ${isInWishlist(p.id) ? "fill-red-500 text-red-500" : "text-muted-foreground"}`} />
+                      <Heart className={`h-4 w-4 transition-colors ${isInWishlist(p.id) ? "fill-white" : ""}`} />
                     </button>
-                    {/* Quick add button on hover */}
-                    <button
-                      onClick={(e) => handleQuickAdd(p, e)}
-                      className="absolute bottom-2 left-2 right-2 flex items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-medium text-white opacity-0 transition-all duration-200 group-hover:opacity-100 sm:text-sm"
-                      style={{ backgroundColor: primaryColor }}
-                    >
-                      <ShoppingCart className="h-3.5 w-3.5" />
-                      {hasAttrs ? "Ver opciones" : "Agregar"}
-                    </button>
+                    {/* Quick add button */}
+                    <div className="absolute bottom-0 left-0 right-0 translate-y-full p-2.5 transition-transform duration-300 group-hover:translate-y-0">
+                      <button
+                        onClick={(e) => handleQuickAdd(p, e)}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-semibold text-white shadow-lg backdrop-blur-sm transition-all hover:brightness-110 sm:text-sm"
+                        style={{ backgroundColor: primaryColor }}
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                        {hasAttrs ? "Ver opciones" : "Agregar al carrito"}
+                      </button>
+                    </div>
                   </div>
-                  <CardContent className="space-y-1 p-2.5 sm:space-y-1.5 sm:p-3">
-                    {catName && <p className="text-[10px] font-medium uppercase tracking-wider sm:text-xs" style={{ color: primaryColor }}>{catName}</p>}
-                    <h3 className="truncate text-sm font-semibold text-foreground">{p.name}</h3>
-                    <div className="flex items-baseline gap-1.5">
+                  {/* Info */}
+                  <div className="mt-2.5 space-y-1 px-0.5">
+                    {catName && (
+                      <p className="text-[10px] font-semibold uppercase tracking-widest sm:text-[11px]" style={{ color: primaryColor }}>
+                        {catName}
+                      </p>
+                    )}
+                    <h3 className="truncate text-sm font-semibold text-foreground sm:text-[15px]">{p.name}</h3>
+                    <div className="flex items-baseline gap-2">
                       {p.on_sale && p.discount_percent ? (
                         <>
                           <span className="text-base font-bold text-destructive sm:text-lg">{currencySymbol}{finalPrice.toFixed(2)}</span>
-                          <span className="text-[10px] text-muted-foreground line-through sm:text-xs">{currencySymbol}{p.price.toFixed(2)}</span>
+                          <span className="text-[11px] text-muted-foreground line-through sm:text-xs">{currencySymbol}{p.price.toFixed(2)}</span>
                         </>
                       ) : (
                         <span className="text-base font-bold sm:text-lg" style={{ color: primaryColor }}>{currencySymbol}{p.price.toFixed(2)}</span>
                       )}
                     </div>
-                    {p.stock < 5 && (
-                      <p className="text-[10px] font-medium text-destructive sm:text-xs">
-                        ¡Quedan {p.stock}!
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
+                  </div>
+                </div>
               );
             })}
           </div>
