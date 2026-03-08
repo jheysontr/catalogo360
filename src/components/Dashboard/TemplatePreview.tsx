@@ -199,9 +199,7 @@ const TemplatePreview = ({
       case "overlay":
         return (
           <div key={i} className={`relative overflow-hidden ${theme.cardRounded} ${theme.cardAspect} bg-muted`}>
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-              <StoreIcon className="h-3 w-3 text-muted-foreground/20" />
-            </div>
+            {renderImage(product.imageUrl)}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
             {product.sale && (
               <span className={`absolute left-1 top-1 ${theme.pillRounded} bg-destructive px-1 py-0.5 text-[5px] font-bold text-destructive-foreground`}>-15%</span>
