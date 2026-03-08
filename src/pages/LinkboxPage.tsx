@@ -102,7 +102,7 @@ const LinkboxPage = () => {
         return;
       }
 
-      const s = storeData[0] as StoreData;
+      const s = storeData[0] as unknown as StoreData;
       setStore(s);
 
       const { data: linksData } = await supabase
