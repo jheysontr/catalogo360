@@ -87,6 +87,7 @@ const Dashboard = () => {
   const [activeCouponCount, setActiveCouponCount] = useState(0);
   const [lastOrder, setLastOrder] = useState<{ customer_name: string; items: any } | null>(null);
   const [enabledModules, setEnabledModules] = useState<Record<string, boolean>>({});
+  const [maxProducts, setMaxProducts] = useState(10);
   const [qrOpen, setQrOpen] = useState(false);
 
   // Badge counts map for sidebar
