@@ -160,10 +160,10 @@ const Plans = () => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="font-display text-2xl font-bold text-foreground">Tu Plan Actual</h1>
+        <h1 className="font-display text-2xl font-bold text-foreground">Planes y Facturación</h1>
         {isTrial ? (
           <p className="mt-1 text-sm text-muted-foreground">
             Tienes la prueba gratuita de 7 días. Expira el{" "}
@@ -210,135 +210,150 @@ const Plans = () => {
         </CardContent>
       </Card>
 
-      {/* Billing toggle */}
-      <div className="flex items-center justify-center gap-3">
-        <Label htmlFor="billing-toggle" className="text-sm text-muted-foreground">
-          Mensual
-        </Label>
-        <Switch id="billing-toggle" checked={annual} onCheckedChange={setAnnual} />
-        <Label htmlFor="billing-toggle" className="text-sm text-muted-foreground">
-          Anual
-        </Label>
-        {annual && (
-          <Badge className="ml-1 bg-primary/10 text-primary border-primary/20">
-            40% descuento
-          </Badge>
-        )}
-      </div>
+      {/* Tabs */}
+      <Tabs defaultValue="planes" className="w-full">
+        <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto rounded-none gap-0 overflow-x-auto">
+          <TabsTrigger value="planes" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm">
+            <CreditCard className="h-4 w-4 mr-1.5" />
+            Planes
+          </TabsTrigger>
+          <TabsTrigger value="historial" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm">
+            <Clock className="h-4 w-4 mr-1.5" />
+            Historial de Pagos
+          </TabsTrigger>
+        </TabsList>
 
-      {/* Plan cards */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {plans.map((plan) => {
-          const isActive = currentPlan === plan.id;
-          const price = annual ? plan.annual : plan.monthly;
+        {/* Tab: Planes */}
+        <TabsContent value="planes" className="mt-6 space-y-6">
+          {/* Billing toggle */}
+          <div className="flex items-center justify-center gap-3">
+            <Label htmlFor="billing-toggle" className="text-sm text-muted-foreground">
+              Mensual
+            </Label>
+            <Switch id="billing-toggle" checked={annual} onCheckedChange={setAnnual} />
+            <Label htmlFor="billing-toggle" className="text-sm text-muted-foreground">
+              Anual
+            </Label>
+            {annual && (
+              <Badge className="ml-1 bg-primary/10 text-primary border-primary/20">
+                40% descuento
+              </Badge>
+            )}
+          </div>
 
-          return (
-            <Card
-              key={plan.id}
-              className={`relative transition-shadow hover:shadow-md ${
-                plan.recommended ? "border-primary shadow-sm" : ""
-              } ${isActive ? "ring-2 ring-primary" : ""}`}
-            >
-              {plan.recommended && (
-                <Badge className="absolute -top-2.5 right-4 gap-1 bg-primary text-primary-foreground">
-                  <Sparkles className="h-3 w-3" /> Recomendado
-                </Badge>
-              )}
+          {/* Plan cards */}
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {plans.map((plan) => {
+              const isActive = currentPlan === plan.id;
+              const price = annual ? plan.annual : plan.monthly;
 
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2 font-display text-xl">
-                  {plan.id === "pro" && <Crown className="h-5 w-5 text-primary" />}
-                  Plan {plan.name}
-                </CardTitle>
-                <div className="mt-2">
-                  <span className="text-3xl font-bold text-foreground">{fmtCurrency(price)}</span>
-                  <span className="text-sm text-muted-foreground">/mes</span>
-                  {annual && (
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Facturado {fmtCurrency(price * 12)}/año
-                    </p>
+              return (
+                <Card
+                  key={plan.id}
+                  className={`relative transition-shadow hover:shadow-md ${
+                    plan.recommended ? "border-primary shadow-sm" : ""
+                  } ${isActive ? "ring-2 ring-primary" : ""}`}
+                >
+                  {plan.recommended && (
+                    <Badge className="absolute -top-2.5 right-4 gap-1 bg-primary text-primary-foreground">
+                      <Sparkles className="h-3 w-3" /> Recomendado
+                    </Badge>
                   )}
-                </div>
-              </CardHeader>
 
-              <CardContent className="space-y-4">
-                <ul className="space-y-2.5">
-                  {plan.features.map((feat) => (
-                    <li key={feat} className="flex items-start gap-2 text-sm">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-                      <span>{feat}</span>
-                    </li>
-                  ))}
-                </ul>
+                  <CardHeader className="pb-4">
+                    <CardTitle className="flex items-center gap-2 font-display text-xl">
+                      {plan.id === "pro" && <Crown className="h-5 w-5 text-primary" />}
+                      Plan {plan.name}
+                    </CardTitle>
+                    <div className="mt-2">
+                      <span className="text-3xl font-bold text-foreground">{fmtCurrency(price)}</span>
+                      <span className="text-sm text-muted-foreground">/mes</span>
+                      {annual && (
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          Facturado {fmtCurrency(price * 12)}/año
+                        </p>
+                      )}
+                    </div>
+                  </CardHeader>
 
-                {isActive ? (
-                  <Button disabled className="w-full" variant="secondary">
-                    Plan actual
-                  </Button>
-                ) : (
-                  <Button className="w-full" onClick={() => setConfirmPlan(plan)}>
-                    {isTrial ? "Seleccionar" : "Cambiar a este plan"}
-                  </Button>
-                )}
+                  <CardContent className="space-y-4">
+                    <ul className="space-y-2.5">
+                      {plan.features.map((feat) => (
+                        <li key={feat} className="flex items-start gap-2 text-sm">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                          <span>{feat}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {isActive ? (
+                      <Button disabled className="w-full" variant="secondary">
+                        Plan actual
+                      </Button>
+                    ) : (
+                      <Button className="w-full" onClick={() => setConfirmPlan(plan)}>
+                        {isTrial ? "Seleccionar" : "Cambiar a este plan"}
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        {/* Tab: Historial */}
+        <TabsContent value="historial" className="mt-6">
+          {payments.length === 0 ? (
+            <Card>
+              <CardContent className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
+                <CreditCard className="h-10 w-10" />
+                <p className="text-sm">Aún no tienes pagos registrados</p>
               </CardContent>
             </Card>
-          );
-        })}
-      </div>
-
-      {/* Payment history */}
-      <div className="space-y-4">
-        <h2 className="font-display text-lg font-bold text-foreground">Historial de Pagos</h2>
-
-        {payments.length === 0 ? (
-          <Card>
-            <CardContent className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
-              <CreditCard className="h-10 w-10" />
-              <p className="text-sm">Aún no tienes pagos registrados</p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="rounded-lg border bg-card">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Plan</TableHead>
-                  <TableHead>Monto</TableHead>
-                  <TableHead>Estado</TableHead>
-                  <TableHead className="text-right">Acción</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {payments.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell className="text-sm">{fmtDate(p.date)}</TableCell>
-                    <TableCell className="font-medium">{p.plan}</TableCell>
-                    <TableCell>{fmtCurrency(p.amount)}</TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className={
-                          p.status === "paid"
-                            ? "bg-green-100 text-green-800 border-green-200"
-                            : "bg-yellow-100 text-yellow-800 border-yellow-200"
-                        }
-                      >
-                        {p.status === "paid" ? "Pagado" : "Pendiente"}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button size="sm" variant="ghost">
-                        <Download className="mr-1.5 h-3.5 w-3.5" /> Recibo
-                      </Button>
-                    </TableCell>
+          ) : (
+            <div className="rounded-lg border bg-card">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Fecha</TableHead>
+                    <TableHead>Plan</TableHead>
+                    <TableHead>Monto</TableHead>
+                    <TableHead>Estado</TableHead>
+                    <TableHead className="text-right">Acción</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </div>
+                </TableHeader>
+                <TableBody>
+                  {payments.map((p) => (
+                    <TableRow key={p.id}>
+                      <TableCell className="text-sm">{fmtDate(p.date)}</TableCell>
+                      <TableCell className="font-medium">{p.plan}</TableCell>
+                      <TableCell>{fmtCurrency(p.amount)}</TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className={
+                            p.status === "paid"
+                              ? "bg-green-100 text-green-800 border-green-200"
+                              : "bg-yellow-100 text-yellow-800 border-yellow-200"
+                          }
+                        >
+                          {p.status === "paid" ? "Pagado" : "Pendiente"}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button size="sm" variant="ghost">
+                          <Download className="mr-1.5 h-3.5 w-3.5" /> Recibo
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
 
       {/* Confirm plan change dialog */}
       <Dialog open={!!confirmPlan} onOpenChange={(o) => !o && setConfirmPlan(null)}>
