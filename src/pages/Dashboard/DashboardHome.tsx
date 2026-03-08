@@ -379,12 +379,12 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
                 <Star className="h-4 w-4 text-primary" /> Productos más vendidos
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="h-52">
+            <CardContent className="px-2 sm:px-6">
+              <div className="h-44 sm:h-52">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={topProducts} layout="vertical">
-                    <XAxis type="number" tick={{ fontSize: 11 }} className="fill-muted-foreground" />
-                    <YAxis dataKey="name" type="category" tick={{ fontSize: 11 }} className="fill-muted-foreground" width={100} />
+                  <BarChart data={topProducts} layout="vertical" margin={{ left: -10, right: 5, top: 5, bottom: 0 }}>
+                    <XAxis type="number" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                    <YAxis dataKey="name" type="category" tick={{ fontSize: 10 }} className="fill-muted-foreground" width={80} />
                     <Tooltip
                       contentStyle={{
                         borderRadius: 8,

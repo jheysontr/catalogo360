@@ -322,7 +322,7 @@ const Dashboard = () => {
           </Button>
         </header>
 
-        <main className="flex-1 p-6 lg:p-8">
+        <main className="flex-1 p-3 sm:p-6 lg:p-8">
           {activeSection === "products" ? (
             <Products />
           ) : activeSection === "categories" ? (
