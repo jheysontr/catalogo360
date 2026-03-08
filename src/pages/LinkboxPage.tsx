@@ -91,7 +91,7 @@ const LinkboxPage = () => {
     if (!slug) return;
     (async () => {
       const { data: storeData } = await supabase
-        .from("stores")
+        .from("stores_public" as any)
         .select("id, store_name, store_slug, description, logo_url, primary_color, secondary_color, linkbox_config")
         .eq("store_slug", slug)
         .limit(1);
