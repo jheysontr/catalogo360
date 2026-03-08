@@ -281,7 +281,7 @@ const StoreFront = () => {
             onInfoClick={() => setInfoOpen(true)}
           />
 
-          <AppHeroBanner store={store} primaryColor={primaryColor} />
+          <AppHeroBanner store={store} primaryColor={primaryColor} theme={theme} />
 
           <AppCategoryPills
             categories={categories}
