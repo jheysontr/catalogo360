@@ -21,6 +21,7 @@ import AppHeroBanner from "@/components/StoreFront/AppTemplate/AppHeroBanner";
 import AppCategoryPills from "@/components/StoreFront/AppTemplate/AppCategoryPills";
 import AppProductCard from "@/components/StoreFront/AppTemplate/AppProductCard";
 import AppSortBar from "@/components/StoreFront/AppTemplate/AppSortBar";
+import { getTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
 
 /* Lazy-load heavy dialogs/panels (not needed on initial render) */
 const CartPanel = lazy(() => import("@/components/StoreFront/CartPanel"));
