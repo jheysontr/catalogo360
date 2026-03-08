@@ -942,6 +942,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_active_store: { Args: { store_uuid: string }; Returns: boolean }
       validate_coupon: {
         Args: { p_code: string; p_store_id: string }
         Returns: Json
