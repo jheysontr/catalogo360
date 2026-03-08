@@ -136,14 +136,14 @@ const PaymentMethods = () => {
       </div>
 
       <Tabs defaultValue="cash" className="w-full">
-        <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto rounded-none gap-2 overflow-x-auto">
-          <TabsTrigger value="cash" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none gap-2 px-4 pb-3">
+        <TabsList className="dashboard-tabs-list">
+          <TabsTrigger value="cash" className="dashboard-tab-trigger gap-1.5">
             <Banknote className="h-4 w-4" /> Efectivo
           </TabsTrigger>
-          <TabsTrigger value="bank" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none gap-2 px-4 pb-3">
+          <TabsTrigger value="bank" className="dashboard-tab-trigger gap-1.5">
             <Building2 className="h-4 w-4" /> Transferencia
           </TabsTrigger>
-          <TabsTrigger value="qr" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none gap-2 px-4 pb-3">
+          <TabsTrigger value="qr" className="dashboard-tab-trigger gap-1.5">
             <QrCode className="h-4 w-4" /> Pago QR
           </TabsTrigger>
         </TabsList>

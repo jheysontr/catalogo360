@@ -208,9 +208,13 @@ const Shipments = () => {
       </div>
 
       <Tabs defaultValue="list" className="w-full">
-        <TabsList>
-          <TabsTrigger value="list">Envíos</TabsTrigger>
-          <TabsTrigger value="config">Configuración</TabsTrigger>
+        <TabsList className="dashboard-tabs-list">
+          <TabsTrigger value="list" className="dashboard-tab-trigger gap-1.5">
+            <Package className="h-4 w-4" /> Envíos
+          </TabsTrigger>
+          <TabsTrigger value="config" className="dashboard-tab-trigger gap-1.5">
+            <Truck className="h-4 w-4" /> Configuración
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="list" className="mt-4 space-y-6">

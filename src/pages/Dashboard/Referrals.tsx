@@ -313,14 +313,14 @@ const Referrals = () => {
       </div>
 
       <Tabs defaultValue="referrers" className="mt-6">
-        <TabsList>
-          <TabsTrigger value="referrers" className="gap-1.5">
+        <TabsList className="dashboard-tabs-list">
+          <TabsTrigger value="referrers" className="dashboard-tab-trigger gap-1.5">
             <Users className="h-3.5 w-3.5" /> Referidores
           </TabsTrigger>
-          <TabsTrigger value="commissions" className="gap-1.5">
+          <TabsTrigger value="commissions" className="dashboard-tab-trigger gap-1.5">
             <DollarSign className="h-3.5 w-3.5" /> Comisiones
           </TabsTrigger>
-          <TabsTrigger value="config" className="gap-1.5">
+          <TabsTrigger value="config" className="dashboard-tab-trigger gap-1.5">
             <Settings2 className="h-3.5 w-3.5" /> Configuración
           </TabsTrigger>
         </TabsList>

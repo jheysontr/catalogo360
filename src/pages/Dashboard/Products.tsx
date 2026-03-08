@@ -224,7 +224,7 @@ const Products = () => {
 
       {/* Status Tabs */}
       <Tabs value={filterStatus} onValueChange={setFilterStatus} className="w-full">
-        <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto rounded-none gap-0 overflow-x-auto">
+        <TabsList className="dashboard-tabs-list">
           {[
             { value: "all", label: "Todos" },
             { value: "active", label: "Activos" },
@@ -234,7 +234,7 @@ const Products = () => {
             <TabsTrigger
               key={tab.value}
               value={tab.value}
-              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm"
+              className="dashboard-tab-trigger"
             >
               {tab.label}
             </TabsTrigger>
