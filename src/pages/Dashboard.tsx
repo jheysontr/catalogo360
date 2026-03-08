@@ -118,64 +118,37 @@ const Dashboard = () => {
         const s = stores[0];
         setStore(s);
 
-        // Fetch plan enabled_modules
-        if (s.plan_id) {
-          const { data: planData } = await supabase
-            .from("pricing_plans")
-            .select("enabled_modules, max_products")
-            .eq("id", s.plan_id)
-            .single();
-          if (planData) {
-            if (planData.enabled_modules && typeof planData.enabled_modules === "object") {
-              setEnabledModules(planData.enabled_modules as Record<string, boolean>);
-            }
-            if (typeof planData.max_products === "number") {
-              setMaxProducts(planData.max_products);
-            }
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Parallel queries for all dashboard data
+        const [planRes, productCountRes, lowStockRes, pendingOrderRes, couponCountRes, todayOrdersRes] = await Promise.all([
+          s.plan_id
+            ? supabase.from("pricing_plans").select("enabled_modules, max_products").eq("id", s.plan_id).single()
+            : Promise.resolve({ data: null }),
+          supabase.from("products").select("id", { count: "exact", head: true }).eq("store_id", s.id),
+          supabase.from("products").select("id", { count: "exact", head: true }).eq("store_id", s.id).lte("stock", 5),
+          supabase.from("orders").select("id", { count: "exact", head: true }).eq("store_id", s.id).eq("status", "pending"),
+          supabase.from("coupons").select("id", { count: "exact", head: true }).eq("store_id", s.id).eq("is_active", true),
+          supabase.from("orders").select("customer_name, items", { count: "exact" }).eq("store_id", s.id).gte("created_at", today.toISOString()).order("created_at", { ascending: false }).limit(1),
+        ]);
+
+        if (planRes.data) {
+          const planData = planRes.data as any;
+          if (planData.enabled_modules && typeof planData.enabled_modules === "object") {
+            setEnabledModules(planData.enabled_modules as Record<string, boolean>);
+          }
+          if (typeof planData.max_products === "number") {
+            setMaxProducts(planData.max_products);
           }
         }
 
-        const { count: pCount } = await supabase
-          .from("products")
-          .select("id", { count: "exact", head: true })
-          .eq("store_id", s.id);
-        setProductCount(pCount ?? 0);
-
-        // Low stock products (stock <= 5)
-        const { count: lowStock } = await supabase
-          .from("products")
-          .select("id", { count: "exact", head: true })
-          .eq("store_id", s.id)
-          .lte("stock", 5);
-        setLowStockCount(lowStock ?? 0);
-
-        // Pending orders count
-        const { count: pendingCount } = await supabase
-          .from("orders")
-          .select("id", { count: "exact", head: true })
-          .eq("store_id", s.id)
-          .eq("status", "pending");
-        setPendingOrderCount(pendingCount ?? 0);
-
-        // Active coupons count
-        const { count: couponCount } = await supabase
-          .from("coupons")
-          .select("id", { count: "exact", head: true })
-          .eq("store_id", s.id)
-          .eq("is_active", true);
-        setActiveCouponCount(couponCount ?? 0);
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const { data: orders, count: oCount } = await supabase
-          .from("orders")
-          .select("customer_name, items", { count: "exact" })
-          .eq("store_id", s.id)
-          .gte("created_at", today.toISOString())
-          .order("created_at", { ascending: false })
-          .limit(1);
-        setOrderCount(oCount ?? 0);
-        if (orders && orders.length > 0) setLastOrder(orders[0]);
+        setProductCount(productCountRes.count ?? 0);
+        setLowStockCount(lowStockRes.count ?? 0);
+        setPendingOrderCount(pendingOrderRes.count ?? 0);
+        setActiveCouponCount(couponCountRes.count ?? 0);
+        setOrderCount(todayOrdersRes.count ?? 0);
+        if (todayOrdersRes.data && todayOrdersRes.data.length > 0) setLastOrder(todayOrdersRes.data[0]);
       }
     };
 
