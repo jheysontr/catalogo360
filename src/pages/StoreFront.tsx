@@ -104,6 +104,7 @@ const StoreFront = () => {
   const currencySymbol = getCurrencySymbol(store?.currency || "BOB");
   const storefrontConfig = (store as any)?.storefront_config as Record<string, any> | null;
   const template = storefrontConfig?.template || "classic";
+  const theme = getTheme(template);
 
   const filteredProducts = useMemo(() => {
     let items = [...products];
