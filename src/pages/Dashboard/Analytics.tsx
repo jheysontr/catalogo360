@@ -333,14 +333,14 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
       </div>
 
       {/* Pie + Recent orders */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         {/* Pie chart */}
         <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Órdenes por categoría</CardTitle>
+          <CardHeader className="pb-2 px-3 sm:px-6">
+            <CardTitle className="text-sm sm:text-base font-semibold">Órdenes por categoría</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="h-72">
+          <CardContent className="px-2 sm:px-6">
+            <div className="h-56 sm:h-72">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -349,16 +349,17 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
                     nameKey="name"
                     cx="50%"
                     cy="50%"
-                    outerRadius={100}
+                    outerRadius="70%"
                     label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                     labelLine={false}
+                    fontSize={11}
                   >
                     {categoryData.map((_, idx) => (
                       <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))" }} />
-                  <Legend />
+                  <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }} />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
                 </PieChart>
               </ResponsiveContainer>
             </div>

@@ -433,7 +433,83 @@ const Orders = () => {
         </div>
       ) : (
         <>
-          <div className="rounded-lg border bg-card">
+          {/* Mobile card view */}
+          <div className="space-y-3 sm:hidden">
+            {paginated.map((order) => {
+              const items = parseItems(order.items);
+              return (
+                <Card key={order.id} className="p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-foreground truncate">{order.customer_name}</p>
+                      <p className="text-[10px] font-mono text-muted-foreground">{shortId(order.id)}</p>
+                    </div>
+                    <Badge variant="outline" className={`shrink-0 text-[10px] ${statusColor(order.status)}`}>
+                      {statusLabel(order.status)}
+                    </Badge>
+                  </div>
+                  <div className="mt-2 flex items-center justify-between">
+                    <div>
+                      <p className="text-base font-bold text-foreground">{fmtCurrency(order.total_price)}</p>
+                      <p className="text-[10px] text-muted-foreground">{fmtDate(order.created_at)}</p>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0" onClick={async () => {
+                        setSelected(order);
+                        const { data: shipData } = await supabase
+                          .from("shipments")
+                          .select("shipping_method, tracking_number, cost, address, city, status, estimated_delivery_date")
+                          .eq("order_id", order.id)
+                          .limit(1);
+                        setSelectedShipment(shipData?.[0] as ShipmentData ?? null);
+                      }}>
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuSub>
+                            <DropdownMenuSubTrigger>
+                              <Clock className="mr-2 h-3.5 w-3.5" /> Cambiar estado
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent>
+                              {[
+                                { value: "pending", label: "Pendiente", icon: Clock },
+                                { value: "confirmed", label: "Confirmada", icon: ThumbsUp },
+                                { value: "completed", label: "Completada", icon: CheckCircle },
+                                { value: "cancelled", label: "Cancelada", icon: XCircle },
+                              ].filter((s) => s.value !== order.status).map((s) => (
+                                <DropdownMenuItem key={s.value} onClick={() => updateStatus(order.id, s.value)}>
+                                  <s.icon className="mr-2 h-3.5 w-3.5" /> {s.label}
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuSubContent>
+                          </DropdownMenuSub>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => openWhatsApp(order)}>
+                            <MessageCircle className="mr-2 h-3.5 w-3.5" /> WhatsApp
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => downloadDetails(order)}>
+                            <Download className="mr-2 h-3.5 w-3.5" /> Descargar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setReceiptOrder(order)}>
+                            <FileText className="mr-2 h-3.5 w-3.5" /> Generar recibo
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+
+          {/* Desktop table view */}
+          <div className="hidden sm:block rounded-lg border bg-card">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -442,7 +518,7 @@ const Orders = () => {
                   <TableHead className="hidden md:table-cell">Productos</TableHead>
                   <TableHead>Total</TableHead>
                   <TableHead>Estado</TableHead>
-                  <TableHead className="hidden sm:table-cell">Fecha</TableHead>
+                  <TableHead className="hidden lg:table-cell">Fecha</TableHead>
                   <TableHead className="text-right">Acción</TableHead>
                 </TableRow>
               </TableHeader>
@@ -464,7 +540,7 @@ const Orders = () => {
                           {statusLabel(order.status)}
                         </Badge>
                       </TableCell>
-                      <TableCell className="hidden text-xs text-muted-foreground sm:table-cell">
+                      <TableCell className="hidden text-xs text-muted-foreground lg:table-cell">
                         {fmtDate(order.created_at)}
                       </TableCell>
                       <TableCell className="text-right">
