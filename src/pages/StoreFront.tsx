@@ -268,64 +268,76 @@ const StoreFront = () => {
         onWishlistOpen={() => setWishlistOpen(true)}
       />
 
-      <CartPanel
-        open={cartOpen}
-        onOpenChange={setCartOpen}
-        items={cart}
-        itemCount={itemCount}
-        cartTotal={cartTotal}
-        primaryColor={primaryColor}
-        currencySymbol={currencySymbol}
-        onUpdateQuantity={updateQuantity}
-        onRemove={removeFromCart}
-        onCheckout={() => setCheckoutOpen(true)}
-      />
+      <Suspense fallback={null}>
+        {cartOpen && (
+          <CartPanel
+            open={cartOpen}
+            onOpenChange={setCartOpen}
+            items={cart}
+            itemCount={itemCount}
+            cartTotal={cartTotal}
+            primaryColor={primaryColor}
+            currencySymbol={currencySymbol}
+            onUpdateQuantity={updateQuantity}
+            onRemove={removeFromCart}
+            onCheckout={() => setCheckoutOpen(true)}
+          />
+        )}
 
-      <WishlistPanel
-        open={wishlistOpen}
-        onOpenChange={setWishlistOpen}
-        items={wishlistItems}
-        wishlistCount={wishlistCount}
-        primaryColor={primaryColor}
-        currencySymbol={currencySymbol}
-        products={products}
-        onOpenDetail={setSelectedProduct}
-        onRemove={removeFromWishlist}
-      />
+        {wishlistOpen && (
+          <WishlistPanel
+            open={wishlistOpen}
+            onOpenChange={setWishlistOpen}
+            items={wishlistItems}
+            wishlistCount={wishlistCount}
+            primaryColor={primaryColor}
+            currencySymbol={currencySymbol}
+            products={products}
+            onOpenDetail={setSelectedProduct}
+            onRemove={removeFromWishlist}
+          />
+        )}
 
-      <CartModal
-        open={checkoutOpen}
-        onOpenChange={setCheckoutOpen}
-        storeId={store.id}
-        storePhone={socialMedia?.whatsapp || ""}
-        storeName={store.store_name}
-        primaryColor={primaryColor}
-        currencySymbol={currencySymbol}
-        onOrderComplete={() => {
-          setCartOpen(false);
-          setActiveCategory("all");
-          setSearch("");
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        }}
-      />
+        {checkoutOpen && (
+          <CartModal
+            open={checkoutOpen}
+            onOpenChange={setCheckoutOpen}
+            storeId={store.id}
+            storePhone={socialMedia?.whatsapp || ""}
+            storeName={store.store_name}
+            primaryColor={primaryColor}
+            currencySymbol={currencySymbol}
+            onOrderComplete={() => {
+              setCartOpen(false);
+              setActiveCategory("all");
+              setSearch("");
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          />
+        )}
 
-      <ProductDetailDialog
-        product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-        currencySymbol={currencySymbol}
-        primaryColor={primaryColor}
-        isWishlisted={selectedProduct ? isInWishlist(selectedProduct.id) : false}
-        onToggleWishlist={(p) => toggleWishlist(p)}
-        onAddToCart={handleAddFromDetail}
-        getCategoryName={getCategoryName}
-      />
+        {selectedProduct && (
+          <ProductDetailDialog
+            product={selectedProduct}
+            onClose={() => setSelectedProduct(null)}
+            currencySymbol={currencySymbol}
+            primaryColor={primaryColor}
+            isWishlisted={isInWishlist(selectedProduct.id)}
+            onToggleWishlist={(p) => toggleWishlist(p)}
+            onAddToCart={handleAddFromDetail}
+            getCategoryName={getCategoryName}
+          />
+        )}
 
-      <StoreInfoDialog
-        open={infoOpen}
-        onOpenChange={setInfoOpen}
-        store={store}
-        socialMedia={socialMedia}
-      />
+        {infoOpen && (
+          <StoreInfoDialog
+            open={infoOpen}
+            onOpenChange={setInfoOpen}
+            store={store}
+            socialMedia={socialMedia}
+          />
+        )}
+      </Suspense>
 
       <StoreFooter
         store={store}
