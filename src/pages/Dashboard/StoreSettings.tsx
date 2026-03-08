@@ -119,6 +119,16 @@ const StoreSettings = () => {
         setCurrency((s as any).currency ?? "BOB");
         const sfConfig = (data[0] as any).storefront_config as Record<string, any> | null;
         setStoreTemplate(sfConfig?.template || "classic");
+
+        // Fetch products for preview
+        const { data: prods } = await supabase
+          .from("products")
+          .select("name, price, image_url, description, on_sale, discount_percent")
+          .eq("store_id", s.id)
+          .gt("stock", 0)
+          .order("created_at", { ascending: false })
+          .limit(6);
+        setStoreProducts(prods ?? []);
       }
       setLoading(false);
     };
