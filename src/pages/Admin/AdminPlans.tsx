@@ -33,7 +33,6 @@ interface PlanRow {
 
 const AVAILABLE_MODULES = [
   { key: "linkbox", label: "Linkbox" },
-  { key: "referrals", label: "Referencias" },
   { key: "coupons", label: "Cupones" },
   { key: "shipments", label: "Envíos" },
   { key: "analytics", label: "Estadísticas avanzadas" },
@@ -46,7 +45,7 @@ const emptyForm = {
   max_products: "",
   max_stores: "1",
   features: "",
-  enabled_modules: { referrals: false, linkbox: false, coupons: false, shipments: false, analytics: false } as Record<string, boolean>,
+  enabled_modules: { linkbox: false, coupons: false, shipments: false, analytics: false } as Record<string, boolean>,
 };
 
 const AdminPlans = () => {
