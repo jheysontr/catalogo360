@@ -226,7 +226,7 @@ const AdminStores = () => {
                           size="icon"
                           variant="ghost"
                           title="Ver tienda"
-                          onClick={() => window.open(`/store/${store.store_slug}`, "_blank")}
+                          onClick={() => window.open(`/${store.store_slug}`, "_blank")}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -309,13 +309,13 @@ const AdminStores = () => {
           <div className="flex flex-col items-center gap-4 py-4">
             <div id="qr-container" className="rounded-xl border bg-white p-4">
               <QRCodeSVG
-                value={`${window.location.origin}/store/${qrStore?.store_slug}`}
+                value={`${window.location.origin}/${qrStore?.store_slug}`}
                 size={200}
                 level="H"
               />
             </div>
             <p className="text-xs text-muted-foreground text-center break-all">
-              {window.location.origin}/store/{qrStore?.store_slug}
+              {window.location.origin}/{qrStore?.store_slug}
             </p>
           </div>
           <DialogFooter className="sm:justify-center">

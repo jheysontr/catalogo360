@@ -26,14 +26,17 @@ const queryClient = new QueryClient();
 
 const AppLayout = () => {
   const location = useLocation();
+  const knownRoutes = ["/dashboard", "/login", "/register", "/admin", "/install", "/linkbox/", "/affiliate/"];
   const isDashboard = location.pathname.startsWith("/dashboard");
-  const isStoreFront = location.pathname.startsWith("/store/");
   const isLinkbox = location.pathname.startsWith("/linkbox/");
   const isAdmin = location.pathname.startsWith("/admin");
   const isAffiliate = location.pathname.startsWith("/affiliate/");
+  const isKnownRoute = location.pathname === "/" || knownRoutes.some(r => location.pathname.startsWith(r));
+  const isStoreFront = !isKnownRoute;
+  const hideChrome = isDashboard || isStoreFront || isLinkbox || isAdmin || isAffiliate;
   return (
     <div className="flex min-h-screen flex-col">
-      {!isDashboard && !isStoreFront && !isLinkbox && !isAdmin && !isAffiliate && <Navbar />}
+      {!hideChrome && <Navbar />}
       <main className="flex-1">
         <Routes>
           <Route path="/" element={<Landing />} />
@@ -47,7 +50,6 @@ const AppLayout = () => {
               </PrivateRoute>
             }
           />
-          <Route path="/store/:slug" element={<StoreFront />} />
           <Route path="/linkbox/:slug" element={<LinkboxPage />} />
           <Route path="/affiliate/:code" element={<AffiliatePage />} />
           <Route path="/install" element={<Install />} />
@@ -59,10 +61,11 @@ const AppLayout = () => {
               </PrivateRoute>
             }
           />
+          <Route path="/:slug" element={<StoreFront />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {!isDashboard && !isStoreFront && !isLinkbox && !isAdmin && !isAffiliate && <Footer />}
+      {!hideChrome && <Footer />}
     </div>
   );
 };

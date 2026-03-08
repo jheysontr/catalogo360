@@ -11,7 +11,7 @@ interface QRDialogProps {
 }
 
 const QRDialog = ({ open, onOpenChange, storeName, storeSlug }: QRDialogProps) => {
-  const storeUrl = `${window.location.origin}/store/${storeSlug}`;
+  const storeUrl = `${window.location.origin}/${storeSlug}`;
 
   const handleDownload = () => {
     const svg = document.querySelector("#dashboard-qr-container svg") as SVGSVGElement;
