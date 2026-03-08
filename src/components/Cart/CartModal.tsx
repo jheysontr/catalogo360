@@ -64,12 +64,13 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
     if (!open || !storeId) return;
     (async () => {
       const { data } = await supabase
-        .from("stores")
+        .from("stores_public" as any)
         .select("shipping_config, payment_methods")
         .eq("id", storeId)
         .limit(1);
       if (data?.[0]) {
-        const sc = data[0].shipping_config as Record<string, any> | null;
+        const row = data[0] as any;
+        const sc = row.shipping_config as Record<string, any> | null;
         if (sc && Object.keys(sc).length > 0) {
           const config = sc as unknown as ShippingConfigData;
           setShippingConfig(config);
@@ -77,7 +78,7 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
           setShippingConfig(null);
         }
         // Load payment methods
-        const pm = (data[0] as any).payment_methods as Record<string, any> | null;
+        const pm = row.payment_methods as Record<string, any> | null;
         if (pm && typeof pm === "object" && Object.keys(pm).length > 0) {
           const pmConfig = pm as unknown as PaymentMethodsConfig;
           setPaymentConfig(pmConfig);
