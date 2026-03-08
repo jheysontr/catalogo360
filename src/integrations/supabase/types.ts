@@ -870,11 +870,9 @@ export type Database = {
           is_active: boolean | null
           linkbox_config: Json | null
           logo_url: string | null
-          payment_methods: Json | null
           plan_id: string | null
           primary_color: string | null
           secondary_color: string | null
-          shipping_config: Json | null
           social_media: Json | null
           store_name: string | null
           store_slug: string | null
@@ -890,11 +888,9 @@ export type Database = {
           is_active?: boolean | null
           linkbox_config?: Json | null
           logo_url?: string | null
-          payment_methods?: Json | null
           plan_id?: string | null
           primary_color?: string | null
           secondary_color?: string | null
-          shipping_config?: Json | null
           social_media?: Json | null
           store_name?: string | null
           store_slug?: string | null
@@ -910,11 +906,9 @@ export type Database = {
           is_active?: boolean | null
           linkbox_config?: Json | null
           logo_url?: string | null
-          payment_methods?: Json | null
           plan_id?: string | null
           primary_color?: string | null
           secondary_color?: string | null
-          shipping_config?: Json | null
           social_media?: Json | null
           store_name?: string | null
           store_slug?: string | null
@@ -935,6 +929,7 @@ export type Database = {
     Functions: {
       generate_tracking_number: { Args: never; Returns: string }
       generate_unique_slug: { Args: { base_name: string }; Returns: string }
+      get_store_checkout_config: { Args: { p_store_id: string }; Returns: Json }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

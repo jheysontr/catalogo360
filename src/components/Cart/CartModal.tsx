@@ -63,13 +63,9 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
   useEffect(() => {
     if (!open || !storeId) return;
     (async () => {
-      const { data } = await supabase
-        .from("stores_public" as any)
-        .select("shipping_config, payment_methods")
-        .eq("id", storeId)
-        .limit(1);
-      if (data?.[0]) {
-        const row = data[0] as any;
+      const { data } = await supabase.rpc("get_store_checkout_config", { p_store_id: storeId });
+      if (data) {
+        const row = data as any;
         const sc = row.shipping_config as Record<string, any> | null;
         if (sc && Object.keys(sc).length > 0) {
           const config = sc as unknown as ShippingConfigData;
