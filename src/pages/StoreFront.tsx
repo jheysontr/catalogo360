@@ -16,6 +16,11 @@ import StoreFrontProductCard from "@/components/StoreFront/StoreFrontProductCard
 import FloatingActions from "@/components/StoreFront/FloatingActions";
 import ProductSkeleton from "@/components/StoreFront/ProductSkeleton";
 import StoreFooter from "@/components/StoreFront/StoreFooter";
+import AppStoreHeader from "@/components/StoreFront/AppTemplate/AppStoreHeader";
+import AppHeroBanner from "@/components/StoreFront/AppTemplate/AppHeroBanner";
+import AppCategoryPills from "@/components/StoreFront/AppTemplate/AppCategoryPills";
+import AppProductCard from "@/components/StoreFront/AppTemplate/AppProductCard";
+import AppSortBar from "@/components/StoreFront/AppTemplate/AppSortBar";
 
 /* Lazy-load heavy dialogs/panels (not needed on initial render) */
 const CartPanel = lazy(() => import("@/components/StoreFront/CartPanel"));
@@ -96,6 +101,8 @@ const StoreFront = () => {
   const secondaryColor = store?.secondary_color || "#264653";
   const socialMedia = (store?.social_media ?? {}) as Record<string, string>;
   const currencySymbol = getCurrencySymbol(store?.currency || "BOB");
+  const storefrontConfig = (store as any)?.storefront_config as Record<string, any> | null;
+  const template = storefrontConfig?.template || "classic";
 
   const filteredProducts = useMemo(() => {
     let items = [...products];
@@ -200,131 +207,220 @@ const StoreFront = () => {
     );
   }
 
+  const isAppTemplate = template === "app";
+
+  /* ── Pagination component (shared) ── */
+  const renderPagination = () => {
+    if (totalPages <= 1) return null;
+    return (
+      <div className="mt-8 flex items-center justify-center gap-1.5">
+        <button
+          onClick={() => { setCurrentPage((p) => Math.max(1, p - 1)); window.scrollTo({ top: 300, behavior: "smooth" }); }}
+          disabled={currentPage === 1}
+          className="flex h-9 w-9 items-center justify-center rounded-lg border text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-accent"
+        >←</button>
+        {Array.from({ length: totalPages }, (_, i) => i + 1)
+          .filter((page) => {
+            if (totalPages <= 7) return true;
+            if (page === 1 || page === totalPages) return true;
+            return Math.abs(page - currentPage) <= 1;
+          })
+          .reduce<(number | "...")[]>((acc, page, idx, arr) => {
+            if (idx > 0 && page - (arr[idx - 1] as number) > 1) acc.push("...");
+            acc.push(page);
+            return acc;
+          }, [])
+          .map((page, idx) =>
+            page === "..." ? (
+              <span key={`ellipsis-${idx}`} className="px-1 text-muted-foreground">…</span>
+            ) : (
+              <button
+                key={page}
+                onClick={() => { setCurrentPage(page as number); window.scrollTo({ top: 300, behavior: "smooth" }); }}
+                className={`flex h-9 min-w-[2.25rem] items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+                  currentPage === page ? "text-white shadow-sm" : "border hover:bg-accent"
+                }`}
+                style={currentPage === page ? { backgroundColor: primaryColor } : undefined}
+              >{page}</button>
+            )
+          )}
+        <button
+          onClick={() => { setCurrentPage((p) => Math.min(totalPages, p + 1)); window.scrollTo({ top: 300, behavior: "smooth" }); }}
+          disabled={currentPage === totalPages}
+          className="flex h-9 w-9 items-center justify-center rounded-lg border text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-accent"
+        >→</button>
+      </div>
+    );
+  };
+
+  /* ── Empty state (shared) ── */
+  const renderEmpty = () => (
+    <div className="flex flex-col items-center gap-3 py-20 text-center">
+      <Search className="h-12 w-12 text-muted-foreground/30" />
+      <p className="text-lg font-medium text-foreground">No se encontraron productos</p>
+      <p className="text-sm text-muted-foreground">Intenta con otra búsqueda o categoría</p>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background">
-      <StickyTopBar
-        visible={showStickyBar}
-        storeName={store.store_name}
-        logoUrl={store.logo_url}
-        primaryColor={primaryColor}
-        itemCount={itemCount}
-        wishlistCount={wishlistCount}
-        onCartOpen={() => setCartOpen(true)}
-        onWishlistOpen={() => setWishlistOpen(true)}
-      />
+      {isAppTemplate ? (
+        <>
+          {/* ── APP TEMPLATE ── */}
+          <AppStoreHeader
+            store={store}
+            primaryColor={primaryColor}
+            search={search}
+            onSearchChange={setSearch}
+            itemCount={itemCount}
+            wishlistCount={wishlistCount}
+            onCartOpen={() => setCartOpen(true)}
+            onWishlistOpen={() => setWishlistOpen(true)}
+            onInfoClick={() => setInfoOpen(true)}
+          />
 
-      <StoreHeader
-        store={store}
-        primaryColor={primaryColor}
-        secondaryColor={secondaryColor}
-        onInfoClick={() => setInfoOpen(true)}
-        onShareClick={handleShare}
-      />
+          <AppHeroBanner store={store} primaryColor={primaryColor} />
 
-      <StoreFilters
-        search={search}
-        onSearchChange={setSearch}
-        sortBy={sortBy}
-        onSortChange={setSortBy}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        categories={categories}
-        activeCategory={activeCategory}
-        onCategoryChange={setActiveCategory}
-        primaryColor={primaryColor}
-        productCount={filteredProducts.length}
-        activeCategoryName={getCategoryName(activeCategory)}
-        perPage={perPage}
-        onPerPageChange={setPerPage}
-      />
+          <AppCategoryPills
+            categories={categories}
+            activeCategory={activeCategory}
+            onCategoryChange={setActiveCategory}
+            primaryColor={primaryColor}
+          />
 
-      {/* ── PRODUCTS GRID ── */}
-      <div className="container px-4 pb-8 pt-4">
-        {filteredProducts.length === 0 ? (
-          <div className="flex flex-col items-center gap-3 py-20 text-center">
-            <Search className="h-12 w-12 text-muted-foreground/30" />
-            <p className="text-lg font-medium text-foreground">No se encontraron productos</p>
-            <p className="text-sm text-muted-foreground">Intenta con otra búsqueda o categoría</p>
-          </div>
-        ) : (
-          <>
-            <LayoutGroup>
-              <motion.div
-                layout
-                className={viewMode === "grid" ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-3"}
-              >
-                <AnimatePresence mode="popLayout">
-                  {paginatedProducts.map((p) => (
-                    <StoreFrontProductCard
-                      key={p.id}
-                      product={p}
-                      viewMode={viewMode}
-                      catName={getCategoryName(p.category_id)}
-                      finalPrice={getFinalPrice(toCartProduct(p))}
-                      currencySymbol={currencySymbol}
-                      primaryColor={primaryColor}
-                      isWishlisted={isInWishlist(p.id)}
-                      onQuickAdd={handleQuickAdd}
-                      onToggleWishlist={toggleWishlist}
-                      onOpenDetail={setSelectedProduct}
-                    />
-                  ))}
-                </AnimatePresence>
-              </motion.div>
-            </LayoutGroup>
+          <AppSortBar
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            productCount={filteredProducts.length}
+            activeCategoryName={getCategoryName(activeCategory)}
+            activeCategory={activeCategory}
+            perPage={perPage}
+            onPerPageChange={setPerPage}
+          />
 
-            {/* ── PAGINATION ── */}
-            {totalPages > 1 && (
-              <div className="mt-8 flex items-center justify-center gap-1.5">
-                <button
-                  onClick={() => { setCurrentPage((p) => Math.max(1, p - 1)); window.scrollTo({ top: 400, behavior: "smooth" }); }}
-                  disabled={currentPage === 1}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-accent"
-                >
-                  ←
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1)
-                  .filter((page) => {
-                    if (totalPages <= 7) return true;
-                    if (page === 1 || page === totalPages) return true;
-                    if (Math.abs(page - currentPage) <= 1) return true;
-                    return false;
-                  })
-                  .reduce<(number | "...")[]>((acc, page, idx, arr) => {
-                    if (idx > 0 && page - (arr[idx - 1] as number) > 1) acc.push("...");
-                    acc.push(page);
-                    return acc;
-                  }, [])
-                  .map((page, idx) =>
-                    page === "..." ? (
-                      <span key={`ellipsis-${idx}`} className="px-1 text-muted-foreground">…</span>
-                    ) : (
-                      <button
-                        key={page}
-                        onClick={() => { setCurrentPage(page as number); window.scrollTo({ top: 400, behavior: "smooth" }); }}
-                        className={`flex h-9 min-w-[2.25rem] items-center justify-center rounded-lg text-sm font-medium transition-colors ${
-                          currentPage === page
-                            ? "text-white shadow-sm"
-                            : "border hover:bg-accent"
-                        }`}
-                        style={currentPage === page ? { backgroundColor: primaryColor } : undefined}
-                      >
-                        {page}
-                      </button>
-                    )
-                  )}
-                <button
-                  onClick={() => { setCurrentPage((p) => Math.min(totalPages, p + 1)); window.scrollTo({ top: 400, behavior: "smooth" }); }}
-                  disabled={currentPage === totalPages}
-                  className="flex h-9 w-9 items-center justify-center rounded-lg border text-sm font-medium transition-colors disabled:opacity-40 disabled:cursor-not-allowed hover:bg-accent"
-                >
-                  →
-                </button>
-              </div>
+          <div className="container px-4 pb-8 pt-4">
+            {filteredProducts.length === 0 ? renderEmpty() : (
+              <>
+                <LayoutGroup>
+                  <motion.div
+                    layout
+                    className={viewMode === "grid"
+                      ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4"
+                      : "flex flex-col gap-3"
+                    }
+                  >
+                    <AnimatePresence mode="popLayout">
+                      {paginatedProducts.map((p) =>
+                        viewMode === "list" ? (
+                          <StoreFrontProductCard
+                            key={p.id}
+                            product={p}
+                            viewMode="list"
+                            catName={getCategoryName(p.category_id)}
+                            finalPrice={getFinalPrice(toCartProduct(p))}
+                            currencySymbol={currencySymbol}
+                            primaryColor={primaryColor}
+                            isWishlisted={isInWishlist(p.id)}
+                            onQuickAdd={handleQuickAdd}
+                            onToggleWishlist={toggleWishlist}
+                            onOpenDetail={setSelectedProduct}
+                          />
+                        ) : (
+                          <AppProductCard
+                            key={p.id}
+                            product={p}
+                            finalPrice={getFinalPrice(toCartProduct(p))}
+                            currencySymbol={currencySymbol}
+                            primaryColor={primaryColor}
+                            isWishlisted={isInWishlist(p.id)}
+                            onQuickAdd={handleQuickAdd}
+                            onToggleWishlist={toggleWishlist}
+                            onOpenDetail={setSelectedProduct}
+                          />
+                        )
+                      )}
+                    </AnimatePresence>
+                  </motion.div>
+                </LayoutGroup>
+                {renderPagination()}
+              </>
             )}
-          </>
-        )}
-      </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* ── CLASSIC TEMPLATE ── */}
+          <StickyTopBar
+            visible={showStickyBar}
+            storeName={store.store_name}
+            logoUrl={store.logo_url}
+            primaryColor={primaryColor}
+            itemCount={itemCount}
+            wishlistCount={wishlistCount}
+            onCartOpen={() => setCartOpen(true)}
+            onWishlistOpen={() => setWishlistOpen(true)}
+          />
+
+          <StoreHeader
+            store={store}
+            primaryColor={primaryColor}
+            secondaryColor={secondaryColor}
+            onInfoClick={() => setInfoOpen(true)}
+            onShareClick={handleShare}
+          />
+
+          <StoreFilters
+            search={search}
+            onSearchChange={setSearch}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            categories={categories}
+            activeCategory={activeCategory}
+            onCategoryChange={setActiveCategory}
+            primaryColor={primaryColor}
+            productCount={filteredProducts.length}
+            activeCategoryName={getCategoryName(activeCategory)}
+            perPage={perPage}
+            onPerPageChange={setPerPage}
+          />
+
+          <div className="container px-4 pb-8 pt-4">
+            {filteredProducts.length === 0 ? renderEmpty() : (
+              <>
+                <LayoutGroup>
+                  <motion.div
+                    layout
+                    className={viewMode === "grid" ? "grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4" : "flex flex-col gap-3"}
+                  >
+                    <AnimatePresence mode="popLayout">
+                      {paginatedProducts.map((p) => (
+                        <StoreFrontProductCard
+                          key={p.id}
+                          product={p}
+                          viewMode={viewMode}
+                          catName={getCategoryName(p.category_id)}
+                          finalPrice={getFinalPrice(toCartProduct(p))}
+                          currencySymbol={currencySymbol}
+                          primaryColor={primaryColor}
+                          isWishlisted={isInWishlist(p.id)}
+                          onQuickAdd={handleQuickAdd}
+                          onToggleWishlist={toggleWishlist}
+                          onOpenDetail={setSelectedProduct}
+                        />
+                      ))}
+                    </AnimatePresence>
+                  </motion.div>
+                </LayoutGroup>
+                {renderPagination()}
+              </>
+            )}
+          </div>
+        </>
+      )}
 
       <FloatingActions
         primaryColor={primaryColor}

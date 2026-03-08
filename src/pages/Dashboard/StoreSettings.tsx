@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Upload, Store, Palette, Share2, DollarSign } from "lucide-react";
+import { Loader2, Upload, Store, Palette, Share2, DollarSign, Layout } from "lucide-react";
 import toast from "react-hot-toast";
 import { compressImage } from "@/lib/imageCompression";
 
@@ -63,6 +63,7 @@ const StoreSettings = () => {
   const [tiktok, setTiktok] = useState("");
   const [whatsapp, setWhatsapp] = useState("");
   const [currency, setCurrency] = useState("BOB");
+  const [storeTemplate, setStoreTemplate] = useState("classic");
 
   // Upload states
   const [uploadingLogo, setUploadingLogo] = useState(false);
@@ -97,6 +98,8 @@ const StoreSettings = () => {
         setWhatsapp(social.whatsapp ?? "");
         setPhone(social.phone ?? "");
         setCurrency((s as any).currency ?? "BOB");
+        const sfConfig = (data[0] as any).storefront_config as Record<string, any> | null;
+        setStoreTemplate(sfConfig?.template || "classic");
       }
       setLoading(false);
     };
@@ -167,6 +170,10 @@ const StoreSettings = () => {
       return;
     }
 
+    // Build storefront_config preserving existing fields
+    const existingConfig = (store as any).storefront_config as Record<string, any> || {};
+    const updatedStorefrontConfig = { ...existingConfig, template: storeTemplate };
+
     const { error } = await supabase
       .from("stores")
       .update({
@@ -180,6 +187,7 @@ const StoreSettings = () => {
         logo_url: logoUrl,
         banner_url: bannerUrl,
         currency,
+        storefront_config: updatedStorefrontConfig,
         social_media: {
           facebook: facebook.trim(),
           instagram: instagram.trim(),
@@ -215,6 +223,8 @@ const StoreSettings = () => {
     setWhatsapp(social.whatsapp ?? "");
     setPhone(social.phone ?? "");
     setCurrency((store as any).currency ?? "BOB");
+    const sfConfig = (store as any).storefront_config as Record<string, any> | null;
+    setStoreTemplate(sfConfig?.template || "classic");
     toast("Cambios descartados");
   };
 
@@ -443,6 +453,36 @@ const StoreSettings = () => {
                     <span className="text-sm font-semibold text-white">{storeName || "Tu Tienda"}</span>
                   </div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Template selector */}
+          <Card>
+            <CardHeader className="flex flex-row items-center gap-3 pb-2">
+              <Layout className="h-5 w-5 text-primary" />
+              <CardTitle className="text-base">Plantilla de Tienda</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-xs text-muted-foreground">Elige el estilo visual de tu tienda pública</p>
+              <div className="grid grid-cols-2 gap-3">
+                {[
+                  { value: "classic", label: "Clásica", desc: "Banner + logo circular" },
+                  { value: "app", label: "App", desc: "Estilo app móvil moderno" },
+                ].map((t) => (
+                  <button
+                    key={t.value}
+                    onClick={() => setStoreTemplate(t.value)}
+                    className={`rounded-xl border-2 p-3 text-left transition-all ${
+                      storeTemplate === t.value
+                        ? "border-primary bg-primary/5 shadow-sm"
+                        : "border-border hover:border-primary/40"
+                    }`}
+                  >
+                    <p className="text-sm font-semibold text-foreground">{t.label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{t.desc}</p>
+                  </button>
+                ))}
               </div>
             </CardContent>
           </Card>
