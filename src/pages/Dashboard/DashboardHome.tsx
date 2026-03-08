@@ -42,10 +42,9 @@ interface ProductRow {
   price: number;
 }
 
-const fmtCurrency = (n: number) => `Bs ${n.toFixed(2)}`;
-const fmtShort = (n: number) => {
-  if (n >= 1000) return `Bs ${(n / 1000).toFixed(1)}k`;
-  return `Bs ${n.toFixed(0)}`;
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  USD: "$", EUR: "€", BOB: "Bs", ARS: "$", MXN: "$", CLP: "$",
+  COP: "$", PEN: "S/", UYU: "$U", BRL: "R$", PYG: "₲", GBP: "£",
 };
 
 const statusLabel: Record<string, string> = {
