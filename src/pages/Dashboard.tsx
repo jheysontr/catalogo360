@@ -314,7 +314,13 @@ const Dashboard = () => {
               </Button>
             </>
           )}
-          <ThemeToggle />
+          {store && (
+            <NotificationPanel
+              storeId={store.id}
+              currency={store.currency}
+              onNavigateToOrders={() => setActiveSection("orders")}
+            />
+          )}
           <Button variant="ghost" size="icon" className="hidden sm:inline-flex" onClick={() => setActiveSection("settings")}>
             <Settings className="h-4 w-4" />
           </Button>
