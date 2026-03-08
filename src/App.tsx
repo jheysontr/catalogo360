@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import AffiliatePage from "./pages/AffiliatePage";
 import Install from "./pages/Install";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { useState, useEffect } from "react";
 
 const queryClient = new QueryClient();
@@ -75,21 +76,23 @@ const App = () => {
   }, []);
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <CartProvider>
-            <WishlistProvider>
-              <SplashScreen show={showSplash} />
-              <Toaster position="top-right" />
-              <BrowserRouter>
-                <AppLayout />
-              </BrowserRouter>
-            </WishlistProvider>
-          </CartProvider>
-        </TooltipProvider>
-      </QueryClientProvider>
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <CartProvider>
+              <WishlistProvider>
+                <SplashScreen show={showSplash} />
+                <Toaster position="top-right" />
+                <BrowserRouter>
+                  <AppLayout />
+                </BrowserRouter>
+              </WishlistProvider>
+            </CartProvider>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </ThemeProvider>
+    </ErrorBoundary>
   );
 };
 

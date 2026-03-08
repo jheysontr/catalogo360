@@ -17,6 +17,7 @@ import {
   BarChart, Bar, PieChart, Pie, Cell, Legend,
 } from "recharts";
 import type { Json } from "@/integrations/supabase/types";
+import { getCurrencySymbol } from "@/lib/currency";
 
 /* ─── Types ──────────────────────────────────────── */
 
@@ -50,8 +51,7 @@ const PIE_COLORS = [
   "hsl(280, 50%, 55%)", "hsl(0, 65%, 55%)", "hsl(120, 45%, 45%)",
 ];
 
-const fmtCurrency = (n: number) =>
-  `Bs${n.toFixed(2)}`;
+// fmtCurrency is now dynamic, set per-instance inside the component
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString("es", { day: "2-digit", month: "short" });
@@ -111,12 +111,21 @@ const MOCK_CATEGORIES = [
 
 /* ─── Component ──────────────────────────────────── */
 
-const Analytics = () => {
+interface AnalyticsProps {
+  currency?: string;
+}
+
+const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [period, setPeriod] = useState("30");
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [storeId, setStoreId] = useState<string | null>(null);
+
+  const fmtCurrency = (n: number) => {
+    const sym = getCurrencySymbol(currency);
+    return `${sym}${n.toFixed(2)}`;
+  };
 
   /* Fetch store + orders */
   useEffect(() => {

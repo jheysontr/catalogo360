@@ -14,6 +14,7 @@ import {
   BarChart, Bar,
 } from "recharts";
 import type { Json } from "@/integrations/supabase/types";
+import { getCurrencySymbol } from "@/lib/currency";
 
 interface DashboardHomeProps {
   storeId: string;
@@ -42,10 +43,7 @@ interface ProductRow {
   price: number;
 }
 
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: "$", EUR: "€", BOB: "Bs", ARS: "$", MXN: "$", CLP: "$",
-  COP: "$", PEN: "S/", UYU: "$U", BRL: "R$", PYG: "₲", GBP: "£",
-};
+// Using centralized currency from @/lib/currency
 
 const statusLabel: Record<string, string> = {
   pending: "Pendiente",
@@ -65,7 +63,7 @@ const parseItems = (raw: Json): Array<{ name?: string; product_name?: string; qu
   Array.isArray(raw) ? raw as any : [];
 
 const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency = "BOB", onNavigate }: DashboardHomeProps) => {
-  const sym = CURRENCY_SYMBOLS[currency] || currency;
+  const sym = getCurrencySymbol(currency);
   const fmtCurrency = (n: number) => `${sym} ${n.toFixed(2)}`;
   const fmtShort = (n: number) => {
     if (n >= 1000) return `${sym} ${(n / 1000).toFixed(1)}k`;

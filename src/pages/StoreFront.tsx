@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCart, getFinalPrice } from "@/lib/CartContext";
+import { getCurrencySymbol } from "@/lib/currency";
 import CartModal from "@/components/Cart/CartModal";
 import { useWishlist } from "@/lib/WishlistContext";
 
@@ -40,10 +41,7 @@ interface StoreData {
   currency: string;
 }
 
-const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: "$", EUR: "€", BOB: "Bs", ARS: "$", MXN: "$", CLP: "$",
-  COP: "$", PEN: "S/", UYU: "$U", BRL: "R$", PYG: "₲", GBP: "£",
-};
+// Using centralized currency from @/lib/currency
 
 interface ProductAttribute {
   name: string;
@@ -144,7 +142,7 @@ const StoreFront = () => {
   const primaryColor = store?.primary_color || "#2a9d8f";
   const secondaryColor = store?.secondary_color || "#264653";
   const socialMedia = (store?.social_media ?? {}) as Record<string, string>;
-  const currencySymbol = CURRENCY_SYMBOLS[store?.currency || "BOB"] || store?.currency || "$";
+  const currencySymbol = getCurrencySymbol(store?.currency || "BOB");
 
   const filteredProducts = useMemo(() => {
     let items = [...products];
