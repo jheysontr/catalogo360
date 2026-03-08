@@ -288,6 +288,7 @@ const StoreFront = () => {
             activeCategory={activeCategory}
             onCategoryChange={setActiveCategory}
             primaryColor={primaryColor}
+            theme={theme}
           />
 
           <AppSortBar
