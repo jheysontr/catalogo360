@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Loader2, Upload, Banknote, Building2, QrCode, X, ImagePlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { compressImage } from "@/lib/imageCompression";
