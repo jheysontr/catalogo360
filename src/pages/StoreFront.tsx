@@ -100,7 +100,8 @@ const StoreFront = () => {
   const primaryColor = store?.primary_color || "#2a9d8f";
   const secondaryColor = store?.secondary_color || "#264653";
   const socialMedia = (store?.social_media ?? {}) as Record<string, string>;
-  const currencySymbol = getCurrencySymbol(store?.currency || "BOB");
+  const storefrontConfig = (store as any)?.storefront_config as Record<string, any> | null;
+  const template = storefrontConfig?.template || "classic";
 
   const filteredProducts = useMemo(() => {
     let items = [...products];
