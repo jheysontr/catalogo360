@@ -19,6 +19,7 @@ import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import AffiliatePage from "./pages/AffiliatePage";
 import Install from "./pages/Install";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { useState, useEffect } from "react";
 
 const queryClient = new QueryClient();
