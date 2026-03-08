@@ -204,7 +204,12 @@ const StoreSettings = () => {
     }
 
     const existingConfig = (store as any).storefront_config as Record<string, any> || {};
-    const updatedStorefrontConfig = { ...existingConfig, template: storeTemplate };
+    const updatedStorefrontConfig = {
+      ...existingConfig,
+      template: storeTemplate,
+      banner_greeting: bannerGreeting.trim() || null,
+      banner_description: bannerDescription.trim() || null,
+    };
 
     const { error } = await supabase
       .from("stores")
