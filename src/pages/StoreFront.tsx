@@ -209,7 +209,7 @@ const StoreFront = () => {
     );
   }
 
-  const isAppTemplate = template === "app";
+  const isAppTemplate = template !== "classic";
 
   /* ── Pagination component (shared) ── */
   const renderPagination = () => {
