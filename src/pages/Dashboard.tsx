@@ -347,6 +347,7 @@ const Dashboard = () => {
               storeName={store.store_name}
               storeSlug={store.store_slug}
               productCount={productCount}
+              currency={store.currency}
               onNavigate={(section) => setActiveSection(section)}
             />
           ) : (
