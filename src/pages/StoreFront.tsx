@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, lazy, Suspense } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Search, Store as StoreIcon } from "lucide-react";
@@ -7,18 +7,21 @@ import { useToast } from "@/hooks/use-toast";
 import { useCart, getFinalPrice } from "@/lib/CartContext";
 import { getCurrencySymbol } from "@/lib/currency";
 import { useWishlist } from "@/lib/WishlistContext";
-import CartModal from "@/components/Cart/CartModal";
 import type { StoreData, Product, ProductAttribute, Category } from "@/components/StoreFront/types";
 import StickyTopBar from "@/components/StoreFront/StickyTopBar";
 import StoreHeader from "@/components/StoreFront/StoreHeader";
 import StoreFilters from "@/components/StoreFront/StoreFilters";
 import StoreFrontProductCard from "@/components/StoreFront/StoreFrontProductCard";
 import FloatingActions from "@/components/StoreFront/FloatingActions";
-import CartPanel from "@/components/StoreFront/CartPanel";
-import WishlistPanel from "@/components/StoreFront/WishlistPanel";
-import ProductDetailDialog from "@/components/StoreFront/ProductDetailDialog";
-import StoreInfoDialog from "@/components/StoreFront/StoreInfoDialog";
+import ProductSkeleton from "@/components/StoreFront/ProductSkeleton";
 import StoreFooter from "@/components/StoreFront/StoreFooter";
+
+/* Lazy-load heavy dialogs/panels (not needed on initial render) */
+const CartPanel = lazy(() => import("@/components/StoreFront/CartPanel"));
+const WishlistPanel = lazy(() => import("@/components/StoreFront/WishlistPanel"));
+const ProductDetailDialog = lazy(() => import("@/components/StoreFront/ProductDetailDialog"));
+const StoreInfoDialog = lazy(() => import("@/components/StoreFront/StoreInfoDialog"));
+const CartModal = lazy(() => import("@/components/Cart/CartModal"));
 
 const StoreFront = () => {
   const { slug } = useParams<{ slug: string }>();
