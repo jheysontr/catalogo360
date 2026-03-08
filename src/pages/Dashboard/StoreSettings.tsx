@@ -121,6 +121,8 @@ const StoreSettings = () => {
         setCurrency((s as any).currency ?? "BOB");
         const sfConfig = (data[0] as any).storefront_config as Record<string, any> | null;
         setStoreTemplate(sfConfig?.template || "classic");
+        setBannerGreeting(sfConfig?.banner_greeting || "");
+        setBannerDescription(sfConfig?.banner_description || "");
 
         // Fetch products for preview
         const { data: prods } = await supabase
