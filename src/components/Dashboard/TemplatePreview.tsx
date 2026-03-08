@@ -269,10 +269,10 @@ const TemplatePreview = ({
       : "grid-cols-2";
 
   const visibleProducts = theme.cardLayout === "horizontal-mini"
-    ? MOCK_PRODUCTS.slice(0, 4)
+    ? previewProducts.slice(0, 4)
     : previewGridCols === "grid-cols-3"
-      ? MOCK_PRODUCTS.slice(0, 6)
-      : MOCK_PRODUCTS.slice(0, 4);
+      ? previewProducts.slice(0, 6)
+      : previewProducts.slice(0, 4);
 
   return (
     <div className="relative mx-auto w-full max-w-[280px] overflow-hidden rounded-[2rem] border-[6px] border-foreground/10 bg-background shadow-2xl">
