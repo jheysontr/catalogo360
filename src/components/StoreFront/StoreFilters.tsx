@@ -18,12 +18,15 @@ interface StoreFiltersProps {
   primaryColor: string;
   productCount: number;
   activeCategoryName: string | null;
+  perPage: number;
+  onPerPageChange: (v: number) => void;
 }
 
 const StoreFilters = ({
   search, onSearchChange, sortBy, onSortChange,
   viewMode, onViewModeChange, categories, activeCategory,
   onCategoryChange, primaryColor, productCount, activeCategoryName,
+  perPage, onPerPageChange,
 }: StoreFiltersProps) => (
   <div className="container mt-6 space-y-3 px-4">
     <div className="flex items-center gap-2">
