@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card } from "@/components/ui/card";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -336,6 +337,13 @@ const Orders = () => {
     URL.revokeObjectURL(url);
   };
 
+  /* ── Status counts ── */
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: orders.length, pending: 0, confirmed: 0, completed: 0, cancelled: 0 };
+    orders.forEach((o) => { if (counts[o.status] !== undefined) counts[o.status]++; });
+    return counts;
+  }, [orders]);
+
   /* ── Render ── */
   return (
     <div className="space-y-6">
@@ -362,6 +370,30 @@ const Orders = () => {
         </div>
       </div>
 
+      {/* Status Tabs */}
+      <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
+        <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto rounded-none gap-0 overflow-x-auto">
+          {STATUS_OPTIONS.map((o) => (
+            <TabsTrigger
+              key={o.value}
+              value={o.value}
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm gap-1.5"
+            >
+              {o.label}
+              {statusCounts[o.value] > 0 && (
+                <span className={`ml-1 min-w-[18px] rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
+                  o.value === "pending" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400"
+                  : o.value === "cancelled" ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400"
+                  : "bg-muted text-muted-foreground"
+                }`}>
+                  {statusCounts[o.value]}
+                </span>
+              )}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+
       {/* Filters */}
       <Card className="space-y-3 p-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -374,16 +406,6 @@ const Orders = () => {
               className="pl-9"
             />
           </div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {STATUS_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
           <Select value={sortBy} onValueChange={setSortBy}>
             <SelectTrigger className="w-44">
               <SelectValue />
@@ -412,8 +434,8 @@ const Orders = () => {
             onChange={(e) => setMaxAmount(e.target.value)}
             className="w-28"
           />
-          {(minAmount || maxAmount || search || statusFilter !== "all") && (
-            <Button variant="ghost" size="sm" onClick={() => { setSearch(""); setStatusFilter("all"); setMinAmount(""); setMaxAmount(""); }}>
+          {(minAmount || maxAmount || search) && (
+            <Button variant="ghost" size="sm" onClick={() => { setSearch(""); setMinAmount(""); setMaxAmount(""); }}>
               <Filter className="h-3.5 w-3.5 mr-1" /> Limpiar
             </Button>
           )}

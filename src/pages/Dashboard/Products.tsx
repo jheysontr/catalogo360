@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Plus, Search, Package, Loader2, LayoutGrid, List, FileDown, AlertTriangle,
 } from "lucide-react";
@@ -221,6 +222,26 @@ const Products = () => {
         </div>
       )}
 
+      {/* Status Tabs */}
+      <Tabs value={filterStatus} onValueChange={setFilterStatus} className="w-full">
+        <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto rounded-none gap-0 overflow-x-auto">
+          {[
+            { value: "all", label: "Todos" },
+            { value: "active", label: "Activos" },
+            { value: "on_sale", label: "En oferta" },
+            { value: "inactive", label: "Agotados" },
+          ].map((tab) => (
+            <TabsTrigger
+              key={tab.value}
+              value={tab.value}
+              className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm"
+            >
+              {tab.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+      </Tabs>
+
       {/* Toolbar */}
       <Card className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:flex-wrap">
         <div className="relative flex-1 min-w-[200px]">
@@ -232,15 +253,6 @@ const Products = () => {
           <SelectContent>
             <SelectItem value="all">Todas las categorías</SelectItem>
             {categories.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
-          </SelectContent>
-        </Select>
-        <Select value={filterStatus} onValueChange={setFilterStatus}>
-          <SelectTrigger className="w-full sm:w-40"><SelectValue placeholder="Estado" /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">Todos</SelectItem>
-            <SelectItem value="active">Activos</SelectItem>
-            <SelectItem value="inactive">Inactivos</SelectItem>
-            <SelectItem value="on_sale">En oferta</SelectItem>
           </SelectContent>
         </Select>
         <div className="flex rounded-lg border bg-muted p-0.5">

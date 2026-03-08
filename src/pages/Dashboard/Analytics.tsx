@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -38,8 +39,6 @@ interface OrderItem {
   category?: string;
 }
 
-/* ─── Helpers ────────────────────────────────────── */
-
 const PERIOD_OPTIONS = [
   { value: "7", label: "Últimos 7 días" },
   { value: "30", label: "Últimos 30 días" },
@@ -50,8 +49,6 @@ const PIE_COLORS = [
   "hsl(165, 60%, 40%)", "hsl(200, 65%, 50%)", "hsl(35, 80%, 55%)",
   "hsl(280, 50%, 55%)", "hsl(0, 65%, 55%)", "hsl(120, 45%, 45%)",
 ];
-
-// fmtCurrency is now dynamic, set per-instance inside the component
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString("es", { day: "2-digit", month: "short" });
@@ -76,8 +73,6 @@ const statusColor = (s: string) => {
   };
   return map[s] ?? "";
 };
-
-/* ─── Mock data generator (when no real orders) ── */
 
 const generateMockData = () => {
   const now = new Date();
@@ -109,8 +104,6 @@ const MOCK_CATEGORIES = [
   { name: "Electrónica", value: 12 },
 ];
 
-/* ─── Component ──────────────────────────────────── */
-
 interface AnalyticsProps {
   currency?: string;
 }
@@ -127,7 +120,6 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
     return `${sym}${n.toFixed(2)}`;
   };
 
-  /* Fetch store + orders */
   useEffect(() => {
     if (!user) return;
     const load = async () => {
@@ -154,17 +146,12 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
     load();
   }, [user, period]);
 
-  /* Computed analytics */
   const hasRealData = orders.length > 0;
-
   const completedOrders = orders.filter((o) => o.status === "completed");
   const totalRevenue = completedOrders.reduce((s, o) => s + o.total_price, 0);
   const totalItems = orders.reduce((s, o) => parseItems(o.items).reduce((a, i) => a + itemQty(i), 0) + s, 0);
-
-  // Simulated views (2-5x orders in real scenario)
   const storeViews = hasRealData ? orders.length * 4 + Math.floor(Math.random() * 20) : 347;
 
-  // % change mock
   const pctChange = (base: number) => {
     const v = ((Math.random() - 0.3) * 30).toFixed(1);
     return parseFloat(v);
@@ -177,7 +164,6 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
     { label: "Ingresos totales", value: totalRevenue, fmt: fmtCurrency(totalRevenue), icon: DollarSign, change: pctChange(totalRevenue) },
   ], [orders]);
 
-  /* Chart data */
   const lineData = useMemo(() => {
     if (!hasRealData) return generateMockData();
     const map = new Map<string, { views: number; orders: number }>();
@@ -232,7 +218,7 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -284,132 +270,149 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
         })}
       </div>
 
-      {/* Charts row */}
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-        {/* Line chart */}
-        <Card>
-          <CardHeader className="pb-2 px-3 sm:px-6">
-            <CardTitle className="text-sm sm:text-base font-semibold">Vistas y órdenes en el tiempo</CardTitle>
-          </CardHeader>
-          <CardContent className="px-2 sm:px-6">
-            <div className="h-52 sm:h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={lineData} margin={{ left: -15, right: 5, top: 5, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis dataKey="date" tickFormatter={(d) => fmtDate(d)} tick={{ fontSize: 10 }} className="fill-muted-foreground" interval="preserveStartEnd" />
-                  <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" width={35} />
-                  <Tooltip
-                    contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }}
-                    labelFormatter={(d) => fmtDate(d as string)}
-                  />
-                  <Line type="monotone" dataKey="views" stroke="hsl(200, 65%, 50%)" strokeWidth={2} dot={false} name="Vistas" />
-                  <Line type="monotone" dataKey="orders" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={false} name="Órdenes" />
-                  <Legend />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Tabs */}
+      <Tabs defaultValue="resumen" className="w-full">
+        <TabsList className="w-full justify-start border-b bg-transparent p-0 h-auto rounded-none gap-0 overflow-x-auto">
+          <TabsTrigger value="resumen" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm">
+            <Eye className="h-4 w-4 mr-1.5" />
+            Resumen
+          </TabsTrigger>
+          <TabsTrigger value="productos" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm">
+            <Package className="h-4 w-4 mr-1.5" />
+            Productos
+          </TabsTrigger>
+          <TabsTrigger value="ordenes" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 pb-3 pt-2 text-sm">
+            <ShoppingCart className="h-4 w-4 mr-1.5" />
+            Órdenes
+          </TabsTrigger>
+        </TabsList>
 
-        {/* Bar chart */}
-        <Card>
-          <CardHeader className="pb-2 px-3 sm:px-6">
-            <CardTitle className="text-sm sm:text-base font-semibold">Productos más vendidos</CardTitle>
-          </CardHeader>
-          <CardContent className="px-2 sm:px-6">
-            <div className="h-52 sm:h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={topProducts} layout="vertical" margin={{ left: -10, right: 5, top: 5, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
-                  <XAxis type="number" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                  <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
-                  <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }} />
-                  <Bar dataKey="sold" fill="hsl(165, 60%, 40%)" radius={[0, 6, 6, 0]} name="Vendidos" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Pie + Recent orders */}
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
-        {/* Pie chart */}
-        <Card>
-          <CardHeader className="pb-2 px-3 sm:px-6">
-            <CardTitle className="text-sm sm:text-base font-semibold">Órdenes por categoría</CardTitle>
-          </CardHeader>
-          <CardContent className="px-2 sm:px-6">
-            <div className="h-56 sm:h-72">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={categoryData}
-                    dataKey="value"
-                    nameKey="name"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius="70%"
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    labelLine={false}
-                    fontSize={11}
-                  >
-                    {categoryData.map((_, idx) => (
-                      <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }} />
-                  <Legend wrapperStyle={{ fontSize: 11 }} />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Recent orders table */}
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-base font-semibold">Últimas órdenes</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {orders.length === 0 ? (
-              <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
-                <ShoppingCart className="h-10 w-10" />
-                <p className="text-sm">Sin órdenes en este período</p>
+        {/* Tab: Resumen */}
+        <TabsContent value="resumen" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader className="pb-2 px-3 sm:px-6">
+              <CardTitle className="text-sm sm:text-base font-semibold">Vistas y órdenes en el tiempo</CardTitle>
+            </CardHeader>
+            <CardContent className="px-2 sm:px-6">
+              <div className="h-52 sm:h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={lineData} margin={{ left: -15, right: 5, top: 5, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis dataKey="date" tickFormatter={(d) => fmtDate(d)} tick={{ fontSize: 10 }} className="fill-muted-foreground" interval="preserveStartEnd" />
+                    <YAxis tick={{ fontSize: 10 }} className="fill-muted-foreground" width={35} />
+                    <Tooltip
+                      contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }}
+                      labelFormatter={(d) => fmtDate(d as string)}
+                    />
+                    <Line type="monotone" dataKey="views" stroke="hsl(200, 65%, 50%)" strokeWidth={2} dot={false} name="Vistas" />
+                    <Line type="monotone" dataKey="orders" stroke="hsl(165, 60%, 40%)" strokeWidth={2} dot={false} name="Órdenes" />
+                    <Legend />
+                  </LineChart>
+                </ResponsiveContainer>
               </div>
-            ) : (
-              <div className="max-h-72 overflow-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Cliente</TableHead>
-                      <TableHead>Total</TableHead>
-                      <TableHead>Estado</TableHead>
-                      <TableHead className="hidden sm:table-cell">Fecha</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {orders.slice(0, 10).map((o) => (
-                      <TableRow key={o.id}>
-                        <TableCell className="text-sm font-medium">{o.customer_name}</TableCell>
-                        <TableCell className="text-sm font-semibold">{fmtCurrency(o.total_price)}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={statusColor(o.status)}>
-                            {statusLabel(o.status)}
-                          </Badge>
-                        </TableCell>
-                        <TableCell className="hidden text-xs text-muted-foreground sm:table-cell">
-                          {fmtDateFull(o.created_at)}
-                        </TableCell>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2 px-3 sm:px-6">
+              <CardTitle className="text-sm sm:text-base font-semibold">Órdenes por categoría</CardTitle>
+            </CardHeader>
+            <CardContent className="px-2 sm:px-6">
+              <div className="h-56 sm:h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={categoryData}
+                      dataKey="value"
+                      nameKey="name"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius="70%"
+                      label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                      labelLine={false}
+                      fontSize={11}
+                    >
+                      {categoryData.map((_, idx) => (
+                        <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }} />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab: Productos */}
+        <TabsContent value="productos" className="mt-6">
+          <Card>
+            <CardHeader className="pb-2 px-3 sm:px-6">
+              <CardTitle className="text-sm sm:text-base font-semibold">Productos más vendidos</CardTitle>
+            </CardHeader>
+            <CardContent className="px-2 sm:px-6">
+              <div className="h-52 sm:h-72">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={topProducts} layout="vertical" margin={{ left: -10, right: 5, top: 5, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+                    <XAxis type="number" tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                    <YAxis dataKey="name" type="category" width={80} tick={{ fontSize: 10 }} className="fill-muted-foreground" />
+                    <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid hsl(var(--border))", background: "hsl(var(--card))", fontSize: 12 }} />
+                    <Bar dataKey="sold" fill="hsl(165, 60%, 40%)" radius={[0, 6, 6, 0]} name="Vendidos" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Tab: Órdenes */}
+        <TabsContent value="ordenes" className="mt-6">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-base font-semibold">Últimas órdenes</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {orders.length === 0 ? (
+                <div className="flex flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
+                  <ShoppingCart className="h-10 w-10" />
+                  <p className="text-sm">Sin órdenes en este período</p>
+                </div>
+              ) : (
+                <div className="max-h-96 overflow-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Cliente</TableHead>
+                        <TableHead>Total</TableHead>
+                        <TableHead>Estado</TableHead>
+                        <TableHead className="hidden sm:table-cell">Fecha</TableHead>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+                    </TableHeader>
+                    <TableBody>
+                      {orders.slice(0, 20).map((o) => (
+                        <TableRow key={o.id}>
+                          <TableCell className="text-sm font-medium">{o.customer_name}</TableCell>
+                          <TableCell className="text-sm font-semibold">{fmtCurrency(o.total_price)}</TableCell>
+                          <TableCell>
+                            <Badge variant="outline" className={statusColor(o.status)}>
+                              {statusLabel(o.status)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="hidden text-xs text-muted-foreground sm:table-cell">
+                            {fmtDateFull(o.created_at)}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
