@@ -187,7 +187,7 @@ const Dashboard = () => {
     navigate("/");
   };
 
-  const maxProducts = 60;
+  
 
   return (
     <div className="flex min-h-screen bg-secondary/20">
