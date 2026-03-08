@@ -309,7 +309,7 @@ const AdminStores = () => {
           <div className="flex flex-col items-center gap-4 py-4">
             <div id="qr-container" className="rounded-xl border bg-white p-4">
               <QRCodeSVG
-                value={`${window.location.origin}/store/${qrStore?.store_slug}`}
+                value={`${window.location.origin}/${qrStore?.store_slug}`}
                 size={200}
                 level="H"
               />
