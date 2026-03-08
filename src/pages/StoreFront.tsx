@@ -119,7 +119,7 @@ const StoreFront = () => {
         return;
       }
 
-      const s = storeData[0] as StoreData;
+      const s = storeData[0] as unknown as StoreData;
       setStore(s);
       setStoreId(s.id);
       setWishlistStoreId(s.id);

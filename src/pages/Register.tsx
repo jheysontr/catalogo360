@@ -60,6 +60,15 @@ const Register = () => {
     e.preventDefault();
     if (!canSubmit) return;
     setLoading(true);
+
+    // Check against HaveIBeenPwned
+    const leaked = await checkLeakedPassword(password);
+    if (leaked) {
+      toast.error("Esta contraseña ha sido filtrada en una brecha de datos. Por favor elige otra.");
+      setLoading(false);
+      return;
+    }
+
     const { error } = await supabase.auth.signUp({
       email,
       password,
