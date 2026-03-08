@@ -288,34 +288,36 @@ const Dashboard = () => {
       </aside>
 
       <div className="flex flex-1 flex-col">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-card/80 px-6 backdrop-blur-lg">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-2 border-b bg-card/80 px-3 backdrop-blur-lg sm:h-16 sm:gap-4 sm:px-6">
           <button className="lg:hidden" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
           </button>
-          <div className="flex-1">
-            <p className="text-sm text-muted-foreground">
+          <div className="flex-1 min-w-0">
+            <p className="truncate text-sm text-muted-foreground">
               Hola, <span className="font-semibold text-foreground">{userName}</span> 👋
             </p>
           </div>
-         <SalesCalculator />
+          <div className="hidden sm:block">
+            <SalesCalculator />
+          </div>
           {store && (
             <>
-              <Button variant="outline" size="sm" asChild>
+              <Button variant="outline" size="sm" asChild className="hidden sm:inline-flex">
                 <Link to={`/store/${store.store_slug}`} target="_blank">
                   <Eye className="h-4 w-4 mr-2" />
                   Ver tienda
                 </Link>
               </Button>
-              <Button variant="ghost" size="icon" onClick={() => setQrOpen(true)}>
+              <Button variant="ghost" size="icon" className="h-8 w-8 sm:h-9 sm:w-9" onClick={() => setQrOpen(true)}>
                 <QrCode className="h-4 w-4" />
               </Button>
             </>
           )}
           <ThemeToggle />
-          <Button variant="ghost" size="icon" onClick={() => setActiveSection("settings")}>
+          <Button variant="ghost" size="icon" className="hidden sm:inline-flex" onClick={() => setActiveSection("settings")}>
             <Settings className="h-4 w-4" />
           </Button>
-          <Button variant="ghost" size="icon" onClick={handleLogout}>
+          <Button variant="ghost" size="icon" className="hidden sm:inline-flex" onClick={handleLogout}>
             <LogOut className="h-4 w-4" />
           </Button>
         </header>
