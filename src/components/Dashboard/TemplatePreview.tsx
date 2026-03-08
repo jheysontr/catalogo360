@@ -218,8 +218,8 @@ const TemplatePreview = ({
       case "horizontal-mini":
         return (
           <div key={i} className={`flex overflow-hidden ${theme.cardRounded} bg-card ${theme.cardShadow.split(" ")[0]}`}>
-            <div className="h-14 w-14 flex-shrink-0 bg-muted flex items-center justify-center">
-              <StoreIcon className="h-3 w-3 text-muted-foreground/20" />
+            <div className="h-14 w-14 flex-shrink-0 bg-muted overflow-hidden">
+              {renderImage(product.imageUrl)}
             </div>
             <div className="flex flex-1 items-center justify-between p-1.5">
               <div>
