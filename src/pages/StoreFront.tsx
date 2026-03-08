@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2, Search, Store as StoreIcon } from "lucide-react";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 import { useCart, getFinalPrice } from "@/lib/CartContext";
 import { getCurrencySymbol } from "@/lib/currency";
