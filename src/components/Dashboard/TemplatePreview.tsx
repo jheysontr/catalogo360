@@ -30,6 +30,8 @@ interface TemplatePreviewProps {
   description: string;
   products?: RealProduct[];
   currency?: string;
+  customGreeting?: string;
+  customBannerDescription?: string;
 }
 
 const FALLBACK_PRODUCTS: PreviewProduct[] = [
@@ -53,10 +55,14 @@ const TemplatePreview = ({
   description,
   products,
   currency = "BOB",
+  customGreeting,
+  customBannerDescription,
 }: TemplatePreviewProps) => {
   const theme = getTheme(templateId);
   const isClassic = templateId === "classic";
   const sym = getCurrencySymbol(currency);
+  const greeting = customGreeting || theme.bannerGreeting;
+  const bannerDesc = customBannerDescription || description;
 
   const previewProducts: PreviewProduct[] = products && products.length > 0
     ? products.map((p) => {
