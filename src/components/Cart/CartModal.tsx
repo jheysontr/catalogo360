@@ -107,30 +107,18 @@ const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primary
     const code = couponCode.trim().toUpperCase();
     if (!code) return;
     setValidatingCoupon(true);
-    const { data, error } = await supabase
-      .from("coupons")
-      .select("*")
-      .eq("store_id", storeId)
-      .eq("code", code)
-      .eq("is_active", true)
-      .limit(1);
+    const { data, error } = await supabase.rpc("validate_coupon", {
+      p_store_id: storeId,
+      p_code: code,
+    });
 
-    if (error || !data?.length) {
-      toast({ title: "Cupón inválido", description: "El código no existe o no está activo", variant: "destructive" });
+    if (error || !data || !(data as any).valid) {
+      const msg = (data as any)?.error || "El código no existe o no está activo";
+      toast({ title: "Cupón inválido", description: msg, variant: "destructive" });
       setValidatingCoupon(false);
       return;
     }
-    const c = data[0];
-    if (c.expires_at && new Date(c.expires_at) < new Date()) {
-      toast({ title: "Cupón expirado", variant: "destructive" });
-      setValidatingCoupon(false);
-      return;
-    }
-    if (c.max_uses && c.used_count >= c.max_uses) {
-      toast({ title: "Cupón agotado", variant: "destructive" });
-      setValidatingCoupon(false);
-      return;
-    }
+    const c = data as any;
     if (c.min_purchase && cartTotal < Number(c.min_purchase)) {
       toast({ title: "Compra mínima no alcanzada", description: `Mínimo ${currencySymbol}${Number(c.min_purchase).toFixed(2)}`, variant: "destructive" });
       setValidatingCoupon(false);

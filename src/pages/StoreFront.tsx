@@ -108,7 +108,7 @@ const StoreFront = () => {
     const load = async () => {
       setLoading(true);
       const { data: storeData } = await supabase
-        .from("stores")
+        .from("stores_public" as any)
         .select("*")
         .eq("store_slug", slug)
         .limit(1);
@@ -119,7 +119,7 @@ const StoreFront = () => {
         return;
       }
 
-      const s = storeData[0] as StoreData;
+      const s = storeData[0] as unknown as StoreData;
       setStore(s);
       setStoreId(s.id);
       setWishlistStoreId(s.id);

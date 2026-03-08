@@ -50,6 +50,13 @@ export type Database = {
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "categories_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       coupons: {
@@ -106,6 +113,13 @@ export type Database = {
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "coupons_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       links: {
@@ -148,6 +162,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "links_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -195,6 +216,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -436,6 +464,13 @@ export type Database = {
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "products_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       profiles: {
@@ -513,6 +548,13 @@ export type Database = {
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "referral_config_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: true
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       referrals: {
@@ -576,6 +618,13 @@ export type Database = {
             referencedRelation: "stores"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "referrals_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       referrers: {
@@ -624,6 +673,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrers_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -690,6 +746,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "shipments_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores_public"
             referencedColumns: ["id"]
           },
         ]
@@ -797,7 +860,83 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      stores_public: {
+        Row: {
+          address: string | null
+          banner_url: string | null
+          created_at: string | null
+          currency: string | null
+          description: string | null
+          email: string | null
+          id: string | null
+          is_active: boolean | null
+          linkbox_config: Json | null
+          logo_url: string | null
+          payment_methods: Json | null
+          plan_id: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          shipping_config: Json | null
+          social_media: Json | null
+          store_name: string | null
+          store_slug: string | null
+          storefront_config: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          banner_url?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          email?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          linkbox_config?: Json | null
+          logo_url?: string | null
+          payment_methods?: Json | null
+          plan_id?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          shipping_config?: Json | null
+          social_media?: Json | null
+          store_name?: string | null
+          store_slug?: string | null
+          storefront_config?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          banner_url?: string | null
+          created_at?: string | null
+          currency?: string | null
+          description?: string | null
+          email?: string | null
+          id?: string | null
+          is_active?: boolean | null
+          linkbox_config?: Json | null
+          logo_url?: string | null
+          payment_methods?: Json | null
+          plan_id?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          shipping_config?: Json | null
+          social_media?: Json | null
+          store_name?: string | null
+          store_slug?: string | null
+          storefront_config?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stores_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "pricing_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       generate_tracking_number: { Args: never; Returns: string }
@@ -808,6 +947,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      validate_coupon: {
+        Args: { p_code: string; p_store_id: string }
+        Returns: Json
       }
     }
     Enums: {
