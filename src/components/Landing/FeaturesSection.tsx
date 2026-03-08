@@ -103,7 +103,7 @@ const StorefrontShowcase = () => (
           </div>
         </motion.div>
         <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="relative">
-          <BrowserMockup url="catalogo360.app/store/mi-tienda">
+          <BrowserMockup url="catalogo360.online/mi-tienda">
             <img src={demoStorefront} alt="Vista de la tienda online de Catalogo360" className="w-full" loading="lazy" />
           </BrowserMockup>
         </motion.div>

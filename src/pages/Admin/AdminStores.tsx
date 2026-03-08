@@ -315,7 +315,7 @@ const AdminStores = () => {
               />
             </div>
             <p className="text-xs text-muted-foreground text-center break-all">
-              {window.location.origin}/store/{qrStore?.store_slug}
+              {window.location.origin}/{qrStore?.store_slug}
             </p>
           </div>
           <DialogFooter className="sm:justify-center">

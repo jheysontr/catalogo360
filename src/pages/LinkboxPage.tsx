@@ -228,7 +228,7 @@ const LinkboxPage = () => {
       >
         {showStoreLink && (
           <a
-            href={`/store/${store.store_slug}`}
+            href={`/${store.store_slug}`}
             className="rounded-full px-6 py-2.5 text-sm font-medium transition-colors hover:bg-white/10"
             style={{ border: `1px solid ${primaryColor}`, color: colors.primary }}
           >

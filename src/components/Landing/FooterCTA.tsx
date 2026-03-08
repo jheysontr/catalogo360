@@ -40,7 +40,7 @@ const CTABanner = () => (
               <Link to="/register">Empezar gratis <ArrowRight className="h-4 w-4" /></Link>
             </Button>
             <Button asChild variant="outline" size="lg" className="h-12 gap-2 px-8">
-              <Link to="/store/demo"><Play className="h-4 w-4" /> Ver demo</Link>
+              <Link to="/demo"><Play className="h-4 w-4" /> Ver demo</Link>
             </Button>
           </div>
         </div>

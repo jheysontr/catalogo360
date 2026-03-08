@@ -267,8 +267,8 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
                 key={a.section}
                 onClick={() => {
                   if (a.section === "_store_link") {
-                    const w = window.open(`/store/${storeSlug}`, "_blank");
-                    if (!w) window.location.href = `/store/${storeSlug}`;
+                    const w = window.open(`/${storeSlug}`, "_blank");
+                    if (!w) window.location.href = `/${storeSlug}`;
                   } else {
                     onNavigate(a.section);
                   }
