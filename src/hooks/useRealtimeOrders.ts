@@ -45,7 +45,7 @@ const showBrowserNotification = (order: any, itemCount: number) => {
           icon: "/icons/icon-192x192.png",
           badge: "/icons/icon-192x192.png",
           tag: `order-${order.id}`,
-          vibrate: [200, 100, 200],
+          vibrate: [200, 100, 200] as any,
           data: { url: "/dashboard" },
         });
       });
