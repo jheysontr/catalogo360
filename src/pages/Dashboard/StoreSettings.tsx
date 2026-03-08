@@ -9,7 +9,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Upload, Store, Palette, Share2, DollarSign, Layout, MapPin, Mail, Phone, Globe, Eye } from "lucide-react";
+import { Loader2, Upload, Store, Palette, Share2, DollarSign, Layout, MapPin, Mail, Phone, Globe, Eye, Smartphone } from "lucide-react";
+import TemplatePreview from "@/components/Dashboard/TemplatePreview";
 import toast from "react-hot-toast";
 import { compressImage } from "@/lib/imageCompression";
 
@@ -519,36 +520,59 @@ const StoreSettings = () => {
         </TabsContent>
 
         {/* ═══════════════ TAB: PLANTILLA ═══════════════ */}
-        <TabsContent value="plantilla" className="mt-6 space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">Estilo de tienda</CardTitle>
-              <CardDescription>Elige cómo se ve tu tienda para tus clientes</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              {/* General */}
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Generales</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {GENERAL_TEMPLATES.map((t) => (
-                    <TemplateButton key={t.value} t={t} />
-                  ))}
+        <TabsContent value="plantilla" className="mt-6">
+          <div className="grid gap-6 lg:grid-cols-[1fr,auto]">
+            {/* Template selector */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Estilo de tienda</CardTitle>
+                <CardDescription>Elige cómo se ve tu tienda. Los colores, logo y banner se aplican desde la pestaña Apariencia.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                {/* General */}
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Generales</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {GENERAL_TEMPLATES.map((t) => (
+                      <TemplateButton key={t.value} t={t} />
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              <Separator />
+                <Separator />
 
-              {/* Niche */}
-              <div>
-                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Por categoría de negocio</p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  {NICHE_TEMPLATES.map((t) => (
-                    <TemplateButton key={t.value} t={t} />
-                  ))}
+                {/* Niche */}
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Por categoría de negocio</p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {NICHE_TEMPLATES.map((t) => (
+                      <TemplateButton key={t.value} t={t} />
+                    ))}
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
+
+            {/* Live preview */}
+            <div className="lg:sticky lg:top-4 space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Smartphone className="h-4 w-4" />
+                Vista previa en vivo
               </div>
-            </CardContent>
-          </Card>
+              <TemplatePreview
+                templateId={storeTemplate}
+                storeName={storeName}
+                logoUrl={logoUrl}
+                bannerUrl={bannerUrl}
+                primaryColor={primaryColor}
+                secondaryColor={secondaryColor}
+                description={description}
+              />
+              <p className="text-center text-[10px] text-muted-foreground">
+                Así se verá tu tienda con la plantilla <span className="font-semibold">{[...GENERAL_TEMPLATES, ...NICHE_TEMPLATES].find(t => t.value === storeTemplate)?.label || storeTemplate}</span>
+              </p>
+            </div>
+          </div>
         </TabsContent>
 
         {/* ═══════════════ TAB: CONTACTO ═══════════════ */}
