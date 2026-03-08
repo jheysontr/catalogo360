@@ -40,14 +40,15 @@ const showBrowserNotification = (order: any, itemCount: number) => {
     // Try service worker notification first (works in background), fallback to basic
     if ("serviceWorker" in navigator && navigator.serviceWorker.controller) {
       navigator.serviceWorker.ready.then((reg) => {
-        reg.showNotification(title, {
+        const options: NotificationOptions & Record<string, unknown> = {
           body,
           icon: "/icons/icon-192x192.png",
           badge: "/icons/icon-192x192.png",
           tag: `order-${order.id}`,
-          vibrate: [200, 100, 200] as any,
           data: { url: "/dashboard" },
-        });
+        };
+        (options as any).vibrate = [200, 100, 200];
+        reg.showNotification(title, options);
       });
     } else {
       new Notification(title, {
