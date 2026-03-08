@@ -341,6 +341,7 @@ const StoreFront = () => {
                             onQuickAdd={handleQuickAdd}
                             onToggleWishlist={toggleWishlist}
                             onOpenDetail={setSelectedProduct}
+                            theme={theme}
                           />
                         )
                       )}
