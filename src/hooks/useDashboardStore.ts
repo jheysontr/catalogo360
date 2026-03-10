@@ -8,6 +8,7 @@ export interface StoreData {
   store_slug: string;
   plan_id: string | null;
   currency: string;
+  setup_completed: boolean;
 }
 
 export interface DashboardCounts {
