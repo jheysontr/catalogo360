@@ -30,7 +30,7 @@ const queryClient = new QueryClient();
 
 const AppLayout = () => {
   const location = useLocation();
-  const knownRoutes = ["/dashboard", "/login", "/register", "/admin", "/linkbox/", "/affiliate/", "/terminos", "/privacidad", "/ayuda", "/demo"];
+  const knownRoutes = ["/dashboard", "/login", "/register", "/reset-password", "/admin", "/linkbox/", "/affiliate/", "/terminos", "/privacidad", "/ayuda", "/demo"];
   const isDashboard = location.pathname.startsWith("/dashboard");
   const isLinkbox = location.pathname.startsWith("/linkbox/");
   const isAdmin = location.pathname.startsWith("/admin");
