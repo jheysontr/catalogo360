@@ -578,17 +578,6 @@ const StoreSettings = () => {
                   </div>
                 </div>
 
-                <Separator />
-
-                {/* Niche */}
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Por categoría de negocio</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {NICHE_TEMPLATES.map((t) => (
-                      <TemplateButton key={t.value} t={t} />
-                    ))}
-                  </div>
-                </div>
               </CardContent>
             </Card>
 
