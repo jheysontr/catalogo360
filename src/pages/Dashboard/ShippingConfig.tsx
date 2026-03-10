@@ -201,7 +201,7 @@ const ShippingConfig = () => {
             )}
 
             {config.local_zones.map((zone, i) => (
-              <div key={i} className="flex items-center gap-3 rounded-lg border bg-muted/30 p-3">
+              <div key={i} className="flex flex-col gap-2 rounded-lg border bg-muted/30 p-3 sm:flex-row sm:items-center sm:gap-3">
                 <div className="flex-1">
                   <Input
                     value={zone.name}
@@ -210,28 +210,30 @@ const ShippingConfig = () => {
                     className="bg-background"
                   />
                 </div>
-                <div className="w-28">
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={zone.cost || ""}
-                      onChange={(e) => updateZone(i, "cost", Number(e.target.value) || 0)}
-                      placeholder="0"
-                      className="bg-background pl-7"
-                    />
+                <div className="flex items-center gap-2">
+                  <div className="w-28 shrink-0">
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={zone.cost || ""}
+                        onChange={(e) => updateZone(i, "cost", Number(e.target.value) || 0)}
+                        placeholder="0"
+                        className="bg-background pl-7"
+                      />
+                    </div>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
+                    onClick={() => removeZone(i)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
-                  onClick={() => removeZone(i)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
               </div>
             ))}
           </div>
