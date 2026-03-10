@@ -51,12 +51,6 @@ const GENERAL_TEMPLATES = [
   { value: "moderna", emoji: "🚀", label: "Moderna", desc: "Audaz y dinámica" },
 ];
 
-const NICHE_TEMPLATES = [
-  { value: "comida", emoji: "🍔", label: "Comida", desc: "Restaurantes y delivery" },
-  { value: "frutas", emoji: "🍎", label: "Frutas y Orgánicos", desc: "Productos frescos y naturales" },
-  { value: "moda", emoji: "👗", label: "Moda y Ropa", desc: "Estilo editorial fashion" },
-  { value: "electronica", emoji: "🔌", label: "Electrónica", desc: "Tech y repuestos" },
-];
 
 const StoreSettings = () => {
   const { user } = useAuth();
