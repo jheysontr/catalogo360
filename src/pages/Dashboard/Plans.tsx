@@ -285,45 +285,78 @@ const Plans = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="rounded-lg border bg-card">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Fecha</TableHead>
-                    <TableHead>Plan</TableHead>
-                    <TableHead>Monto</TableHead>
-                    <TableHead>Estado</TableHead>
-                    <TableHead className="text-right">Acción</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {payments.map((p) => (
-                    <TableRow key={p.id}>
-                      <TableCell className="text-sm">{fmtDate(p.date)}</TableCell>
-                      <TableCell className="font-medium">{p.plan}</TableCell>
-                      <TableCell>{fmtCurrency(p.amount)}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant="outline"
-                          className={
-                            p.status === "paid"
-                              ? "bg-green-100 text-green-800 border-green-200"
-                              : "bg-yellow-100 text-yellow-800 border-yellow-200"
-                          }
-                        >
-                          {p.status === "paid" ? "Pagado" : "Pendiente"}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button size="sm" variant="ghost">
-                          <Download className="mr-1.5 h-3.5 w-3.5" /> Recibo
-                        </Button>
-                      </TableCell>
+            <>
+              {/* Mobile card view */}
+              <div className="space-y-3 sm:hidden">
+                {payments.map((p) => (
+                  <Card key={p.id} className="p-4">
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">Plan {p.plan}</p>
+                        <p className="text-xs text-muted-foreground">{fmtDate(p.date)}</p>
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={
+                          p.status === "paid"
+                            ? "bg-green-100 text-green-800 border-green-200"
+                            : "bg-yellow-100 text-yellow-800 border-yellow-200"
+                        }
+                      >
+                        {p.status === "paid" ? "Pagado" : "Pendiente"}
+                      </Badge>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between">
+                      <p className="text-lg font-bold text-foreground">{fmtCurrency(p.amount)}</p>
+                      <Button size="sm" variant="ghost" className="h-8 gap-1.5">
+                        <Download className="h-3.5 w-3.5" /> Recibo
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+
+              {/* Desktop table view */}
+              <div className="hidden sm:block rounded-lg border bg-card">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Fecha</TableHead>
+                      <TableHead>Plan</TableHead>
+                      <TableHead>Monto</TableHead>
+                      <TableHead>Estado</TableHead>
+                      <TableHead className="text-right">Acción</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                  </TableHeader>
+                  <TableBody>
+                    {payments.map((p) => (
+                      <TableRow key={p.id}>
+                        <TableCell className="text-sm">{fmtDate(p.date)}</TableCell>
+                        <TableCell className="font-medium">{p.plan}</TableCell>
+                        <TableCell>{fmtCurrency(p.amount)}</TableCell>
+                        <TableCell>
+                          <Badge
+                            variant="outline"
+                            className={
+                              p.status === "paid"
+                                ? "bg-green-100 text-green-800 border-green-200"
+                                : "bg-yellow-100 text-yellow-800 border-yellow-200"
+                            }
+                          >
+                            {p.status === "paid" ? "Pagado" : "Pendiente"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <Button size="sm" variant="ghost">
+                            <Download className="mr-1.5 h-3.5 w-3.5" /> Recibo
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </>
           )}
         </TabsContent>
       </Tabs>

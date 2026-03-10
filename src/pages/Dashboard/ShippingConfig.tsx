@@ -137,12 +137,12 @@ const ShippingConfig = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="font-display text-xl font-bold text-foreground">Zonas de Envío</h2>
           <p className="text-sm text-muted-foreground">Configura las zonas donde realizas envíos y su costo</p>
         </div>
-        <Button onClick={handleSave} disabled={saving} className="gap-2">
+        <Button onClick={handleSave} disabled={saving} className="gap-2 shrink-0">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
           Guardar
         </Button>
@@ -155,7 +155,7 @@ const ShippingConfig = () => {
           <CardDescription>Ofrece envío gratis a partir de un monto mínimo de compra</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
             <Label htmlFor="free-threshold" className="whitespace-nowrap">Envío gratis a partir de $</Label>
             <Input
               id="free-threshold"
@@ -165,7 +165,7 @@ const ShippingConfig = () => {
               value={config.free_shipping_threshold || ""}
               onChange={(e) => update("free_shipping_threshold", Number(e.target.value) || 0)}
               placeholder="0 = desactivado"
-              className="w-40"
+              className="w-full sm:w-40"
             />
           </div>
           <p className="mt-1.5 text-xs text-muted-foreground">Coloca 0 para desactivar el envío gratis automático</p>
@@ -201,7 +201,7 @@ const ShippingConfig = () => {
             )}
 
             {config.local_zones.map((zone, i) => (
-              <div key={i} className="flex items-center gap-3 rounded-lg border bg-muted/30 p-3">
+              <div key={i} className="flex flex-col gap-2 rounded-lg border bg-muted/30 p-3 sm:flex-row sm:items-center sm:gap-3">
                 <div className="flex-1">
                   <Input
                     value={zone.name}
@@ -210,28 +210,30 @@ const ShippingConfig = () => {
                     className="bg-background"
                   />
                 </div>
-                <div className="w-28">
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
-                    <Input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={zone.cost || ""}
-                      onChange={(e) => updateZone(i, "cost", Number(e.target.value) || 0)}
-                      placeholder="0"
-                      className="bg-background pl-7"
-                    />
+                <div className="flex items-center gap-2">
+                  <div className="w-28 shrink-0">
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">$</span>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={zone.cost || ""}
+                        onChange={(e) => updateZone(i, "cost", Number(e.target.value) || 0)}
+                        placeholder="0"
+                        className="bg-background pl-7"
+                      />
+                    </div>
                   </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
+                    onClick={() => removeZone(i)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-9 w-9 shrink-0 text-muted-foreground hover:text-destructive"
-                  onClick={() => removeZone(i)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
               </div>
             ))}
           </div>
