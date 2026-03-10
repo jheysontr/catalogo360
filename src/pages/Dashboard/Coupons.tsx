@@ -305,7 +305,7 @@ const Coupons = () => {
                         ? "Envío gratis"
                         : c.discount_type === "percentage"
                           ? `${c.discount_value}%`
-                          : `Bs${c.discount_value.toFixed(2)}`}
+                      : `${currSym} ${c.discount_value.toFixed(2)}`}
                     </p>
                   </div>
                   <div className="space-y-1 text-center">
