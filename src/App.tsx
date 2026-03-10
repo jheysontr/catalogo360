@@ -35,7 +35,8 @@ const AppLayout = () => {
   const isAffiliate = location.pathname.startsWith("/affiliate/");
   const isKnownRoute = location.pathname === "/" || knownRoutes.some(r => location.pathname.startsWith(r));
   const isStoreFront = !isKnownRoute;
-  const hideChrome = isDashboard || isStoreFront || isLinkbox || isAdmin || isAffiliate;
+  const isLanding = location.pathname === "/";
+  const hideChrome = isDashboard || isStoreFront || isLinkbox || isAdmin || isAffiliate || isLanding;
   return (
     <div className="flex min-h-screen flex-col">
       {!hideChrome && <Navbar />}
