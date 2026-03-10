@@ -136,18 +136,16 @@ const PaymentMethods = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="cash" className="w-full">
-        <TabsList className="dashboard-tabs-list">
-          <TabsTrigger value="cash" className="dashboard-tab-trigger gap-1.5">
-            <Banknote className="h-4 w-4" /> Efectivo
-          </TabsTrigger>
-          <TabsTrigger value="bank" className="dashboard-tab-trigger gap-1.5">
-            <Building2 className="h-4 w-4" /> Transferencia
-          </TabsTrigger>
-          <TabsTrigger value="qr" className="dashboard-tab-trigger gap-1.5">
-            <QrCode className="h-4 w-4" /> Pago QR
-          </TabsTrigger>
-        </TabsList>
+      <Tabs value={payTab} onValueChange={setPayTab} className="w-full">
+        <ResponsiveTabsList
+          value={payTab}
+          onValueChange={setPayTab}
+          options={[
+            { value: "cash", label: "Efectivo", icon: <Banknote className="h-4 w-4" /> },
+            { value: "bank", label: "Transferencia", icon: <Building2 className="h-4 w-4" /> },
+            { value: "qr", label: "Pago QR", icon: <QrCode className="h-4 w-4" /> },
+          ]}
+        />
 
         <TabsContent value="cash">
           <Card>

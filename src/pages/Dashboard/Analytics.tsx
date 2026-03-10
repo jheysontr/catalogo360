@@ -272,21 +272,16 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="resumen" className="w-full">
-        <TabsList className="dashboard-tabs-list">
-          <TabsTrigger value="resumen" className="dashboard-tab-trigger gap-1.5">
-            <Eye className="h-4 w-4" />
-            Resumen
-          </TabsTrigger>
-          <TabsTrigger value="productos" className="dashboard-tab-trigger gap-1.5">
-            <Package className="h-4 w-4" />
-            Productos
-          </TabsTrigger>
-          <TabsTrigger value="ordenes" className="dashboard-tab-trigger gap-1.5">
-            <ShoppingCart className="h-4 w-4" />
-            Órdenes
-          </TabsTrigger>
-        </TabsList>
+      <Tabs value={analyticsTab} onValueChange={setAnalyticsTab} className="w-full">
+        <ResponsiveTabsList
+          value={analyticsTab}
+          onValueChange={setAnalyticsTab}
+          options={[
+            { value: "resumen", label: "Resumen", icon: <Eye className="h-4 w-4" /> },
+            { value: "productos", label: "Productos", icon: <Package className="h-4 w-4" /> },
+            { value: "ordenes", label: "Órdenes", icon: <ShoppingCart className="h-4 w-4" /> },
+          ]}
+        />
 
         {/* Tab: Resumen */}
         <TabsContent value="resumen" className="mt-6 space-y-6">
