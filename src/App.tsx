@@ -20,6 +20,7 @@ import Admin from "./pages/Admin";
 import AffiliatePage from "./pages/AffiliatePage";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import HelpCenter from "./pages/HelpCenter";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useState, useEffect } from "react";
 
