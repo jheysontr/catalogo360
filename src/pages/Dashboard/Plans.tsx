@@ -340,9 +340,8 @@ const Plans = () => {
             <DialogHeader>
               <DialogTitle className="font-display">Cambiar a Plan {confirmPlan.name}</DialogTitle>
               <DialogDescription>
-                {isTrial
-                  ? `Al seleccionar este plan, tu prueba gratuita terminará y se activará el Plan ${confirmPlan.name}.`
-                  : `¿Estás seguro de que deseas cambiar al Plan ${confirmPlan.name}?`}
+                ¿Estás seguro de que deseas cambiar al Plan {confirmPlan.name}?
+              </DialogDescription>
               </DialogDescription>
             </DialogHeader>
 
