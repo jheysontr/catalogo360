@@ -109,8 +109,8 @@ const Plans = () => {
   }, [user]);
 
   const activePlanDef = plans.find((p) => p.id === currentPlan);
-  const maxProducts = activePlanDef?.maxProducts ?? 60;
-  const isTrial = currentPlan === "trial";
+  const maxProducts = activePlanDef?.maxProducts ?? 10;
+  const isFree = activePlanDef?.monthly === 0;
 
   const handleChangePlan = async () => {
     if (!confirmPlan || !user) return;
