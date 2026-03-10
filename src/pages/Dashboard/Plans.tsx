@@ -83,12 +83,6 @@ const Plans = () => {
       }));
       setPlans(mappedPlans);
 
-      // Compute trial end (7 days from account creation)
-      const created = new Date(user.created_at);
-      const end = new Date(created);
-      end.setDate(end.getDate() + 7);
-      setTrialEnd(end.toISOString());
-
       // Check current plan from store
       const { data: stores } = await supabase
         .from("stores")
