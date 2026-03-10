@@ -270,7 +270,7 @@ const Plans = () => {
                       </Button>
                     ) : (
                       <Button className="w-full" onClick={() => setConfirmPlan(plan)}>
-                        {isTrial ? "Seleccionar" : "Cambiar a este plan"}
+                        Cambiar a este plan
                       </Button>
                     )}
                   </CardContent>
