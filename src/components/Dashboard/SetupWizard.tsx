@@ -358,8 +358,9 @@ const SetupWizard = ({ storeId, storeName: initialName, storeSlug: initialSlug, 
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/95 backdrop-blur-sm">
-      <div className="w-full max-w-lg mx-4">
+    <div className="fixed inset-0 z-50 flex flex-col bg-background overflow-hidden">
+      {/* Top progress section */}
+      <div className="w-full max-w-2xl mx-auto px-4 pt-6 sm:pt-10">
         {/* Progress bar */}
         <div className="mb-6 flex items-center justify-between gap-1">
           {STEPS.map((s, i) => (
@@ -387,49 +388,53 @@ const SetupWizard = ({ storeId, storeName: initialName, storeSlug: initialSlug, 
             );
           })}
         </div>
+      </div>
 
-        {/* Content card */}
-        <div className="rounded-2xl border bg-card p-6 shadow-lg min-h-[340px] flex flex-col">
-          <div className="flex-1 overflow-y-auto max-h-[50vh]">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={step}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.2 }}
-              >
-                {renderStep()}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Navigation */}
-          <div className="mt-6 flex items-center justify-between pt-4 border-t">
-            <div>
-              {step > 0 && step < 5 && (
-                <Button variant="ghost" size="sm" onClick={prev} className="gap-1">
-                  <ChevronLeft className="h-4 w-4" /> Atrás
-                </Button>
-              )}
+      {/* Main content area - centered and scrollable */}
+      <div className="flex-1 overflow-y-auto flex items-start sm:items-center justify-center px-4 pb-4">
+        <div className="w-full max-w-lg">
+          <div className="rounded-2xl border bg-card p-6 shadow-lg min-h-[340px] flex flex-col">
+            <div className="flex-1 overflow-y-auto">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={step}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {renderStep()}
+                </motion.div>
+              </AnimatePresence>
             </div>
-            <div className="flex gap-2">
-              {step === 0 && (
-                <Button variant="ghost" size="sm" onClick={handleSkip} disabled={saving}>
-                  Omitir
-                </Button>
-              )}
-              {step < 5 && (
-                <Button size="sm" onClick={next} className="gap-1">
-                  {step === 0 ? "Comenzar" : "Siguiente"} <ChevronRight className="h-4 w-4" />
-                </Button>
-              )}
-              {step === 5 && (
-                <Button onClick={handleFinish} disabled={saving} className="gap-2">
-                  {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                  Ir a mi tienda
-                </Button>
-              )}
+
+            {/* Navigation */}
+            <div className="mt-6 flex items-center justify-between pt-4 border-t">
+              <div>
+                {step > 0 && step < 5 && (
+                  <Button variant="ghost" size="sm" onClick={prev} className="gap-1">
+                    <ChevronLeft className="h-4 w-4" /> Atrás
+                  </Button>
+                )}
+              </div>
+              <div className="flex gap-2">
+                {step === 0 && (
+                  <Button variant="ghost" size="sm" onClick={handleSkip} disabled={saving}>
+                    Omitir
+                  </Button>
+                )}
+                {step < 5 && (
+                  <Button size="sm" onClick={next} className="gap-1">
+                    {step === 0 ? "Comenzar" : "Siguiente"} <ChevronRight className="h-4 w-4" />
+                  </Button>
+                )}
+                {step === 5 && (
+                  <Button onClick={handleFinish} disabled={saving} className="gap-2">
+                    {saving && <Loader2 className="h-4 w-4 animate-spin" />}
+                    Ir a mi tienda
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
