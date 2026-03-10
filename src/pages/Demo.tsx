@@ -348,7 +348,7 @@ const Demo = () => {
                       -{p.discount_percent}%
                     </span>
                   )}
-                  <button className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-md text-muted-foreground hover:bg-white hover:scale-110 transition-all">
+                  <button className="absolute left-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-md text-muted-foreground hover:bg-white hover:scale-110 transition-all">
                     <Heart className="h-5 w-5" />
                   </button>
                 </div>
