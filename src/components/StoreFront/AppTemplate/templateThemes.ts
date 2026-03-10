@@ -45,7 +45,7 @@ export const TEMPLATE_THEMES: Record<string, TemplateTheme> = {
     bannerStyle: "hero",
     bannerHeight: "h-32",
     cardRounded: "rounded-2xl",
-    cardAspect: "aspect-[4/5]",
+    cardAspect: "aspect-square",
     cardBorder: true,
     cardShadow: "shadow-sm hover:shadow-md",
     cardLayout: "vertical",
