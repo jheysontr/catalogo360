@@ -342,7 +342,6 @@ const Plans = () => {
               <DialogDescription>
                 ¿Estás seguro de que deseas cambiar al Plan {confirmPlan.name}?
               </DialogDescription>
-              </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-3 py-2">
