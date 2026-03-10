@@ -63,11 +63,11 @@ const Dashboard = () => {
   const { isAdmin } = useAdminCheck();
 
   // Show wizard for first-time users
-  const needsSetup = store && !(store as any).setup_completed;
-  if (needsSetup && !showWizard) {
-    // Auto-show on first render when setup not completed
-    setTimeout(() => setShowWizard(true), 0);
-  }
+  useEffect(() => {
+    if (store && !(store as any).setup_completed) {
+      setShowWizard(true);
+    }
+  }, [store]);
 
   const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuario";
 
