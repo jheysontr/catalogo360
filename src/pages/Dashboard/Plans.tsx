@@ -58,9 +58,8 @@ const Plans = () => {
   const [confirmPlan, setConfirmPlan] = useState<PlanDef | null>(null);
   const [changing, setChanging] = useState(false);
 
-  // Simulated current plan state (in production would come from a subscriptions table)
-  const [currentPlan, setCurrentPlan] = useState<string>("trial");
-  const [trialEnd, setTrialEnd] = useState<string>("");
+  // Current plan from store
+  const [currentPlan, setCurrentPlan] = useState<string>("");
 
   // Simulated payment history
   const [payments] = useState<PaymentRecord[]>([]);
@@ -80,15 +79,9 @@ const Plans = () => {
         annual: p.annual_price,
         maxProducts: p.max_products,
         features: Array.isArray(p.features) ? p.features : [],
-        recommended: i === (dbPlans || []).length - 1, // last (most expensive) = recommended
+        recommended: i === 1, // middle plan = recommended
       }));
       setPlans(mappedPlans);
-
-      // Compute trial end (7 days from account creation)
-      const created = new Date(user.created_at);
-      const end = new Date(created);
-      end.setDate(end.getDate() + 7);
-      setTrialEnd(end.toISOString());
 
       // Check current plan from store
       const { data: stores } = await supabase
@@ -100,8 +93,6 @@ const Plans = () => {
       if (stores?.[0]) {
         if (stores[0].plan_id) {
           setCurrentPlan(stores[0].plan_id);
-        } else if (new Date() > end) {
-          setCurrentPlan("none");
         }
 
         const { count } = await supabase
@@ -118,8 +109,8 @@ const Plans = () => {
   }, [user]);
 
   const activePlanDef = plans.find((p) => p.id === currentPlan);
-  const maxProducts = activePlanDef?.maxProducts ?? 60;
-  const isTrial = currentPlan === "trial";
+  const maxProducts = activePlanDef?.maxProducts ?? 10;
+  const isFree = activePlanDef?.monthly === 0;
 
   const handleChangePlan = async () => {
     if (!confirmPlan || !user) return;
@@ -164,16 +155,9 @@ const Plans = () => {
       {/* Header */}
       <div>
         <h1 className="font-display text-2xl font-bold text-foreground">Planes y Facturación</h1>
-        {isTrial ? (
-          <p className="mt-1 text-sm text-muted-foreground">
-            Tienes la prueba gratuita de 7 días. Expira el{" "}
-            <span className="font-semibold text-foreground">{fmtDate(trialEnd)}</span>
-          </p>
-        ) : (
-          <p className="mt-1 text-sm text-muted-foreground">
-            Estás en el plan <span className="font-semibold text-foreground">{activePlanDef?.name}</span>
-          </p>
-        )}
+        <p className="mt-1 text-sm text-muted-foreground">
+          Estás en el plan <span className="font-semibold text-foreground">{activePlanDef?.name ?? "Gratis"}</span>
+        </p>
       </div>
 
       {/* Current plan card */}
@@ -183,21 +167,15 @@ const Plans = () => {
             <div className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-bold text-foreground">
-                {isTrial ? "Prueba Gratuita" : `Plan ${activePlanDef?.name}`}
+                Plan {activePlanDef?.name ?? "Gratis"}
               </h2>
             </div>
             <p className="text-2xl font-bold text-foreground">
-              {isTrial
+              {isFree
                 ? "Gratis"
                 : fmtCurrency(annual ? (activePlanDef?.annual ?? 0) : (activePlanDef?.monthly ?? 0))}
-              {!isTrial && <span className="text-sm font-normal text-muted-foreground">/mes</span>}
+              {!isFree && <span className="text-sm font-normal text-muted-foreground">/mes</span>}
             </p>
-            {isTrial && (
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <Clock className="h-4 w-4" />
-                Expira el {fmtDate(trialEnd)}
-              </div>
-            )}
           </div>
 
           <div className="w-full max-w-xs space-y-2">
@@ -292,7 +270,7 @@ const Plans = () => {
                       </Button>
                     ) : (
                       <Button className="w-full" onClick={() => setConfirmPlan(plan)}>
-                        {isTrial ? "Seleccionar" : "Cambiar a este plan"}
+                        Cambiar a este plan
                       </Button>
                     )}
                   </CardContent>
@@ -362,9 +340,7 @@ const Plans = () => {
             <DialogHeader>
               <DialogTitle className="font-display">Cambiar a Plan {confirmPlan.name}</DialogTitle>
               <DialogDescription>
-                {isTrial
-                  ? `Al seleccionar este plan, tu prueba gratuita terminará y se activará el Plan ${confirmPlan.name}.`
-                  : `¿Estás seguro de que deseas cambiar al Plan ${confirmPlan.name}?`}
+                ¿Estás seguro de que deseas cambiar al Plan {confirmPlan.name}?
               </DialogDescription>
             </DialogHeader>
 
