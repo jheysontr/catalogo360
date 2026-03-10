@@ -18,6 +18,7 @@ import LinkboxPage from "./pages/LinkboxPage";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import AffiliatePage from "./pages/AffiliatePage";
+import ResetPassword from "./pages/ResetPassword";
 import Demo from "./pages/Demo";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
@@ -29,7 +30,7 @@ const queryClient = new QueryClient();
 
 const AppLayout = () => {
   const location = useLocation();
-  const knownRoutes = ["/dashboard", "/login", "/register", "/admin", "/linkbox/", "/affiliate/", "/terminos", "/privacidad", "/ayuda", "/demo"];
+  const knownRoutes = ["/dashboard", "/login", "/register", "/reset-password", "/admin", "/linkbox/", "/affiliate/", "/terminos", "/privacidad", "/ayuda", "/demo"];
   const isDashboard = location.pathname.startsWith("/dashboard");
   const isLinkbox = location.pathname.startsWith("/linkbox/");
   const isAdmin = location.pathname.startsWith("/admin");
@@ -47,6 +48,7 @@ const AppLayout = () => {
           <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route
             path="/dashboard"
             element={
