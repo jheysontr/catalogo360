@@ -35,7 +35,7 @@ const ProductSkeleton = ({ viewMode, count = 6 }: ProductSkeletonProps) => {
     <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-3 xl:grid-cols-4">
       {items.map((_, i) => (
         <div key={i}>
-          <Skeleton className="aspect-[4/5] w-full rounded-2xl" />
+          <Skeleton className="aspect-square w-full rounded-2xl" />
           <div className="mt-2.5 space-y-1.5 px-0.5">
             <Skeleton className="h-3 w-16" />
             <Skeleton className="h-4 w-3/4" />
