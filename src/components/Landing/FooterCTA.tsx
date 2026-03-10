@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, Download, Package, Mail, Phone } from "lucide-react";
+import { ArrowRight, Play, Package, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 
 const InstallPWA = () => (
