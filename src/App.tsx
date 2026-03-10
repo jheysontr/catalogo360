@@ -19,6 +19,8 @@ import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import AffiliatePage from "./pages/AffiliatePage";
 import Install from "./pages/Install";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useState, useEffect } from "react";
 
