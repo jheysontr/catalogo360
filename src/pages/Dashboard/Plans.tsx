@@ -112,34 +112,29 @@ const Plans = () => {
   const maxProducts = activePlanDef?.maxProducts ?? 10;
   const isFree = activePlanDef?.monthly === 0;
 
-  const handleChangePlan = async () => {
+  const handleChangePlan = () => {
     if (!confirmPlan || !user) return;
-    setChanging(true);
 
-    // Update store's plan_id in the database
-    const { data: stores } = await supabase
-      .from("stores")
-      .select("id")
-      .eq("user_id", user.id)
-      .limit(1);
+    const price = annual ? confirmPlan.annual : confirmPlan.monthly;
+    const billing = annual ? "Anual" : "Mensual";
+    const lines = [
+      `🛍️ *Solicitud de cambio de plan*`,
+      ``,
+      `👤 *Usuario:* ${user.email}`,
+      `📋 *Plan solicitado:* ${confirmPlan.name}`,
+      `💰 *Precio:* Bs${price.toFixed(2)}/mes`,
+      `📅 *Facturación:* ${billing}`,
+      `📦 *Productos máx:* ${confirmPlan.maxProducts === 9999 ? "Ilimitados" : confirmPlan.maxProducts}`,
+      ``,
+      `_Enviado desde Catalogo360_`,
+    ];
 
-    if (stores?.[0]) {
-      const { error } = await supabase
-        .from("stores")
-        .update({ plan_id: confirmPlan.id })
-        .eq("id", stores[0].id);
+    const msg = encodeURIComponent(lines.join("\n"));
+    const phone = "15713006367";
+    window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${msg}`, "_blank");
 
-      if (error) {
-        toast({ title: "Error", description: error.message, variant: "destructive" });
-        setChanging(false);
-        return;
-      }
-    }
-
-    setCurrentPlan(confirmPlan.id);
-    setChanging(false);
     setConfirmPlan(null);
-    toast({ title: "Plan actualizado", description: `Ahora tienes el plan ${confirmPlan.name}` });
+    toast({ title: "Redirigido a WhatsApp", description: "Completa tu solicitud por WhatsApp para activar tu plan." });
   };
 
   if (loading) {
