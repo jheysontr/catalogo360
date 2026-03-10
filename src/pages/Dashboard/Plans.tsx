@@ -79,7 +79,7 @@ const Plans = () => {
         annual: p.annual_price,
         maxProducts: p.max_products,
         features: Array.isArray(p.features) ? p.features : [],
-        recommended: i === (dbPlans || []).length - 1, // last (most expensive) = recommended
+        recommended: i === 1, // middle plan = recommended
       }));
       setPlans(mappedPlans);
 
