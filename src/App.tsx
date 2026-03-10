@@ -82,13 +82,6 @@ const AppLayout = () => {
 };
 
 const App = () => {
-  const [showSplash, setShowSplash] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 1400);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <ErrorBoundary>
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
@@ -96,7 +89,6 @@ const App = () => {
           <TooltipProvider>
             <CartProvider>
               <WishlistProvider>
-                <SplashScreen show={showSplash} />
                 <Toaster position="top-right" />
                 <BrowserRouter>
                   <AppLayout />
