@@ -1,14 +1,14 @@
 const countries = [
-  { flag: "🇧🇴", name: "Bolivia" },
-  { flag: "🇲🇽", name: "México" },
-  { flag: "🇦🇷", name: "Argentina" },
-  { flag: "🇨🇱", name: "Chile" },
-  { flag: "🇵🇪", name: "Perú" },
-  { flag: "🇨🇴", name: "Colombia" },
-  { flag: "🇺🇾", name: "Uruguay" },
-  { flag: "🇪🇨", name: "Ecuador" },
-  { flag: "🇵🇾", name: "Paraguay" },
-  { flag: "🇻🇪", name: "Venezuela" },
+  { code: "bo", name: "Bolivia" },
+  { code: "mx", name: "México" },
+  { code: "ar", name: "Argentina" },
+  { code: "cl", name: "Chile" },
+  { code: "pe", name: "Perú" },
+  { code: "co", name: "Colombia" },
+  { code: "uy", name: "Uruguay" },
+  { code: "ec", name: "Ecuador" },
+  { code: "py", name: "Paraguay" },
+  { code: "ve", name: "Venezuela" },
 ];
 
 const TrustedBySection = () => (
@@ -19,8 +19,16 @@ const TrustedBySection = () => (
       </p>
       <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-5">
         {countries.map((c) => (
-          <div key={c.name} className="flex flex-col items-center gap-1.5">
-            <span className="text-3xl">{c.flag}</span>
+          <div key={c.code} className="flex flex-col items-center gap-1.5">
+            <img
+              src={`https://flagcdn.com/w40/${c.code}.png`}
+              srcSet={`https://flagcdn.com/w80/${c.code}.png 2x`}
+              width={40}
+              height={30}
+              alt={`Bandera de ${c.name}`}
+              className="rounded-sm shadow-sm"
+              loading="lazy"
+            />
             <span className="text-xs font-medium text-muted-foreground/70">{c.name}</span>
           </div>
         ))}
