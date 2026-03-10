@@ -71,10 +71,7 @@ const Footer = () => (
 );
 
 const FooterCTA = () => (
-  <>
-    <InstallPWA />
-    <CTABanner />
-  </>
+  <CTABanner />
 );
 
 export { Footer };
