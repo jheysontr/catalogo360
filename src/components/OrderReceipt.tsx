@@ -40,6 +40,7 @@ interface OrderReceiptProps {
   onOpenChange: (open: boolean) => void;
   order: ReceiptOrder | null;
   store: ReceiptStore;
+  currency?: string;
 }
 
 const parseItems = (raw: unknown): ReceiptItem[] =>
