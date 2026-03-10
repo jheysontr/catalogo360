@@ -1,27 +1,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, Download, Package, Mail, Phone } from "lucide-react";
+import { ArrowRight, Play, Package, Mail } from "lucide-react";
 import { motion } from "framer-motion";
 
-const InstallPWA = () => (
-  <section className="py-16 sm:py-20">
-    <div className="container">
-      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-        className="mx-auto max-w-2xl rounded-2xl border bg-card p-8 text-center shadow-sm sm:p-10">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10">
-          <Download className="h-6 w-6 text-primary" />
-        </div>
-        <h3 className="font-display text-xl font-bold text-foreground">Instala la app en tu celular</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Accede a Catalogo360 desde tu pantalla de inicio como una app nativa, sin necesidad de tiendas de apps.
-        </p>
-        <Button asChild variant="outline" className="mt-6 gap-2">
-          <Link to="/install">Ver instrucciones <ArrowRight className="h-4 w-4" /></Link>
-        </Button>
-      </motion.div>
-    </div>
-  </section>
-);
 
 const CTABanner = () => (
   <section className="py-20 sm:py-28">
@@ -67,7 +48,7 @@ const Footer = () => (
             <li><Link to="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Inicio</Link></li>
             <li><Link to="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Iniciar sesión</Link></li>
             <li><Link to="/register" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Registrarse</Link></li>
-            <li><Link to="/install" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Instalar App</Link></li>
+            <li><Link to="/register" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Registrarse</Link></li>
           </ul>
         </div>
         <div>
@@ -90,10 +71,7 @@ const Footer = () => (
 );
 
 const FooterCTA = () => (
-  <>
-    <InstallPWA />
-    <CTABanner />
-  </>
+  <CTABanner />
 );
 
 export { Footer };
