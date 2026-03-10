@@ -374,10 +374,10 @@ const Coupons = () => {
                         ? "Envío gratis"
                         : c.discount_type === "percentage"
                           ? `${c.discount_value}%`
-                          : `Bs${c.discount_value.toFixed(2)}`}
+                          : `${currSym} ${c.discount_value.toFixed(2)}`}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {c.min_purchase > 0 ? `$${c.min_purchase.toFixed(2)}` : "—"}
+                      {c.min_purchase > 0 ? `${currSym} ${c.min_purchase.toFixed(2)}` : "—"}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       {c.max_uses != null ? `${c.used_count}/${c.max_uses}` : `${c.used_count}/∞`}
