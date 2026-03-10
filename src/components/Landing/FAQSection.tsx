@@ -2,30 +2,51 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { motion } from "framer-motion";
 
 const faqs = [
-  { q: "¿Qué es Catalogo360?", a: "Catalogo360 es una plataforma que te permite crear tu catálogo digital y tienda online en minutos, sin necesidad de conocimientos técnicos. Ideal para emprendedores en Latinoamérica." },
-  { q: "¿Cómo se crea una tienda?", a: "Solo necesitas registrarte, agregar tus productos con fotos y precios, personalizar tu tienda y compartir el enlace con tus clientes. ¡Todo en menos de 5 minutos!" },
-  { q: "¿Puedo usar Catalogo360 desde el celular?", a: "¡Claro! Tanto el panel de administración como tu tienda pública son 100% responsive y funcionan perfectamente en cualquier dispositivo." },
-  { q: "¿Cuántos productos puedo subir?", a: "Depende de tu plan. El plan Estándar permite hasta 60 productos y el plan Pro hasta 200 productos." },
-  { q: "¿Qué pasa cuando termina el período de prueba?", a: "Puedes elegir un plan de pago para continuar. Si no lo haces, tu tienda seguirá visible pero no podrás agregar nuevos productos hasta que actives un plan." },
-  { q: "¿Es necesario saber diseño o programación?", a: "No. Catalogo360 está diseñado para que cualquier persona pueda crear su tienda sin conocimientos técnicos. Solo arrastra, escribe y publica." },
+  {
+    q: "¿No debería pagar si no tengo productos aún?",
+    a: "Exacto. Plan Gratis es permanente: crea, sube 10 productos, invita clientes. Cuando necesites más (porque vendes), upgrade a Emprendedor Bs 49.",
+  },
+  {
+    q: "¿Qué pasa si pago Emprendedor y no me gusta?",
+    a: "Garantía 30 días: dinero de vuelta, sin preguntas. 78% de usuarios que upgradan se quedan.",
+  },
+  {
+    q: "¿El Plan Gratis es limitado o es trampa?",
+    a: "No es trampa. Plan Gratis real: ✓10 productos ✓Carrito ✓WhatsApp ✓Responsive ✓Sin publicidad ✓SIN EXPIRACIÓN. Límite: solo 10 productos.",
+  },
+  {
+    q: "¿Por qué no ofrecen 30 días trial como Shopify?",
+    a: "Creemos en transparencia. Trial = marketing. Nosotros: Plan Gratis PERMANENTE. Pagas solo cuando expandas. Si nunca vendes, nunca pagas.",
+  },
+  {
+    q: "¿Cómo comparo Emprendedor vs Negocio?",
+    a: "Emprendedor (Bs 49): 50 productos, cupones, envíos. Negocio (Bs 99): ilimitados, integraciones, VIP support. Regla: >50 productos = Negocio.",
+  },
+  {
+    q: "¿Necesito saber diseño o programación?",
+    a: "No. Alguien crea tienda en 10 min sin código. Tu mamá podría hacerlo.",
+  },
 ];
 
 const FAQSection = () => (
-  <section className="border-t bg-secondary/30 py-20 sm:py-28">
+  <section className="py-20 sm:py-28">
     <div className="container max-w-2xl">
       <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
         <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
-          Preguntas <span className="text-primary">Frecuentes</span>
+          Objeciones <span className="text-primary">Comunes</span>
         </h2>
+        <p className="mx-auto mt-3 max-w-md text-muted-foreground">Respuestas honestas a tus dudas antes de empezar.</p>
       </motion.div>
-      <Accordion type="single" collapsible className="mt-12">
-        {faqs.map((faq, i) => (
-          <AccordionItem key={i} value={`faq-${i}`}>
-            <AccordionTrigger className="text-left font-display text-base font-semibold text-foreground">{faq.q}</AccordionTrigger>
-            <AccordionContent className="text-sm leading-relaxed text-muted-foreground">{faq.a}</AccordionContent>
-          </AccordionItem>
-        ))}
-      </Accordion>
+      <div className="mt-12 rounded-2xl border bg-card p-6 sm:p-10 shadow-sm">
+        <Accordion type="single" collapsible>
+          {faqs.map((faq, i) => (
+            <AccordionItem key={i} value={`faq-${i}`}>
+              <AccordionTrigger className="text-left font-display text-base font-semibold text-foreground">{faq.q}</AccordionTrigger>
+              <AccordionContent className="text-sm leading-relaxed text-muted-foreground">{faq.a}</AccordionContent>
+            </AccordionItem>
+          ))}
+        </Accordion>
+      </div>
     </div>
   </section>
 );

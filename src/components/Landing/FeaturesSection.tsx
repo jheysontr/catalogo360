@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowRight, Check, Palette, MousePointerClick, BarChart3, Shield,
+  ArrowRight, Check, Palette, BarChart3, Shield,
   MessageCircle, ShoppingCart, Layers, TrendingUp, Globe, Rocket,
   Clock, MonitorSmartphone, Zap, Users,
 } from "lucide-react";
@@ -29,38 +29,42 @@ const AnimatedCounter = ({ target, suffix = "", duration = 2000 }: { target: num
   return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 };
 
-const WhySection = () => (
-  <section className="py-20 sm:py-28">
-    <div className="container">
-      <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
-        <span className="inline-flex items-center gap-2 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground mb-4">
-          <Rocket className="h-3.5 w-3.5" /> Características
-        </span>
-        <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
-          ¿Por qué elegir <span className="text-primary">Catalogo360</span>?
-        </h2>
-        <p className="mx-auto mt-3 max-w-md text-muted-foreground">Todo lo que necesitas para vender online, en una sola plataforma.</p>
-      </motion.div>
-      <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:gap-8">
-        {[
-          { icon: Palette, title: "Diseño Adaptable", desc: "Personaliza colores, logos y banners para que tu tienda refleje la identidad de tu marca sin necesidad de un diseñador." },
-          { icon: MousePointerClick, title: "Fácil de Usar", desc: "Interfaz intuitiva pensada para emprendedores. Agrega productos, organiza categorías y publica en pocos clics." },
-          { icon: BarChart3, title: "Gestión Inteligente", desc: "Controla inventario, pedidos y métricas desde un solo dashboard. Toma decisiones basadas en datos reales." },
-          { icon: Shield, title: "Control Total", desc: "Tú decides quién ve tu catálogo, los precios y la disponibilidad. Seguridad y privacidad garantizadas." },
-        ].map((card, i) => (
-          <motion.div key={card.title} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}
-            className="group relative rounded-2xl border bg-card p-8 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:border-primary/30">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent transition-colors group-hover:bg-primary/10">
-              <card.icon className="h-6 w-6 text-accent-foreground transition-colors group-hover:text-primary" />
-            </div>
-            <h3 className="mt-5 font-display text-lg font-semibold text-card-foreground">{card.title}</h3>
-            <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{card.desc}</p>
-          </motion.div>
-        ))}
+const WhySection = () => {
+  const benefits = [
+    { emoji: "🌙", title: "VENDE INCLUSO DURMIENDO", desc: "Tu catálogo recibe pedidos 24/7 por WhatsApp, Instagram y web. Tú solo confirmas y envías." },
+    { emoji: "📊", title: "NO PIERDAS MÁS CLIENTES POR DESORDEN", desc: "Un solo dashboard: todos los pedidos, precios, inventario. Antes usabas Excel, Sheets, WhatsApp y llamadas. Fin." },
+    { emoji: "📈", title: "SUBE PRECIOS + GANA MÁS POR VENTA", desc: "Con cupones inteligentes, nuestros usuarios aumentan ticket promedio en 35%." },
+    { emoji: "🔒", title: "TUS DATOS SON TUYOS", desc: "Control total de cliente, precios, margen. Nadie te puede cerrar la tienda de la noche a la mañana." },
+  ];
+
+  return (
+    <section className="py-20 sm:py-28">
+      <div className="container">
+        <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
+          <span className="inline-flex items-center gap-2 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground mb-4">
+            <Rocket className="h-3.5 w-3.5" /> Beneficios
+          </span>
+          <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
+            ¿Por qué elegir <span className="text-primary">Catalogo360</span>?
+          </h2>
+          <p className="mx-auto mt-3 max-w-md text-muted-foreground">Resultados reales para emprendedores reales.</p>
+        </motion.div>
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:gap-8">
+          {benefits.map((card, i) => (
+            <motion.div key={card.title} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}
+              className="group relative rounded-2xl border bg-card p-8 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:border-primary/30">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-2xl">
+                {card.emoji}
+              </div>
+              <h3 className="mt-5 font-display text-lg font-semibold text-card-foreground">{card.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{card.desc}</p>
+            </motion.div>
+          ))}
+        </div>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 const BrowserMockup = ({ url, children }: { url: string; children: React.ReactNode }) => (
   <motion.div whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 300 }}
