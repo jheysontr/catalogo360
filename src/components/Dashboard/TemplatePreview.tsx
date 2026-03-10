@@ -97,21 +97,6 @@ const TemplatePreview = ({
       );
     }
 
-    // Moda gets its own editorial banner
-    if (templateId === "moda") {
-      return (
-        <div className="relative h-28 w-full" style={{ background: bannerUrl ? `url(${bannerUrl}) center/cover` : `linear-gradient(180deg, ${primaryColor}22, ${primaryColor}cc)` }}>
-          <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
-          <div className="absolute top-0 left-0 right-0 flex justify-center pt-2">
-            <span className="text-[5px] uppercase tracking-[0.5em] text-white/50 border-b border-white/20 pb-0.5 px-3">{greeting}</span>
-          </div>
-          <div className="absolute bottom-0 left-0 right-0 p-2 flex items-end justify-between">
-            {bannerDesc && <p className="text-[6px] text-white/60 line-clamp-1 max-w-[120px]">{bannerDesc}</p>}
-            <span className="text-[5px] text-white/50 uppercase tracking-wider">Shop Now</span>
-          </div>
-        </div>
-      );
-    }
 
     switch (theme.bannerStyle) {
       case "full":
