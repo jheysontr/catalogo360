@@ -251,7 +251,7 @@ const ProductDetailDialog = ({
 
   return (
     <Dialog open={!!product} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[92vh] overflow-hidden p-0 sm:max-w-lg md:max-w-2xl rounded-2xl border-0 shadow-2xl [&>button]:z-50 [&>button]:bg-white/80 [&>button]:backdrop-blur-sm [&>button]:rounded-full [&>button]:shadow-sm [&>button]:hover:bg-white">
+      <DialogContent className="max-h-[92vh] overflow-hidden p-0 sm:max-w-lg md:max-w-2xl rounded-2xl border-0 shadow-2xl [&>button]:z-50 [&>button]:h-9 [&>button]:w-9 [&>button]:bg-black/50 [&>button]:text-white [&>button]:backdrop-blur-md [&>button]:rounded-full [&>button]:shadow-lg [&>button]:hover:bg-black/70 [&>button]:transition-all">
         <div className="max-h-[92vh] overflow-y-auto overscroll-contain">
           {/* Gallery */}
           <SwipeGallery
