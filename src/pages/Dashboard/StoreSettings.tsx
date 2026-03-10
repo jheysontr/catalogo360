@@ -601,7 +601,7 @@ const StoreSettings = () => {
                 customBannerDescription={bannerDescription}
               />
               <p className="text-center text-[10px] text-muted-foreground">
-                Así se verá tu tienda con la plantilla <span className="font-semibold">{[...GENERAL_TEMPLATES, ...NICHE_TEMPLATES].find(t => t.value === storeTemplate)?.label || storeTemplate}</span>
+                Así se verá tu tienda con la plantilla <span className="font-semibold">{GENERAL_TEMPLATES.find(t => t.value === storeTemplate)?.label || storeTemplate}</span>
               </p>
             </div>
           </div>
