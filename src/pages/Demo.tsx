@@ -245,6 +245,7 @@ const Demo = () => {
                   product={p}
                   primaryColor={STORE.primary_color}
                   onAdd={handleAdd}
+                  onOpenDetail={setSelectedProduct}
                 />
               ))}
             </div>
