@@ -115,6 +115,7 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
   const [period, setPeriod] = useState("30");
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [storeId, setStoreId] = useState<string | null>(null);
+  const [analyticsTab, setAnalyticsTab] = useState("resumen");
 
   const fmtCurrency = (n: number) => {
     const sym = getCurrencySymbol(currency);

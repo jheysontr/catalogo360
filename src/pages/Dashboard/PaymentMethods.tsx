@@ -33,6 +33,7 @@ const PaymentMethods = () => {
   const [saving, setSaving] = useState(false);
   const [uploadingQr, setUploadingQr] = useState(false);
   const [config, setConfig] = useState<PaymentMethodsConfig>(DEFAULT_CONFIG);
+  const [payTab, setPayTab] = useState("cash");
 
   useEffect(() => {
     if (!user) return;

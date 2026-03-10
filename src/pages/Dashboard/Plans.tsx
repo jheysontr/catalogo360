@@ -64,6 +64,7 @@ const Plans = () => {
 
   // Simulated payment history
   const [payments] = useState<PaymentRecord[]>([]);
+  const [plansTab, setPlansTab] = useState("planes");
 
   useEffect(() => {
     if (!user) return;

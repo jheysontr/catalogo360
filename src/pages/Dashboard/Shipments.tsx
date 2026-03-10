@@ -95,6 +95,7 @@ const Shipments = () => {
   const [saving, setSaving] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<Shipment | null>(null);
+  const [shipmentsTab, setShipmentsTab] = useState("list");
 
   useEffect(() => {
     if (!user) return;
