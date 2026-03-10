@@ -353,12 +353,12 @@ const Orders = () => {
           <h1 className="font-display text-2xl font-bold text-foreground">Órdenes</h1>
           <p className="text-sm text-muted-foreground">{filtered.length} órdenes encontradas</p>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="gap-1.5" onClick={exportCSV} disabled={filtered.length === 0}>
-            <FileDown className="h-4 w-4" /> Exportar CSV
+        <div className="flex flex-wrap items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-1.5 text-xs" onClick={exportCSV} disabled={filtered.length === 0}>
+            <FileDown className="h-4 w-4" /> <span className="hidden xs:inline">Exportar</span> CSV
           </Button>
           <Select value={period} onValueChange={setPeriod}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-32 sm:w-40">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -417,14 +417,14 @@ const Orders = () => {
             </SelectContent>
           </Select>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <DollarSign className="h-4 w-4 text-muted-foreground shrink-0" />
           <Input
             type="number"
             placeholder="Monto mín"
             value={minAmount}
             onChange={(e) => setMinAmount(e.target.value)}
-            className="w-28"
+            className="w-24 sm:w-28"
           />
           <span className="text-xs text-muted-foreground">—</span>
           <Input
@@ -432,10 +432,10 @@ const Orders = () => {
             placeholder="Monto máx"
             value={maxAmount}
             onChange={(e) => setMaxAmount(e.target.value)}
-            className="w-28"
+            className="w-24 sm:w-28"
           />
           {(minAmount || maxAmount || search) && (
-            <Button variant="ghost" size="sm" onClick={() => { setSearch(""); setMinAmount(""); setMaxAmount(""); }}>
+            <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => { setSearch(""); setMinAmount(""); setMaxAmount(""); }}>
               <Filter className="h-3.5 w-3.5 mr-1" /> Limpiar
             </Button>
           )}
