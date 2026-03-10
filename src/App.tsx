@@ -18,6 +18,7 @@ import LinkboxPage from "./pages/LinkboxPage";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import AffiliatePage from "./pages/AffiliatePage";
+import ResetPassword from "./pages/ResetPassword";
 import Demo from "./pages/Demo";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";

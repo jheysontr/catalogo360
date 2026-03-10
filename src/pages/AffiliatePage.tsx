@@ -73,10 +73,21 @@ const AffiliatePage = () => {
     toast({ title: "¡Enlace copiado!" });
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (unauthorized) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-4">
+        <Gift className="h-12 w-12 text-muted-foreground" />
+        <h1 className="text-xl font-bold text-foreground">Acceso denegado</h1>
+        <p className="text-muted-foreground">Debes iniciar sesión como el propietario de este código de afiliado.</p>
+        <Button asChild><Link to="/login">Iniciar sesión</Link></Button>
       </div>
     );
   }
