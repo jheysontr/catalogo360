@@ -63,10 +63,12 @@ const DemoProductCard = ({
   product: p,
   primaryColor,
   onAdd,
+  onOpenDetail,
 }: {
   product: typeof PRODUCTS[0];
   primaryColor: string;
   onAdd: (p: typeof PRODUCTS[0]) => void;
+  onOpenDetail: (p: typeof PRODUCTS[0]) => void;
 }) => {
   const finalPrice = getFinalPrice(p);
   const catName = CATEGORIES.find(c => c.id === p.category_id)?.name ?? null;
