@@ -269,24 +269,6 @@ const StoreSettings = () => {
     );
   }
 
-  const TemplateButton = ({ t }: { t: { value: string; emoji: string; label: string; desc: string } }) => (
-    <button
-      onClick={() => setStoreTemplate(t.value)}
-      className={`rounded-xl border-2 p-3 text-left transition-all ${
-        storeTemplate === t.value
-          ? "border-primary bg-primary/5 shadow-sm ring-1 ring-primary/20"
-          : "border-border hover:border-primary/40 hover:bg-muted/50"
-      }`}
-    >
-      <div className="flex items-center gap-2">
-        <span className="text-lg">{t.emoji}</span>
-        <div>
-          <p className="text-sm font-semibold text-foreground">{t.label}</p>
-          <p className="text-[11px] text-muted-foreground">{t.desc}</p>
-        </div>
-      </div>
-    </button>
-  );
 
   return (
     <div>
