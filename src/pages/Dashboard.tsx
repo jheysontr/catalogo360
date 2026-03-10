@@ -134,7 +134,7 @@ const Dashboard = () => {
         onLogout={handleLogout}
       />
 
-      <div className="flex flex-1 flex-col">
+      <div className="flex flex-1 flex-col min-w-0 overflow-hidden">
         <DashboardHeader
           userName={userName}
           storeId={store?.id}
