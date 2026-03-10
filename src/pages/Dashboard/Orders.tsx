@@ -32,6 +32,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import type { Json } from "@/integrations/supabase/types";
 import OrderReceipt from "@/components/OrderReceipt";
+import { getCurrencySymbol } from "@/lib/currency";
 
 interface ShipmentData {
   shipping_method: string;
