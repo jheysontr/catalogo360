@@ -190,12 +190,13 @@ const Orders = () => {
     if (!user) return;
     supabase
       .from("stores")
-      .select("id, social_media, store_name, logo_url, address, email")
+      .select("id, social_media, store_name, logo_url, address, email, currency")
       .eq("user_id", user.id)
       .limit(1)
       .then(({ data }) => {
         if (data?.[0]) {
           setStoreId(data[0].id);
+          setStoreCurrency(data[0].currency || "BOB");
           const sm = data[0].social_media as Record<string, string> | null;
           setStorePhone(sm?.whatsapp ?? null);
           setStoreData({
