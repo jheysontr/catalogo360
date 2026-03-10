@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
-import { motion } from "framer-motion";
 
 const plans = [
   {
@@ -68,22 +67,18 @@ const plans = [
 const PricingSection = () => (
   <section id="planes" className="py-20 sm:py-28">
     <div className="container">
-      <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
+      <div className="text-center">
         <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
           Planes y <span className="text-primary">Precios</span>
         </h2>
         <p className="mx-auto mt-3 max-w-md text-muted-foreground">Elige el plan perfecto para tu negocio. Cancela cuando quieras.</p>
-      </motion.div>
+      </div>
 
       <div className="mx-auto mt-12 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {plans.map((plan) => (
-          <motion.div
+          <div
             key={plan.name}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            whileHover={{ y: -4 }}
-            className={`relative rounded-2xl border p-8 shadow-sm transition-shadow hover:shadow-lg ${
+            className={`relative rounded-2xl border p-8 shadow-sm transition-all hover:shadow-lg hover:-translate-y-1 ${
               plan.popular
                 ? "border-primary bg-accent/30 ring-2 ring-primary/20 scale-105 shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.2)]"
                 : "bg-card"
@@ -126,7 +121,7 @@ const PricingSection = () => (
             <p className={`mt-3 text-center text-xs italic ${plan.noteColor} font-semibold`}>
               {plan.note}
             </p>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>

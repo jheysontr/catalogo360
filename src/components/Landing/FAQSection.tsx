@@ -1,5 +1,4 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { motion } from "framer-motion";
 
 const faqs = [
   {
@@ -31,12 +30,12 @@ const faqs = [
 const FAQSection = () => (
   <section className="py-20 sm:py-28">
     <div className="container max-w-2xl">
-      <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
+      <div className="text-center">
         <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
           Objeciones <span className="text-primary">Comunes</span>
         </h2>
         <p className="mx-auto mt-3 max-w-md text-muted-foreground">Respuestas honestas a tus dudas antes de empezar.</p>
-      </motion.div>
+      </div>
       <div className="mt-12 rounded-2xl border bg-card p-6 sm:p-10 shadow-sm">
         <Accordion type="single" collapsible>
           {faqs.map((faq, i) => (

@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Play, Package, Mail, Check } from "lucide-react";
-import { motion } from "framer-motion";
+import { ArrowRight, Play, Package, Mail } from "lucide-react";
 
 const securityPoints = [
   { icon: "✅", title: "Sin tarjeta requerida", desc: "Crea gratis. Sin datos de pago." },
@@ -12,8 +11,7 @@ const securityPoints = [
 const CTABanner = () => (
   <section className="py-20 sm:py-28">
     <div className="container">
-      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}
-        className="relative mx-auto max-w-4xl overflow-hidden rounded-3xl border bg-gradient-to-br from-accent via-accent/50 to-primary/5 p-10 text-center shadow-lg sm:p-16">
+      <div className="relative mx-auto max-w-4xl overflow-hidden rounded-3xl border bg-gradient-to-br from-accent via-accent/50 to-primary/5 p-10 text-center shadow-lg sm:p-16">
         <div className="pointer-events-none absolute -right-20 -top-20 h-60 w-60 rounded-full bg-primary/10 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-20 -left-20 h-60 w-60 rounded-full bg-accent/30 blur-3xl" />
         <div className="relative z-10">
@@ -46,7 +44,7 @@ const CTABanner = () => (
             ⏱️ Toma 5 minutos. +500 tiendas creadas este mes.
           </p>
         </div>
-      </motion.div>
+      </div>
     </div>
   </section>
 );
