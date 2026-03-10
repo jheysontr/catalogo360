@@ -121,13 +121,7 @@ const SetupWizard = ({ storeId, storeName: initialName, storeSlug: initialSlug, 
     }
   };
 
-  const handleSkip = async () => {
-    setSaving(true);
-    await supabase
-      .from("stores")
-      .update({ setup_completed: true } as any)
-      .eq("id", storeId);
-    setSaving(false);
+  const handleSkip = () => {
     onComplete();
   };
 

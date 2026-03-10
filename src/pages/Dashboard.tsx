@@ -63,12 +63,14 @@ const Dashboard = () => {
   useRealtimeOrders(store?.id ?? null);
   const { isAdmin } = useAdminCheck();
 
-  // Show wizard for first-time users
+  const setupPending = store ? !store.setup_completed : false;
+
+  // Show wizard on first load if setup not completed
   useEffect(() => {
-    if (store && !(store as any).setup_completed) {
+    if (setupPending) {
       setShowWizard(true);
     }
-  }, [store]);
+  }, [setupPending]);
 
   const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuario";
 
