@@ -5,6 +5,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Printer, Download } from "lucide-react";
+import { getCurrencySymbol } from "@/lib/currency";
 
 interface ReceiptItem {
   name?: string;
@@ -39,6 +40,7 @@ interface OrderReceiptProps {
   onOpenChange: (open: boolean) => void;
   order: ReceiptOrder | null;
   store: ReceiptStore;
+  currency?: string;
 }
 
 const parseItems = (raw: unknown): ReceiptItem[] =>
@@ -46,7 +48,7 @@ const parseItems = (raw: unknown): ReceiptItem[] =>
 const getName = (i: ReceiptItem) => i.name || i.product_name || "Producto";
 const getQty = (i: ReceiptItem) => i.quantity ?? i.qty ?? 1;
 const getPrice = (i: ReceiptItem) => i.price ?? i.unit_price ?? 0;
-const fmtCurrency = (n: number) => `Bs ${n.toFixed(2)}`;
+// fmtCurrency is now defined inside the component
 const shortId = (id: string) => id.slice(0, 8).toUpperCase();
 
 const statusLabel: Record<string, string> = {
@@ -56,8 +58,9 @@ const statusLabel: Record<string, string> = {
   cancelled: "Cancelada",
 };
 
-const OrderReceipt = ({ open, onOpenChange, order, store }: OrderReceiptProps) => {
+const OrderReceipt = ({ open, onOpenChange, order, store, currency = "BOB" }: OrderReceiptProps) => {
   const receiptRef = useRef<HTMLDivElement>(null);
+  const fmtCurrency = (n: number) => `${getCurrencySymbol(currency)} ${n.toFixed(2)}`;
 
   if (!order) return null;
 

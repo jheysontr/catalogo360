@@ -27,6 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Plus, Loader2, MoreVertical, Pencil, Trash2, Ticket, Copy,
 } from "lucide-react";
+import { getCurrencySymbol } from "@/lib/currency";
 
 interface Coupon {
   id: string;
@@ -48,6 +49,8 @@ const Coupons = () => {
   const { toast } = useToast();
 
   const [storeId, setStoreId] = useState<string | null>(null);
+  const [storeCurrency, setStoreCurrency] = useState("BOB");
+  const currSym = getCurrencySymbol(storeCurrency);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -74,11 +77,12 @@ const Coupons = () => {
     (async () => {
       const { data } = await supabase
         .from("stores")
-        .select("id")
+        .select("id, currency")
         .eq("user_id", user.id)
         .limit(1);
       if (data?.[0]) {
         setStoreId(data[0].id);
+        setStoreCurrency(data[0].currency || "BOB");
       }
     })();
   }, [user]);
@@ -301,7 +305,7 @@ const Coupons = () => {
                         ? "Envío gratis"
                         : c.discount_type === "percentage"
                           ? `${c.discount_value}%`
-                          : `Bs${c.discount_value.toFixed(2)}`}
+                      : `${currSym} ${c.discount_value.toFixed(2)}`}
                     </p>
                   </div>
                   <div className="space-y-1 text-center">
@@ -370,10 +374,10 @@ const Coupons = () => {
                         ? "Envío gratis"
                         : c.discount_type === "percentage"
                           ? `${c.discount_value}%`
-                          : `Bs${c.discount_value.toFixed(2)}`}
+                          : `${currSym} ${c.discount_value.toFixed(2)}`}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
-                      {c.min_purchase > 0 ? `$${c.min_purchase.toFixed(2)}` : "—"}
+                      {c.min_purchase > 0 ? `${currSym} ${c.min_purchase.toFixed(2)}` : "—"}
                     </TableCell>
                     <TableCell className="hidden md:table-cell">
                       {c.max_uses != null ? `${c.used_count}/${c.max_uses}` : `${c.used_count}/∞`}
@@ -463,7 +467,7 @@ const Coupons = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="percentage">Porcentaje (%)</SelectItem>
-                    <SelectItem value="fixed">Monto fijo (Bs)</SelectItem>
+                    <SelectItem value="fixed">Monto fijo ({currSym})</SelectItem>
                     <SelectItem value="free_shipping">Envío gratis</SelectItem>
                   </SelectContent>
                 </Select>

@@ -32,6 +32,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import type { Json } from "@/integrations/supabase/types";
 import OrderReceipt from "@/components/OrderReceipt";
+import { getCurrencySymbol } from "@/lib/currency";
 
 interface ShipmentData {
   shipping_method: string;
@@ -120,8 +121,7 @@ const itemName = (i: OrderItem) => i.name || i.product_name || "Producto";
 const itemQty = (i: OrderItem) => i.quantity ?? i.qty ?? 1;
 const itemPrice = (i: OrderItem) => i.price ?? i.unit_price ?? 0;
 
-const fmtCurrency = (n: number) =>
-  `Bs${n.toFixed(2)}`;
+// fmtCurrency is now defined inside the component using store currency
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString("es", {
@@ -158,7 +158,13 @@ const Orders = () => {
 
   const [storeId, setStoreId] = useState<string | null>(null);
   const [storePhone, setStorePhone] = useState<string | null>(null);
+  const [storeCurrency, setStoreCurrency] = useState("BOB");
   const [storeData, setStoreData] = useState<{ store_name: string; logo_url?: string | null; address?: string | null; email?: string | null; social_media?: Record<string, string> | null }>({ store_name: "" });
+
+  const fmtCurrency = (n: number) => {
+    const sym = getCurrencySymbol(storeCurrency);
+    return `${sym} ${n.toFixed(2)}`;
+  };
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -184,12 +190,13 @@ const Orders = () => {
     if (!user) return;
     supabase
       .from("stores")
-      .select("id, social_media, store_name, logo_url, address, email")
+      .select("id, social_media, store_name, logo_url, address, email, currency")
       .eq("user_id", user.id)
       .limit(1)
       .then(({ data }) => {
         if (data?.[0]) {
           setStoreId(data[0].id);
+          setStoreCurrency(data[0].currency || "BOB");
           const sm = data[0].social_media as Record<string, string> | null;
           setStorePhone(sm?.whatsapp ?? null);
           setStoreData({
@@ -796,6 +803,7 @@ const Orders = () => {
         onOpenChange={(o) => { if (!o) setReceiptOrder(null); }}
         order={receiptOrder}
         store={storeData}
+        currency={storeCurrency}
       />
     </div>
   );
