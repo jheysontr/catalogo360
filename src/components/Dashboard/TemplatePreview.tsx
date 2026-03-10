@@ -83,15 +83,18 @@ const TemplatePreview = ({
   const renderBanner = () => {
     if (isClassic) {
       return (
-        <div className="relative">
-          <div className="h-20 w-full" style={{ background: bannerUrl ? `url(${bannerUrl}) center/cover` : secondaryColor }}>
-            {bannerUrl && <div className="absolute inset-0 h-20" style={{ backgroundColor: `${secondaryColor}aa` }} />}
-          </div>
-          <div className="relative -mt-6 flex flex-col items-center px-3 pb-2">
-            <div className="h-11 w-11 rounded-full border-2 border-background overflow-hidden flex items-center justify-center" style={{ backgroundColor: primaryColor }}>
-              {logoUrl ? <img src={logoUrl} alt="" className="h-full w-full object-cover" /> : <StoreIcon className="h-4 w-4 text-white" />}
+        <div className="relative h-24 w-full overflow-hidden" style={{ background: bannerUrl ? `url(${bannerUrl}) center/cover` : `linear-gradient(160deg, ${secondaryColor}, ${primaryColor})` }}>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-2.5">
+            <div className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-xl border-2 border-white/30 overflow-hidden flex items-center justify-center" style={{ backgroundColor: primaryColor }}>
+                {logoUrl ? <img src={logoUrl} alt="" className="h-full w-full object-cover" /> : <StoreIcon className="h-3 w-3 text-white" />}
+              </div>
+              <div>
+                <p className="text-[9px] font-bold text-white">{storeName || "Mi Tienda"}</p>
+                {description && <p className="text-[6px] text-white/60 line-clamp-1">{description}</p>}
+              </div>
             </div>
-            <p className="mt-0.5 text-[9px] font-bold text-foreground">{storeName || "Mi Tienda"}</p>
           </div>
         </div>
       );
