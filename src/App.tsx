@@ -18,7 +18,6 @@ import LinkboxPage from "./pages/LinkboxPage";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import AffiliatePage from "./pages/AffiliatePage";
-import ErrorBoundary from "@/components/ErrorBoundary";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import ErrorBoundary from "@/components/ErrorBoundary";
