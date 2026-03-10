@@ -467,7 +467,7 @@ const Coupons = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="percentage">Porcentaje (%)</SelectItem>
-                    <SelectItem value="fixed">Monto fijo (Bs)</SelectItem>
+                    <SelectItem value="fixed">Monto fijo ({currSym})</SelectItem>
                     <SelectItem value="free_shipping">Envío gratis</SelectItem>
                   </SelectContent>
                 </Select>

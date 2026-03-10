@@ -803,6 +803,7 @@ const Orders = () => {
         onOpenChange={(o) => { if (!o) setReceiptOrder(null); }}
         order={receiptOrder}
         store={storeData}
+        currency={storeCurrency}
       />
     </div>
   );

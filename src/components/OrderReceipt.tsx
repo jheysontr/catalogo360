@@ -58,8 +58,9 @@ const statusLabel: Record<string, string> = {
   cancelled: "Cancelada",
 };
 
-const OrderReceipt = ({ open, onOpenChange, order, store }: OrderReceiptProps) => {
+const OrderReceipt = ({ open, onOpenChange, order, store, currency = "BOB" }: OrderReceiptProps) => {
   const receiptRef = useRef<HTMLDivElement>(null);
+  const fmtCurrency = (n: number) => `${getCurrencySymbol(currency)} ${n.toFixed(2)}`;
 
   if (!order) return null;
 
