@@ -4,7 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs } from "@/components/ui/tabs";
+import ResponsiveTabsList from "@/components/Dashboard/ResponsiveTabs";
 import { Card } from "@/components/ui/card";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -346,7 +347,7 @@ const Orders = () => {
 
   /* ── Render ── */
   return (
-    <div className="space-y-6 min-w-0 overflow-hidden">
+    <div className="space-y-6 min-w-0">
       {/* Header */}
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -372,26 +373,23 @@ const Orders = () => {
 
       {/* Status Tabs */}
       <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
-        <TabsList className="dashboard-tabs-list">
-          {STATUS_OPTIONS.map((o) => (
-            <TabsTrigger
-              key={o.value}
-              value={o.value}
-              className="dashboard-tab-trigger gap-1.5"
-            >
-              {o.label}
-              {statusCounts[o.value] > 0 && (
-                <span className={`ml-1 min-w-[18px] rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
-                  o.value === "pending" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400"
-                  : o.value === "cancelled" ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400"
-                  : "bg-muted text-muted-foreground"
-                }`}>
-                  {statusCounts[o.value]}
-                </span>
-              )}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <ResponsiveTabsList
+          value={statusFilter}
+          onValueChange={setStatusFilter}
+          options={STATUS_OPTIONS.map((o) => ({
+            value: o.value,
+            label: o.label,
+            badge: statusCounts[o.value] > 0 ? (
+              <span className={`ml-1 min-w-[18px] rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
+                o.value === "pending" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400"
+                : o.value === "cancelled" ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400"
+                : "bg-muted text-muted-foreground"
+              }`}>
+                {statusCounts[o.value]}
+              </span>
+            ) : undefined,
+          }))}
+        />
       </Tabs>
 
       {/* Filters */}

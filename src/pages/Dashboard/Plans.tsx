@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import ResponsiveTabsList from "@/components/Dashboard/ResponsiveTabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,6 +64,7 @@ const Plans = () => {
 
   // Simulated payment history
   const [payments] = useState<PaymentRecord[]>([]);
+  const [plansTab, setPlansTab] = useState("planes");
 
   useEffect(() => {
     if (!user) return;
@@ -184,17 +186,15 @@ const Plans = () => {
       </Card>
 
       {/* Tabs */}
-      <Tabs defaultValue="planes" className="w-full">
-        <TabsList className="dashboard-tabs-list">
-          <TabsTrigger value="planes" className="dashboard-tab-trigger gap-1.5">
-            <CreditCard className="h-4 w-4" />
-            Planes
-          </TabsTrigger>
-          <TabsTrigger value="historial" className="dashboard-tab-trigger gap-1.5">
-            <Clock className="h-4 w-4" />
-            Historial
-          </TabsTrigger>
-        </TabsList>
+      <Tabs value={plansTab} onValueChange={setPlansTab} className="w-full">
+        <ResponsiveTabsList
+          value={plansTab}
+          onValueChange={setPlansTab}
+          options={[
+            { value: "planes", label: "Planes", icon: <CreditCard className="h-4 w-4" /> },
+            { value: "historial", label: "Historial", icon: <Clock className="h-4 w-4" /> },
+          ]}
+        />
 
         {/* Tab: Planes */}
         <TabsContent value="planes" className="mt-6 space-y-6">

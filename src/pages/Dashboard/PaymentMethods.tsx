@@ -7,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import ResponsiveTabsList from "@/components/Dashboard/ResponsiveTabs";
 import { Loader2, Upload, Banknote, Building2, QrCode, X, ImagePlus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { compressImage } from "@/lib/imageCompression";
@@ -32,6 +33,7 @@ const PaymentMethods = () => {
   const [saving, setSaving] = useState(false);
   const [uploadingQr, setUploadingQr] = useState(false);
   const [config, setConfig] = useState<PaymentMethodsConfig>(DEFAULT_CONFIG);
+  const [payTab, setPayTab] = useState("cash");
 
   useEffect(() => {
     if (!user) return;
@@ -135,18 +137,16 @@ const PaymentMethods = () => {
         </p>
       </div>
 
-      <Tabs defaultValue="cash" className="w-full">
-        <TabsList className="dashboard-tabs-list">
-          <TabsTrigger value="cash" className="dashboard-tab-trigger gap-1.5">
-            <Banknote className="h-4 w-4" /> Efectivo
-          </TabsTrigger>
-          <TabsTrigger value="bank" className="dashboard-tab-trigger gap-1.5">
-            <Building2 className="h-4 w-4" /> Transferencia
-          </TabsTrigger>
-          <TabsTrigger value="qr" className="dashboard-tab-trigger gap-1.5">
-            <QrCode className="h-4 w-4" /> Pago QR
-          </TabsTrigger>
-        </TabsList>
+      <Tabs value={payTab} onValueChange={setPayTab} className="w-full">
+        <ResponsiveTabsList
+          value={payTab}
+          onValueChange={setPayTab}
+          options={[
+            { value: "cash", label: "Efectivo", icon: <Banknote className="h-4 w-4" /> },
+            { value: "bank", label: "Transferencia", icon: <Building2 className="h-4 w-4" /> },
+            { value: "qr", label: "Pago QR", icon: <QrCode className="h-4 w-4" /> },
+          ]}
+        />
 
         <TabsContent value="cash">
           <Card>

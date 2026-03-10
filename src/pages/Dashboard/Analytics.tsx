@@ -2,7 +2,8 @@ import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import ResponsiveTabsList from "@/components/Dashboard/ResponsiveTabs";
 import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -114,6 +115,7 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
   const [period, setPeriod] = useState("30");
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [storeId, setStoreId] = useState<string | null>(null);
+  const [analyticsTab, setAnalyticsTab] = useState("resumen");
 
   const fmtCurrency = (n: number) => {
     const sym = getCurrencySymbol(currency);
@@ -271,21 +273,16 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
       </div>
 
       {/* Tabs */}
-      <Tabs defaultValue="resumen" className="w-full">
-        <TabsList className="dashboard-tabs-list">
-          <TabsTrigger value="resumen" className="dashboard-tab-trigger gap-1.5">
-            <Eye className="h-4 w-4" />
-            Resumen
-          </TabsTrigger>
-          <TabsTrigger value="productos" className="dashboard-tab-trigger gap-1.5">
-            <Package className="h-4 w-4" />
-            Productos
-          </TabsTrigger>
-          <TabsTrigger value="ordenes" className="dashboard-tab-trigger gap-1.5">
-            <ShoppingCart className="h-4 w-4" />
-            Órdenes
-          </TabsTrigger>
-        </TabsList>
+      <Tabs value={analyticsTab} onValueChange={setAnalyticsTab} className="w-full">
+        <ResponsiveTabsList
+          value={analyticsTab}
+          onValueChange={setAnalyticsTab}
+          options={[
+            { value: "resumen", label: "Resumen", icon: <Eye className="h-4 w-4" /> },
+            { value: "productos", label: "Productos", icon: <Package className="h-4 w-4" /> },
+            { value: "ordenes", label: "Órdenes", icon: <ShoppingCart className="h-4 w-4" /> },
+          ]}
+        />
 
         {/* Tab: Resumen */}
         <TabsContent value="resumen" className="mt-6 space-y-6">

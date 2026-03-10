@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/lib/AuthContext";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import ResponsiveTabsList from "@/components/Dashboard/ResponsiveTabs";
 import ShippingConfig from "@/pages/Dashboard/ShippingConfig";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -94,6 +95,7 @@ const Shipments = () => {
   const [saving, setSaving] = useState(false);
 
   const [deleteTarget, setDeleteTarget] = useState<Shipment | null>(null);
+  const [shipmentsTab, setShipmentsTab] = useState("list");
 
   useEffect(() => {
     if (!user) return;
@@ -207,15 +209,15 @@ const Shipments = () => {
         <p className="text-sm text-muted-foreground">Gestiona los envíos y configuración de métodos de envío</p>
       </div>
 
-      <Tabs defaultValue="list" className="w-full">
-        <TabsList className="dashboard-tabs-list">
-          <TabsTrigger value="list" className="dashboard-tab-trigger gap-1.5">
-            <Package className="h-4 w-4" /> Envíos
-          </TabsTrigger>
-          <TabsTrigger value="config" className="dashboard-tab-trigger gap-1.5">
-            <Truck className="h-4 w-4" /> Configuración
-          </TabsTrigger>
-        </TabsList>
+      <Tabs value={shipmentsTab} onValueChange={setShipmentsTab} className="w-full">
+        <ResponsiveTabsList
+          value={shipmentsTab}
+          onValueChange={setShipmentsTab}
+          options={[
+            { value: "list", label: "Envíos", icon: <Package className="h-4 w-4" /> },
+            { value: "config", label: "Configuración", icon: <Truck className="h-4 w-4" /> },
+          ]}
+        />
 
         <TabsContent value="list" className="mt-4 space-y-6">
 
