@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,19 +8,31 @@ import {
   Loader2, Users, DollarSign, TrendingUp, Copy, ExternalLink, Gift,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/lib/AuthContext";
 
 const AffiliatePage = () => {
   const { code } = useParams<{ code: string }>();
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [referrer, setReferrer] = useState<any>(null);
   const [referrals, setReferrals] = useState<any[]>([]);
   const [config, setConfig] = useState<any>(null);
   const [notFound, setNotFound] = useState(false);
+  const [unauthorized, setUnauthorized] = useState(false);
 
   useEffect(() => {
-    if (!code) return;
+    if (!code || authLoading) return;
+
     (async () => {
+      // Require authentication
+      if (!user) {
+        setUnauthorized(true);
+        setLoading(false);
+        return;
+      }
+
       const [configRes, referrerRes] = await Promise.all([
         supabase.from("platform_referral_config" as any).select("*").limit(1),
         supabase.from("platform_referrers" as any).select("*").eq("referral_code", code).limit(1),
@@ -35,9 +47,16 @@ const AffiliatePage = () => {
         setLoading(false);
         return;
       }
+
+      // Verify the current user owns this referral code
+      if (ref.user_id !== user.id) {
+        setUnauthorized(true);
+        setLoading(false);
+        return;
+      }
+
       setReferrer(ref);
 
-      // Fetch referrals for this referrer (public view — only shows counts)
       const { data: refs } = await supabase
         .from("platform_referrals" as any)
         .select("*")
@@ -46,7 +65,7 @@ const AffiliatePage = () => {
       setReferrals((refs as any) ?? []);
       setLoading(false);
     })();
-  }, [code]);
+  }, [code, user, authLoading]);
 
   const copyLink = () => {
     const link = `${window.location.origin}/register?ref=${code}`;
