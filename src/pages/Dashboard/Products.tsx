@@ -224,22 +224,16 @@ const Products = () => {
 
       {/* Status Tabs */}
       <Tabs value={filterStatus} onValueChange={setFilterStatus} className="w-full">
-        <TabsList className="dashboard-tabs-list">
-          {[
+        <ResponsiveTabsList
+          value={filterStatus}
+          onValueChange={setFilterStatus}
+          options={[
             { value: "all", label: "Todos" },
             { value: "active", label: "Activos" },
             { value: "on_sale", label: "En oferta" },
             { value: "inactive", label: "Agotados" },
-          ].map((tab) => (
-            <TabsTrigger
-              key={tab.value}
-              value={tab.value}
-              className="dashboard-tab-trigger"
-            >
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+          ]}
+        />
       </Tabs>
 
       {/* Toolbar */}
