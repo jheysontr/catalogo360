@@ -51,12 +51,6 @@ const GENERAL_TEMPLATES = [
   { value: "moderna", emoji: "🚀", label: "Moderna", desc: "Audaz y dinámica" },
 ];
 
-const NICHE_TEMPLATES = [
-  { value: "comida", emoji: "🍔", label: "Comida", desc: "Restaurantes y delivery" },
-  { value: "frutas", emoji: "🍎", label: "Frutas y Orgánicos", desc: "Productos frescos y naturales" },
-  { value: "moda", emoji: "👗", label: "Moda y Ropa", desc: "Estilo editorial fashion" },
-  { value: "electronica", emoji: "🔌", label: "Electrónica", desc: "Tech y repuestos" },
-];
 
 const StoreSettings = () => {
   const { user } = useAuth();
@@ -584,17 +578,6 @@ const StoreSettings = () => {
                   </div>
                 </div>
 
-                <Separator />
-
-                {/* Niche */}
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Por categoría de negocio</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {NICHE_TEMPLATES.map((t) => (
-                      <TemplateButton key={t.value} t={t} />
-                    ))}
-                  </div>
-                </div>
               </CardContent>
             </Card>
 
@@ -618,7 +601,7 @@ const StoreSettings = () => {
                 customBannerDescription={bannerDescription}
               />
               <p className="text-center text-[10px] text-muted-foreground">
-                Así se verá tu tienda con la plantilla <span className="font-semibold">{[...GENERAL_TEMPLATES, ...NICHE_TEMPLATES].find(t => t.value === storeTemplate)?.label || storeTemplate}</span>
+                Así se verá tu tienda con la plantilla <span className="font-semibold">{GENERAL_TEMPLATES.find(t => t.value === storeTemplate)?.label || storeTemplate}</span>
               </p>
             </div>
           </div>

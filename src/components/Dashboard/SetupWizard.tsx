@@ -38,10 +38,6 @@ const TEMPLATES = [
   { value: "app", emoji: "📱", label: "App", desc: "Estilo app móvil" },
   { value: "elegante", emoji: "✨", label: "Elegante", desc: "Minimalista y sofisticado" },
   { value: "moderna", emoji: "🚀", label: "Moderna", desc: "Audaz y dinámica" },
-  { value: "comida", emoji: "🍔", label: "Comida", desc: "Restaurantes y delivery" },
-  { value: "frutas", emoji: "🍎", label: "Frutas", desc: "Productos frescos" },
-  { value: "moda", emoji: "👗", label: "Moda", desc: "Fashion editorial" },
-  { value: "electronica", emoji: "🔌", label: "Electrónica", desc: "Tech y gadgets" },
 ];
 
 const STEPS = [
