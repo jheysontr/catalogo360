@@ -31,7 +31,7 @@ const FloatingCTA = () => {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 100, opacity: 0 }}
           transition={{ duration: 0.3, ease: "easeOut" }}
-          className="fixed bottom-6 right-6 z-[999] rounded-2xl border bg-primary p-4 shadow-[0_8px_24px_hsl(var(--primary)/0.3)]"
+          className="fixed bottom-6 right-4 left-4 sm:left-auto sm:right-6 z-[999] rounded-2xl border bg-primary p-4 shadow-[0_8px_24px_hsl(var(--primary)/0.3)]"
         >
           <button
             onClick={() => setDismissed(true)}
