@@ -155,7 +155,7 @@ const ShippingConfig = () => {
           <CardDescription>Ofrece envío gratis a partir de un monto mínimo de compra</CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
             <Label htmlFor="free-threshold" className="whitespace-nowrap">Envío gratis a partir de $</Label>
             <Input
               id="free-threshold"
@@ -165,7 +165,7 @@ const ShippingConfig = () => {
               value={config.free_shipping_threshold || ""}
               onChange={(e) => update("free_shipping_threshold", Number(e.target.value) || 0)}
               placeholder="0 = desactivado"
-              className="w-40"
+              className="w-full sm:w-40"
             />
           </div>
           <p className="mt-1.5 text-xs text-muted-foreground">Coloca 0 para desactivar el envío gratis automático</p>
