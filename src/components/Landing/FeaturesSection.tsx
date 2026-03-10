@@ -5,7 +5,6 @@ import {
   MessageCircle, ShoppingCart, Layers, TrendingUp, Globe, Rocket,
   Clock, MonitorSmartphone, Zap, Users,
 } from "lucide-react";
-import { motion, useInView } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 import demoStorefront from "@/assets/demo-storefront.jpg";
 import demoAnalytics from "@/assets/demo-analytics.jpg";
@@ -13,10 +12,19 @@ import demoAnalytics from "@/assets/demo-analytics.jpg";
 const AnimatedCounter = ({ target, suffix = "", duration = 2000 }: { target: number; suffix?: string; duration?: number }) => {
   const [count, setCount] = useState(0);
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useInView(ref, { once: true });
+  const [started, setStarted] = useState(false);
 
   useEffect(() => {
-    if (!isInView) return;
+    if (!ref.current || started) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) { setStarted(true); observer.disconnect(); }
+    }, { threshold: 0.5 });
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [started]);
+
+  useEffect(() => {
+    if (!started) return;
     let start = 0;
     const step = Math.ceil(target / (duration / 16));
     const timer = setInterval(() => {
@@ -24,7 +32,7 @@ const AnimatedCounter = ({ target, suffix = "", duration = 2000 }: { target: num
       if (start >= target) { setCount(target); clearInterval(timer); } else { setCount(start); }
     }, 16);
     return () => clearInterval(timer);
-  }, [isInView, target, duration]);
+  }, [started, target, duration]);
 
   return <span ref={ref}>{count.toLocaleString()}{suffix}</span>;
 };
@@ -40,7 +48,7 @@ const WhySection = () => {
   return (
     <section className="py-20 sm:py-28">
       <div className="container">
-        <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
+        <div className="text-center">
           <span className="inline-flex items-center gap-2 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground mb-4">
             <Rocket className="h-3.5 w-3.5" /> Beneficios
           </span>
@@ -48,17 +56,17 @@ const WhySection = () => {
             ¿Por qué elegir <span className="text-primary">Catalogo360</span>?
           </h2>
           <p className="mx-auto mt-3 max-w-md text-muted-foreground">Resultados reales para emprendedores reales.</p>
-        </motion.div>
+        </div>
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:gap-8">
-          {benefits.map((card, i) => (
-            <motion.div key={card.title} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }}
+          {benefits.map((card) => (
+            <div key={card.title}
               className="group relative rounded-2xl border bg-card p-8 shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-1 hover:border-primary/30">
               <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-accent text-2xl">
                 {card.emoji}
               </div>
               <h3 className="mt-5 font-display text-lg font-semibold text-card-foreground">{card.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{card.desc}</p>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
@@ -67,8 +75,7 @@ const WhySection = () => {
 };
 
 const BrowserMockup = ({ url, children }: { url: string; children: React.ReactNode }) => (
-  <motion.div whileHover={{ y: -4 }} transition={{ type: "spring", stiffness: 300 }}
-    className="rounded-2xl border bg-card shadow-[0_25px_60px_-15px_rgba(0,0,0,0.25)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)]">
+  <div className="rounded-2xl border bg-card shadow-[0_25px_60px_-15px_rgba(0,0,0,0.25)] dark:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] transition-transform hover:-translate-y-1">
     <div className="flex items-center gap-2 border-b px-3 py-2.5">
       <div className="flex items-center gap-1.5">
         <span className="h-2.5 w-2.5 rounded-full bg-destructive/80" />
@@ -80,14 +87,14 @@ const BrowserMockup = ({ url, children }: { url: string; children: React.ReactNo
       </div>
     </div>
     <div className="overflow-hidden rounded-b-2xl">{children}</div>
-  </motion.div>
+  </div>
 );
 
 const StorefrontShowcase = () => (
   <section className="border-t bg-secondary/30 py-20 sm:py-28">
     <div className="container">
       <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-        <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+        <div>
           <span className="inline-flex items-center gap-2 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
             <ShoppingCart className="h-3.5 w-3.5" /> Tienda Online
           </span>
@@ -105,12 +112,12 @@ const StorefrontShowcase = () => (
           <div className="mt-8">
             <Button asChild size="lg" className="gap-2"><Link to="/demo">Ver tienda demo <ArrowRight className="h-4 w-4" /></Link></Button>
           </div>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="relative">
+        </div>
+        <div className="relative">
           <BrowserMockup url="catalogo360.online/mi-tienda">
             <img src={demoStorefront} alt="Vista de la tienda online de Catalogo360" className="w-full" loading="lazy" />
           </BrowserMockup>
-        </motion.div>
+        </div>
       </div>
     </div>
   </section>
@@ -120,12 +127,12 @@ const DashboardShowcase = () => (
   <section className="py-20 sm:py-28">
     <div className="container">
       <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-        <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="order-2 lg:order-1">
+        <div className="order-2 lg:order-1">
           <BrowserMockup url="catalogo360.app/dashboard/analytics">
             <img src={demoAnalytics} alt="Panel de analíticas de Catalogo360" className="w-full" loading="lazy" />
           </BrowserMockup>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="order-1 lg:order-2">
+        </div>
+        <div className="order-1 lg:order-2">
           <span className="inline-flex items-center gap-2 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
             <TrendingUp className="h-3.5 w-3.5" /> Analíticas
           </span>
@@ -140,7 +147,7 @@ const DashboardShowcase = () => (
               <li key={f} className="flex items-center gap-2 text-sm text-muted-foreground"><Check className="h-4 w-4 shrink-0 text-primary" /> {f}</li>
             ))}
           </ul>
-        </motion.div>
+        </div>
       </div>
     </div>
   </section>
@@ -150,7 +157,7 @@ const HowOrdersWork = () => (
   <section className="border-t bg-secondary/30 py-20 sm:py-28">
     <div className="container">
       <div className="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
-        <motion.div initial={{ opacity: 0, x: -30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }} className="mx-auto w-full max-w-sm">
+        <div className="mx-auto w-full max-w-sm">
           <div className="rounded-2xl border bg-card p-5 shadow-lg">
             <div className="mb-4 flex items-center gap-3 border-b pb-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15">
@@ -161,15 +168,14 @@ const HowOrdersWork = () => (
                 <p className="text-xs text-muted-foreground">Nuevo pedido recibido</p>
               </div>
             </div>
-            {["🛒 Pedido #1042", "👤 María López", "📦 3 productos — $45.00", "✅ Estado: Confirmado"].map((line, i) => (
-              <motion.div key={line} initial={{ opacity: 0, x: -10 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.3 + i * 0.15 }}
-                className="mb-2 w-fit max-w-[80%] rounded-xl rounded-tl-none bg-accent px-4 py-2 text-sm text-accent-foreground">
+            {["🛒 Pedido #1042", "👤 María López", "📦 3 productos — $45.00", "✅ Estado: Confirmado"].map((line) => (
+              <div key={line} className="mb-2 w-fit max-w-[80%] rounded-xl rounded-tl-none bg-accent px-4 py-2 text-sm text-accent-foreground">
                 {line}
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, x: 30 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ duration: 0.6 }}>
+        </div>
+        <div>
           <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
             Así recibes tus pedidos con <span className="text-primary">Catalogo360</span>
           </h2>
@@ -183,13 +189,13 @@ const HowOrdersWork = () => (
               "Recibes el pedido con todos los detalles en tu dashboard.",
               "Confirmas, preparas y entregas. ¡Así de fácil!",
             ].map((step, i) => (
-              <motion.li key={i} initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.12 }} className="flex items-start gap-4">
+              <li key={i} className="flex items-start gap-4">
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{i + 1}</span>
                 <p className="pt-1 text-sm leading-relaxed text-muted-foreground">{step}</p>
-              </motion.li>
+              </li>
             ))}
           </ol>
-        </motion.div>
+        </div>
       </div>
     </div>
   </section>
@@ -198,28 +204,28 @@ const HowOrdersWork = () => (
 const LiveStats = () => (
   <section className="py-20 sm:py-28">
     <div className="container">
-      <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
+      <div className="text-center">
         <span className="inline-flex items-center gap-2 rounded-full bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground mb-4">
           <Users className="h-3.5 w-3.5" /> Comunidad
         </span>
         <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
           Crea en minutos, <span className="text-primary">sin código</span>
         </h2>
-      </motion.div>
+      </div>
       <div className="mx-auto mt-14 grid max-w-4xl gap-6 sm:grid-cols-3">
         {[
           { icon: Clock, value: 5, suffix: " min", label: "Tiempo para crear tu catálogo" },
           { icon: MonitorSmartphone, value: 100, suffix: "%", label: "Responsive en cualquier dispositivo" },
           { icon: Zap, value: 10000, suffix: "+", label: "Pedidos procesados" },
-        ].map((stat, i) => (
-          <motion.div key={stat.label} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.12 }}
+        ].map((stat) => (
+          <div key={stat.label}
             className="group flex flex-col items-center rounded-2xl border bg-card p-8 text-center shadow-sm transition-all hover:shadow-md hover:-translate-y-1">
             <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent transition-colors group-hover:bg-primary/10">
               <stat.icon className="h-7 w-7 text-accent-foreground transition-colors group-hover:text-primary" />
             </div>
             <p className="mt-5 font-display text-3xl font-bold text-foreground"><AnimatedCounter target={stat.value} suffix={stat.suffix} /></p>
             <p className="mt-2 text-sm text-muted-foreground">{stat.label}</p>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>
@@ -229,12 +235,12 @@ const LiveStats = () => (
 const FeaturesGrid = () => (
   <section className="border-t bg-secondary/30 py-20 sm:py-28">
     <div className="container">
-      <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
+      <div className="text-center">
         <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
           Todo lo que incluye <span className="text-primary">Catalogo360</span>
         </h2>
         <p className="mx-auto mt-3 max-w-md text-muted-foreground">Herramientas profesionales sin complicaciones técnicas.</p>
-      </motion.div>
+      </div>
       <div className="mx-auto mt-14 grid max-w-4xl gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {[
           { icon: ShoppingCart, title: "Carrito de compras", desc: "Tus clientes agregan productos y finalizan su pedido fácilmente." },
@@ -243,8 +249,8 @@ const FeaturesGrid = () => (
           { icon: TrendingUp, title: "Analíticas", desc: "Métricas de ventas, productos populares y más." },
           { icon: MessageCircle, title: "Pedidos por WhatsApp", desc: "Recibe pedidos directamente en tu WhatsApp." },
           { icon: Palette, title: "Personalización", desc: "Colores, logo y banner a tu medida." },
-        ].map((feat, i) => (
-          <motion.div key={feat.title} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4, delay: i * 0.08 }}
+        ].map((feat) => (
+          <div key={feat.title}
             className="group flex items-start gap-4 rounded-xl border bg-card p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5 hover:border-primary/20">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-accent transition-colors group-hover:bg-primary/10">
               <feat.icon className="h-5 w-5 text-accent-foreground transition-colors group-hover:text-primary" />
@@ -253,7 +259,7 @@ const FeaturesGrid = () => (
               <h3 className="font-display text-sm font-semibold text-card-foreground">{feat.title}</h3>
               <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{feat.desc}</p>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
     </div>

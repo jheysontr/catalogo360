@@ -1,5 +1,4 @@
 import { Star } from "lucide-react";
-import { motion } from "framer-motion";
 
 const testimonials = [
   {
@@ -28,15 +27,15 @@ const testimonials = [
 const TestimonialsSection = () => (
   <section className="border-t bg-secondary/30 py-20 sm:py-28">
     <div className="container">
-      <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
+      <div className="text-center">
         <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
           Lo que dicen nuestros <span className="text-primary">clientes</span>
         </h2>
-      </motion.div>
+      </div>
       <div className="mx-auto mt-14 grid max-w-4xl gap-8 sm:grid-cols-3">
-        {testimonials.map((t, i) => (
-          <motion.div key={t.name} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5, delay: i * 0.1 }} whileHover={{ y: -4 }}
-            className={`relative rounded-2xl border p-6 shadow-sm transition-shadow hover:shadow-md ${
+        {testimonials.map((t) => (
+          <div key={t.name}
+            className={`relative rounded-2xl border p-6 shadow-sm transition-all hover:shadow-md hover:-translate-y-1 ${
               t.highlighted
                 ? "border-primary bg-accent/50 ring-2 ring-primary/20"
                 : "bg-card"
@@ -60,17 +59,12 @@ const TestimonialsSection = () => (
                 <p className="text-xs text-muted-foreground">{t.type}</p>
               </div>
             </div>
-          </motion.div>
+          </div>
         ))}
       </div>
-      <motion.p
-        initial={{ opacity: 0 }}
-        whileInView={{ opacity: 1 }}
-        viewport={{ once: true }}
-        className="mt-10 text-center text-sm text-muted-foreground"
-      >
+      <p className="mt-10 text-center text-sm text-muted-foreground">
         ⭐ 4.9/5 | 127 reseñas verificadas | 500+ tiendas activas
-      </motion.p>
+      </p>
     </div>
   </section>
 );
