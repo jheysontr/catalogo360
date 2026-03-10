@@ -332,81 +332,78 @@ const Demo = () => {
 
       {/* ── Product Detail Dialog ── */}
       <Dialog open={!!selectedProduct} onOpenChange={(open) => !open && setSelectedProduct(null)}>
-        <DialogContent className="max-w-lg gap-0 overflow-hidden p-0 sm:max-w-2xl">
+        <DialogContent className="max-h-[92vh] overflow-hidden gap-0 p-0 sm:max-w-lg md:max-w-2xl rounded-2xl border-0 shadow-2xl [&>button]:z-50 [&>button]:bg-white/80 [&>button]:backdrop-blur-sm [&>button]:rounded-full [&>button]:shadow-sm [&>button]:hover:bg-white">
           {selectedProduct && (() => {
             const p = selectedProduct;
             const fp = getFinalPrice(p);
             const catName = CATEGORIES.find(c => c.id === p.category_id)?.name ?? null;
             return (
-              <>
+              <div className="max-h-[92vh] overflow-y-auto overscroll-contain">
                 <DialogTitle className="sr-only">{p.name}</DialogTitle>
-                <div className="flex flex-col sm:flex-row">
-                  {/* Image */}
-                  <div className="relative aspect-square w-full sm:w-1/2">
-                    <img src={p.image_url!} alt={p.name} className="h-full w-full object-cover" />
-                    {p.on_sale && p.discount_percent && (
-                      <span className="absolute left-3 top-3 rounded-lg bg-destructive px-3 py-1 text-xs font-bold text-destructive-foreground shadow">
-                        -{p.discount_percent}%
-                      </span>
+                {/* Image */}
+                <div className="relative aspect-square w-full overflow-hidden bg-muted">
+                  <img src={p.image_url!} alt={p.name} className="h-full w-full object-cover" />
+                  {p.on_sale && p.discount_percent && (
+                    <span className="absolute left-3 top-3 z-10 rounded-lg bg-destructive px-3 py-1 text-xs font-bold text-destructive-foreground shadow-md">
+                      -{p.discount_percent}%
+                    </span>
+                  )}
+                  <button className="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 backdrop-blur-sm shadow-md text-muted-foreground hover:bg-white hover:scale-110 transition-all">
+                    <Heart className="h-5 w-5" />
+                  </button>
+                </div>
+
+                {/* Content */}
+                <div className="space-y-5 p-5 sm:p-6">
+                  <div className="space-y-1.5">
+                    {catName && (
+                      <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: STORE.primary_color }}>
+                        {catName}
+                      </p>
+                    )}
+                    <h2 className="text-xl font-bold text-foreground sm:text-2xl leading-tight">{p.name}</h2>
+                  </div>
+
+                  <div className="flex items-baseline gap-3">
+                    {p.on_sale && p.discount_percent ? (
+                      <>
+                        <span className="text-3xl font-extrabold text-destructive">Bs{fp.toFixed(2)}</span>
+                        <span className="text-base text-muted-foreground line-through">Bs{p.price.toFixed(2)}</span>
+                      </>
+                    ) : (
+                      <span className="text-3xl font-extrabold" style={{ color: STORE.primary_color }}>Bs{p.price.toFixed(2)}</span>
                     )}
                   </div>
-                  {/* Info */}
-                  <div className="flex flex-1 flex-col justify-between p-6">
-                    <div>
-                      {catName && (
-                        <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: STORE.primary_color }}>
-                          {catName}
-                        </p>
-                      )}
-                      <h2 className="mt-1 text-xl font-bold text-foreground sm:text-2xl">{p.name}</h2>
-                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{p.description}</p>
 
-                      <div className="mt-5 flex items-baseline gap-3">
-                        {p.on_sale && p.discount_percent ? (
-                          <>
-                            <span className="text-2xl font-bold text-destructive">Bs{fp.toFixed(2)}</span>
-                            <span className="text-sm text-muted-foreground line-through">Bs{p.price.toFixed(2)}</span>
-                          </>
-                        ) : (
-                          <span className="text-2xl font-bold" style={{ color: STORE.primary_color }}>Bs{p.price.toFixed(2)}</span>
-                        )}
-                      </div>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{p.description}</p>
 
-                      {p.stock < 5 && (
-                        <p className="mt-2 inline-flex items-center rounded-lg bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-600">
-                          ¡Solo quedan {p.stock} unidades!
-                        </p>
-                      )}
-
-                      <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 font-medium text-accent-foreground">
-                          ✓ Envío disponible
-                        </span>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 font-medium text-accent-foreground">
-                          ✓ Pago seguro
-                        </span>
-                      </div>
+                  {p.stock < 5 && (
+                    <div className="inline-flex items-center gap-1.5 rounded-lg bg-amber-500/10 px-3 py-1.5 text-xs font-bold text-amber-600">
+                      🔥 ¡Solo quedan {p.stock} unidades!
                     </div>
+                  )}
 
-                    <div className="mt-6 flex gap-3">
-                      <Button
-                        className="flex-1 gap-2 text-white"
-                        style={{ backgroundColor: STORE.primary_color }}
-                        onClick={() => {
-                          handleAdd(p);
-                          setSelectedProduct(null);
-                        }}
-                      >
-                        <ShoppingCart className="h-4 w-4" />
-                        Agregar al carrito
-                      </Button>
-                      <Button variant="outline" size="icon" className="shrink-0">
-                        <Heart className="h-4 w-4" />
-                      </Button>
-                    </div>
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-xs font-medium text-accent-foreground">
+                      ✓ Envío disponible
+                    </span>
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-xs font-medium text-accent-foreground">
+                      ✓ Pago seguro
+                    </span>
+                  </div>
+
+                  <div className="flex gap-3 pt-1">
+                    <Button
+                      className="flex-1 gap-2 rounded-xl h-11 text-sm font-bold text-white shadow-lg transition-all active:scale-[0.98]"
+                      style={{ backgroundColor: STORE.primary_color, boxShadow: `0 8px 24px -6px ${STORE.primary_color}50` }}
+                      onClick={() => { handleAdd(p); setSelectedProduct(null); }}
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      Agregar al carrito
+                    </Button>
                   </div>
                 </div>
-              </>
+              </div>
             );
           })()}
         </DialogContent>
