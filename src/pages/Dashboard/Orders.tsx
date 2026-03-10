@@ -120,8 +120,7 @@ const itemName = (i: OrderItem) => i.name || i.product_name || "Producto";
 const itemQty = (i: OrderItem) => i.quantity ?? i.qty ?? 1;
 const itemPrice = (i: OrderItem) => i.price ?? i.unit_price ?? 0;
 
-const fmtCurrency = (n: number) =>
-  `Bs${n.toFixed(2)}`;
+// fmtCurrency is now defined inside the component using store currency
 
 const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString("es", {
