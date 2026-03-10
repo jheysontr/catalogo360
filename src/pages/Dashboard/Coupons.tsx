@@ -77,11 +77,12 @@ const Coupons = () => {
     (async () => {
       const { data } = await supabase
         .from("stores")
-        .select("id")
+        .select("id, currency")
         .eq("user_id", user.id)
         .limit(1);
       if (data?.[0]) {
         setStoreId(data[0].id);
+        setStoreCurrency(data[0].currency || "BOB");
       }
     })();
   }, [user]);
