@@ -139,7 +139,7 @@ const StoreFrontProductCard = ({
       className="group cursor-pointer"
       onClick={() => onOpenDetail(p)}
     >
-      <div className="relative aspect-[4/5] overflow-hidden rounded-2xl bg-muted">
+      <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
         {p.image_url ? (
           <ProgressiveImage src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
         ) : (
