@@ -9,6 +9,7 @@ import DashboardSidebar from "@/components/Dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import QRDialog from "@/components/Dashboard/QRDialog";
 import SectionErrorBoundary from "@/components/SectionErrorBoundary";
+import SetupWizard from "@/components/Dashboard/SetupWizard";
 
 // Lazy-loaded dashboard pages
 const Products = lazy(() => import("@/pages/Dashboard/Products"));
