@@ -1,5 +1,5 @@
 import { memo } from "react";
-import { Heart, ShoppingCart, Store as StoreIcon } from "lucide-react";
+import { Heart, ShoppingCart, Store as StoreIcon, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import ProgressiveImage from "./ProgressiveImage";
@@ -172,10 +172,20 @@ const StoreFrontProductCard = ({
         >
           <Heart className={`h-4 w-4 transition-colors ${isWishlisted ? "fill-white" : ""}`} />
         </button>
-        <div className="absolute bottom-0 left-0 right-0 p-2.5 sm:translate-y-full sm:transition-transform sm:duration-300 sm:group-hover:translate-y-0">
+        {/* Mobile: floating + button; Desktop: full bar on hover */}
+        <div className="absolute bottom-2 right-2 sm:hidden">
           <button
             onClick={(e) => onQuickAdd(p, e)}
-            className="flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-semibold text-white shadow-lg backdrop-blur-sm transition-all hover:brightness-110 sm:text-sm"
+            className="flex h-9 w-9 items-center justify-center rounded-full text-white shadow-lg transition-transform active:scale-90"
+            style={{ backgroundColor: primaryColor }}
+          >
+            <Plus className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 hidden p-2.5 sm:block sm:translate-y-full sm:transition-transform sm:duration-300 sm:group-hover:translate-y-0">
+          <button
+            onClick={(e) => onQuickAdd(p, e)}
+            className="flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-sm font-semibold text-white shadow-lg backdrop-blur-sm transition-all hover:brightness-110"
             style={{ backgroundColor: primaryColor }}
           >
             <ShoppingCart className="h-4 w-4" />

@@ -248,8 +248,17 @@ const VerticalCard = ({
             <Heart className={`h-3.5 w-3.5 ${isWishlisted ? "fill-white" : ""}`} />
           </button>
 
-          {/* Quick add on hover */}
-          <div className="absolute bottom-2 right-2 translate-y-2 opacity-0 transition-all duration-200 group-hover:translate-y-0 group-hover:opacity-100">
+          {/* Mobile: always visible + button; Desktop: hover reveal */}
+          <div className="absolute bottom-2 right-2 sm:hidden">
+            <button
+              onClick={(e) => onQuickAdd(p, e)}
+              className={`flex h-9 w-9 items-center justify-center ${theme.ctaRounded} text-white shadow-lg transition-transform active:scale-90`}
+              style={{ backgroundColor: primaryColor }}
+            >
+              <Plus className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="absolute bottom-2 right-2 hidden translate-y-2 opacity-0 transition-all duration-200 sm:block sm:group-hover:translate-y-0 sm:group-hover:opacity-100">
             <button
               onClick={(e) => onQuickAdd(p, e)}
               className={`flex h-10 w-10 items-center justify-center ${theme.ctaRounded} text-white shadow-lg transition-transform hover:scale-110`}
