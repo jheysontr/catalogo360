@@ -291,24 +291,16 @@ const StoreSettings = () => {
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="dashboard-tabs-list">
-          <TabsTrigger value="general" className="dashboard-tab-trigger gap-1.5">
-            <Store className="h-4 w-4" />
-            General
-          </TabsTrigger>
-          <TabsTrigger value="apariencia" className="dashboard-tab-trigger gap-1.5">
-            <Palette className="h-4 w-4" />
-            Apariencia
-          </TabsTrigger>
-          <TabsTrigger value="plantilla" className="dashboard-tab-trigger gap-1.5">
-            <Layout className="h-4 w-4" />
-            Plantilla
-          </TabsTrigger>
-          <TabsTrigger value="contacto" className="dashboard-tab-trigger gap-1.5">
-            <Share2 className="h-4 w-4" />
-            Contacto
-          </TabsTrigger>
-        </TabsList>
+        <ResponsiveTabsList
+          value={activeTab}
+          onValueChange={setActiveTab}
+          options={[
+            { value: "general", label: "General", icon: <Store className="h-4 w-4" /> },
+            { value: "apariencia", label: "Apariencia", icon: <Palette className="h-4 w-4" /> },
+            { value: "plantilla", label: "Plantilla", icon: <Layout className="h-4 w-4" /> },
+            { value: "contacto", label: "Contacto", icon: <Share2 className="h-4 w-4" /> },
+          ]}
+        />
 
         {/* ═══════════════ TAB: GENERAL ═══════════════ */}
         <TabsContent value="general" className="mt-6 space-y-6">
