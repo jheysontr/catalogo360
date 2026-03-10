@@ -81,6 +81,7 @@ const DemoProductCard = ({
       exit={{ opacity: 0, scale: 0.95 }}
       transition={{ duration: 0.3 }}
       className="group cursor-pointer"
+      onClick={() => onOpenDetail(p)}
     >
       <div className="relative aspect-square overflow-hidden rounded-2xl bg-muted">
         <img
