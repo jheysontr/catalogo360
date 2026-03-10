@@ -93,8 +93,6 @@ const Plans = () => {
       if (stores?.[0]) {
         if (stores[0].plan_id) {
           setCurrentPlan(stores[0].plan_id);
-        } else if (new Date() > end) {
-          setCurrentPlan("none");
         }
 
         const { count } = await supabase
