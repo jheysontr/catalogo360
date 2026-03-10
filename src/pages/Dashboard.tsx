@@ -62,6 +62,13 @@ const Dashboard = () => {
   useRealtimeOrders(store?.id ?? null);
   const { isAdmin } = useAdminCheck();
 
+  // Show wizard for first-time users
+  const needsSetup = store && !(store as any).setup_completed;
+  if (needsSetup && !showWizard) {
+    // Auto-show on first render when setup not completed
+    setTimeout(() => setShowWizard(true), 0);
+  }
+
   const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuario";
 
   const badgeCounts: Record<string, number> = {
