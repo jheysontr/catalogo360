@@ -8,7 +8,7 @@ import { CartProvider } from "@/lib/CartContext";
 import { WishlistProvider } from "@/lib/WishlistContext";
 import Footer from "@/components/Footer";
 import PrivateRoute from "@/components/PrivateRoute";
-import SplashScreen from "@/components/SplashScreen";
+
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
