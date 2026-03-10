@@ -55,16 +55,16 @@ const HeroSection = () => (
               <span className="font-medium">+500 emprendedores confían en nosotros</span>
             </motion.div>
 
-            <h1 className="font-display text-4xl font-bold leading-[1.3] tracking-tight text-foreground sm:text-5xl lg:text-[52px]">
-              Vende Más en 3 Meses
+            <h1 className="font-display text-4xl font-bold leading-[1.1] tracking-tight text-foreground sm:text-5xl lg:text-6xl">
+              Tu tienda online
               <br />
               <span className="bg-gradient-to-r from-primary to-[hsl(180,55%,45%)] bg-clip-text text-transparent">
-                o Te Devolvemos tu Dinero
+                en 5 minutos
               </span>
             </h1>
 
-            <p className="mx-auto mt-6 max-w-lg text-lg leading-relaxed text-muted-foreground lg:mx-0">
-              Tienda online sin código + Gestión automática de pedidos + Integración WhatsApp = 40% más ventas promedio en 90 días. Creada por emprendedores, para emprendedores de LATAM.
+            <p className="mx-auto mt-6 max-w-md text-lg leading-relaxed text-muted-foreground lg:mx-0">
+              Publica tu catálogo, recibe pedidos por WhatsApp y haz crecer tu negocio. Sin código, sin complicaciones.
             </p>
 
             <div className="mt-10 flex flex-col items-center gap-3 lg:items-start">
