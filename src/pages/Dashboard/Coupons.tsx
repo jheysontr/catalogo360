@@ -49,6 +49,8 @@ const Coupons = () => {
   const { toast } = useToast();
 
   const [storeId, setStoreId] = useState<string | null>(null);
+  const [storeCurrency, setStoreCurrency] = useState("BOB");
+  const currSym = getCurrencySymbol(storeCurrency);
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
 
