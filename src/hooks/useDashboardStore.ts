@@ -45,7 +45,7 @@ export function useDashboardStore(): DashboardStoreState {
       setLoading(true);
       const { data: stores } = await supabase
         .from("stores")
-        .select("id, store_name, store_slug, plan_id, currency")
+        .select("id, store_name, store_slug, plan_id, currency, setup_completed")
         .eq("user_id", user.id)
         .limit(1);
 
