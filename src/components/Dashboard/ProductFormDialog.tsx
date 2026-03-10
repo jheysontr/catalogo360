@@ -82,6 +82,13 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
   const [formVariantPrices, setFormVariantPrices] = useState<Record<string, number>>({});
   const [initialized, setInitialized] = useState(false);
 
+  const resetForm = () => {
+    setFormName(""); setFormDescription(""); setFormCategory(""); setFormPrice("");
+    setFormStock(""); setFormOnSale(false); setFormDiscount(""); setFormImageFile(null);
+    setFormImagePreview(null); setFormSlug(""); setFormMetaDesc("");
+    setFormAttributes([]); setFormExtraImages([]); setFormExtraFiles([]); setFormVariantStock({}); setFormVariantPrices({});
+  };
+
   // Initialize form when dialog opens or editingProduct changes
   const initializeForm = () => {
     if (editingProduct) {
@@ -118,13 +125,6 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
   if (!open && initialized) {
     setInitialized(false);
   }
-
-  const resetForm = () => {
-    setFormName(""); setFormDescription(""); setFormCategory(""); setFormPrice("");
-    setFormStock(""); setFormOnSale(false); setFormDiscount(""); setFormImageFile(null);
-    setFormImagePreview(null); setFormSlug(""); setFormMetaDesc("");
-    setFormAttributes([]); setFormExtraImages([]); setFormExtraFiles([]); setFormVariantStock({}); setFormVariantPrices({});
-  };
 
   /* ── Image handling ── */
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
