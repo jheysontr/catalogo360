@@ -560,51 +560,60 @@ const StoreSettings = () => {
 
         {/* ═══════════════ TAB: PLANTILLA ═══════════════ */}
         <TabsContent value="plantilla" className="mt-6">
-          <div className="grid gap-6 lg:grid-cols-[1fr,auto]">
-            {/* Template selector */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-base">Estilo de tienda</CardTitle>
-                <CardDescription>Elige cómo se ve tu tienda. Los colores, logo y banner se aplican desde la pestaña Apariencia.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-5">
-                {/* General */}
-                <div>
-                  <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Generales</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {GENERAL_TEMPLATES.map((t) => (
-                      <TemplateButton key={t.value} t={t} />
-                    ))}
-                  </div>
-                </div>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Elige el estilo de tu tienda</CardTitle>
+              <CardDescription>Compara las plantillas y selecciona la que más te guste. Los colores, logo y banner se aplican desde la pestaña Apariencia.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {GENERAL_TEMPLATES.map((t) => (
+                  <button
+                    key={t.value}
+                    onClick={() => setStoreTemplate(t.value)}
+                    className={`group relative rounded-2xl border-2 p-3 text-left transition-all ${
+                      storeTemplate === t.value
+                        ? "border-primary bg-primary/5 shadow-lg ring-2 ring-primary/20"
+                        : "border-border hover:border-primary/40 hover:shadow-md"
+                    }`}
+                  >
+                    {/* Selected badge */}
+                    {storeTemplate === t.value && (
+                      <div className="absolute -top-2.5 left-1/2 -translate-x-1/2 z-10 rounded-full bg-primary px-3 py-0.5 text-[10px] font-bold text-primary-foreground shadow-sm">
+                        ✓ Activa
+                      </div>
+                    )}
 
-              </CardContent>
-            </Card>
+                    {/* Label */}
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="text-lg">{t.emoji}</span>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{t.label}</p>
+                        <p className="text-[11px] text-muted-foreground">{t.desc}</p>
+                      </div>
+                    </div>
 
-            {/* Live preview */}
-            <div className="lg:sticky lg:top-4 space-y-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <Smartphone className="h-4 w-4" />
-                Vista previa en vivo
+                    {/* Mini preview */}
+                    <div className="pointer-events-none transform scale-[0.85] origin-top">
+                      <TemplatePreview
+                        templateId={t.value}
+                        storeName={storeName}
+                        logoUrl={logoUrl}
+                        bannerUrl={bannerUrl}
+                        primaryColor={primaryColor}
+                        secondaryColor={secondaryColor}
+                        description={description}
+                        products={storeProducts}
+                        currency={currency}
+                        customGreeting={bannerGreeting}
+                        customBannerDescription={bannerDescription}
+                      />
+                    </div>
+                  </button>
+                ))}
               </div>
-              <TemplatePreview
-                templateId={storeTemplate}
-                storeName={storeName}
-                logoUrl={logoUrl}
-                bannerUrl={bannerUrl}
-                primaryColor={primaryColor}
-                secondaryColor={secondaryColor}
-                description={description}
-                products={storeProducts}
-                currency={currency}
-                customGreeting={bannerGreeting}
-                customBannerDescription={bannerDescription}
-              />
-              <p className="text-center text-[10px] text-muted-foreground">
-                Así se verá tu tienda con la plantilla <span className="font-semibold">{GENERAL_TEMPLATES.find(t => t.value === storeTemplate)?.label || storeTemplate}</span>
-              </p>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
         </TabsContent>
 
         {/* ═══════════════ TAB: CONTACTO ═══════════════ */}
