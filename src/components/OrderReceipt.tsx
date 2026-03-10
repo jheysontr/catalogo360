@@ -5,6 +5,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Printer, Download } from "lucide-react";
+import { getCurrencySymbol } from "@/lib/currency";
 
 interface ReceiptItem {
   name?: string;
