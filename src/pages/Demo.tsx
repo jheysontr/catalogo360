@@ -332,7 +332,14 @@ const Demo = () => {
 
       {/* ── Product Detail Dialog ── */}
       <Dialog open={!!selectedProduct} onOpenChange={(open) => !open && setSelectedProduct(null)}>
-        <DialogContent className="max-h-[92vh] overflow-hidden gap-0 p-0 sm:max-w-lg md:max-w-2xl rounded-2xl border-0 shadow-2xl [&>button]:z-50 [&>button]:h-9 [&>button]:w-9 [&>button]:bg-black/50 [&>button]:text-white [&>button]:backdrop-blur-md [&>button]:rounded-full [&>button]:shadow-lg [&>button]:hover:bg-black/70 [&>button]:transition-all">
+        <DialogContent className="max-h-[92vh] overflow-hidden gap-0 p-0 sm:max-w-lg md:max-w-2xl rounded-2xl border-0 shadow-2xl [&>button:last-child]:hidden">
+          {/* Custom close button */}
+          <button
+            onClick={() => setSelectedProduct(null)}
+            className="absolute right-3 top-3 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-black/80 hover:scale-110 active:scale-95"
+          >
+            <X className="h-5 w-5" />
+          </button>
           {selectedProduct && (() => {
             const p = selectedProduct;
             const fp = getFinalPrice(p);

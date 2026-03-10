@@ -5,7 +5,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import {
-  ShoppingCart, Plus, Minus, Heart, Store as StoreIcon, Truck, ShieldCheck,
+  ShoppingCart, Plus, Minus, Heart, Store as StoreIcon, Truck, ShieldCheck, X,
 } from "lucide-react";
 import { getFinalPrice } from "@/lib/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
