@@ -48,6 +48,7 @@ const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("store");
   const [qrOpen, setQrOpen] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
 
   const {
     store,
