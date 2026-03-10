@@ -325,6 +325,88 @@ const Demo = () => {
           </div>
         </div>
       </footer>
+
+      {/* ── Product Detail Dialog ── */}
+      <Dialog open={!!selectedProduct} onOpenChange={(open) => !open && setSelectedProduct(null)}>
+        <DialogContent className="max-w-lg gap-0 overflow-hidden p-0 sm:max-w-2xl">
+          {selectedProduct && (() => {
+            const p = selectedProduct;
+            const fp = getFinalPrice(p);
+            const catName = CATEGORIES.find(c => c.id === p.category_id)?.name ?? null;
+            return (
+              <>
+                <DialogTitle className="sr-only">{p.name}</DialogTitle>
+                <div className="flex flex-col sm:flex-row">
+                  {/* Image */}
+                  <div className="relative aspect-square w-full sm:w-1/2">
+                    <img src={p.image_url!} alt={p.name} className="h-full w-full object-cover" />
+                    {p.on_sale && p.discount_percent && (
+                      <span className="absolute left-3 top-3 rounded-lg bg-destructive px-3 py-1 text-xs font-bold text-destructive-foreground shadow">
+                        -{p.discount_percent}%
+                      </span>
+                    )}
+                  </div>
+                  {/* Info */}
+                  <div className="flex flex-1 flex-col justify-between p-6">
+                    <div>
+                      {catName && (
+                        <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: STORE.primary_color }}>
+                          {catName}
+                        </p>
+                      )}
+                      <h2 className="mt-1 text-xl font-bold text-foreground sm:text-2xl">{p.name}</h2>
+                      <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{p.description}</p>
+
+                      <div className="mt-5 flex items-baseline gap-3">
+                        {p.on_sale && p.discount_percent ? (
+                          <>
+                            <span className="text-2xl font-bold text-destructive">Bs{fp.toFixed(2)}</span>
+                            <span className="text-sm text-muted-foreground line-through">Bs{p.price.toFixed(2)}</span>
+                          </>
+                        ) : (
+                          <span className="text-2xl font-bold" style={{ color: STORE.primary_color }}>Bs{p.price.toFixed(2)}</span>
+                        )}
+                      </div>
+
+                      {p.stock < 5 && (
+                        <p className="mt-2 inline-flex items-center rounded-lg bg-amber-500/10 px-3 py-1 text-xs font-bold text-amber-600">
+                          ¡Solo quedan {p.stock} unidades!
+                        </p>
+                      )}
+
+                      <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 font-medium text-accent-foreground">
+                          ✓ Envío disponible
+                        </span>
+                        <span className="inline-flex items-center gap-1 rounded-full bg-accent px-2.5 py-1 font-medium text-accent-foreground">
+                          ✓ Pago seguro
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="mt-6 flex gap-3">
+                      <Button
+                        className="flex-1 gap-2 text-white"
+                        style={{ backgroundColor: STORE.primary_color }}
+                        onClick={() => {
+                          handleAdd(p);
+                          setSelectedProduct(null);
+                        }}
+                      >
+                        <ShoppingCart className="h-4 w-4" />
+                        Agregar al carrito
+                      </Button>
+                      <Button variant="outline" size="icon" className="shrink-0">
+                        <Heart className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
