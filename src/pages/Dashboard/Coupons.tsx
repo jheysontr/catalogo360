@@ -27,6 +27,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Plus, Loader2, MoreVertical, Pencil, Trash2, Ticket, Copy,
 } from "lucide-react";
+import { getCurrencySymbol } from "@/lib/currency";
 
 interface Coupon {
   id: string;
