@@ -157,7 +157,13 @@ const Orders = () => {
 
   const [storeId, setStoreId] = useState<string | null>(null);
   const [storePhone, setStorePhone] = useState<string | null>(null);
+  const [storeCurrency, setStoreCurrency] = useState("BOB");
   const [storeData, setStoreData] = useState<{ store_name: string; logo_url?: string | null; address?: string | null; email?: string | null; social_media?: Record<string, string> | null }>({ store_name: "" });
+
+  const fmtCurrency = (n: number) => {
+    const sym = getCurrencySymbol(storeCurrency);
+    return `${sym} ${n.toFixed(2)}`;
+  };
   const [orders, setOrders] = useState<OrderRow[]>([]);
   const [loading, setLoading] = useState(true);
 
