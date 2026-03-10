@@ -54,7 +54,7 @@ const AppLayout = () => {
           />
           <Route path="/linkbox/:slug" element={<LinkboxPage />} />
           <Route path="/affiliate/:code" element={<AffiliatePage />} />
-          <Route path="/install" element={<Install />} />
+          
           <Route path="/terminos" element={<TermsOfService />} />
           <Route path="/privacidad" element={<PrivacyPolicy />} />
           <Route
