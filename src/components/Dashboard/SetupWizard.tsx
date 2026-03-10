@@ -54,8 +54,8 @@ const SetupWizard = ({ storeId, storeName: initialName, storeSlug: initialSlug, 
   const [saving, setSaving] = useState(false);
 
   // Form state
-  const [storeName, setStoreName] = useState(initialName);
-  const [storeSlug, setStoreSlug] = useState(initialSlug);
+  const [storeName, setStoreName] = useState(initialName || "");
+  const [storeSlug, setStoreSlug] = useState(initialSlug || "");
   const [description, setDescription] = useState("");
   const [currency, setCurrency] = useState("BOB");
   const [primaryColor, setPrimaryColor] = useState("#2a9d8f");
