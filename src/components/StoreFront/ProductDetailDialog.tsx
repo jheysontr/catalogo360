@@ -251,8 +251,15 @@ const ProductDetailDialog = ({
 
   return (
     <Dialog open={!!product} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-h-[92vh] overflow-hidden p-0 sm:max-w-lg md:max-w-2xl rounded-2xl border-0 shadow-2xl [&>button]:z-50 [&>button]:h-9 [&>button]:w-9 [&>button]:bg-black/50 [&>button]:text-white [&>button]:backdrop-blur-md [&>button]:rounded-full [&>button]:shadow-lg [&>button]:hover:bg-black/70 [&>button]:transition-all">
-        <div className="max-h-[92vh] overflow-y-auto overscroll-contain">
+      <DialogContent className="max-h-[92vh] overflow-hidden p-0 sm:max-w-lg md:max-w-2xl rounded-2xl border-0 shadow-2xl [&>button:last-child]:hidden">
+        <div className="max-h-[92vh] overflow-y-auto overscroll-contain relative">
+          {/* Custom close button */}
+          <button
+            onClick={onClose}
+            className="absolute right-3 top-3 z-50 flex h-10 w-10 items-center justify-center rounded-full bg-black/60 text-white backdrop-blur-md shadow-lg transition-all duration-200 hover:bg-black/80 hover:scale-110 active:scale-95"
+          >
+            <X className="h-5 w-5" />
+          </button>
           {/* Gallery */}
           <SwipeGallery
             images={allImages}
