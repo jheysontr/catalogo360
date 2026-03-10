@@ -71,15 +71,19 @@ const Footer = () => (
           </ul>
         </div>
         <div>
-          <h4 className="font-display text-sm font-semibold text-foreground">Contacto</h4>
+          <h4 className="font-display text-sm font-semibold text-foreground">Legal</h4>
+          <ul className="mt-3 space-y-2">
+            <li><Link to="/terminos" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Términos de Servicio</Link></li>
+            <li><Link to="/privacidad" className="text-sm text-muted-foreground hover:text-foreground transition-colors">Política de Privacidad</Link></li>
+          </ul>
+          <h4 className="font-display text-sm font-semibold text-foreground mt-6">Contacto</h4>
           <ul className="mt-3 space-y-2">
             <li className="flex items-center gap-2 text-sm text-muted-foreground"><Mail className="h-4 w-4" /> soporte@catalogo360.com</li>
-            <li className="flex items-center gap-2 text-sm text-muted-foreground"><Phone className="h-4 w-4" /> WhatsApp: +1 234 567 890</li>
           </ul>
         </div>
       </div>
       <div className="mt-10 border-t pt-6 text-center text-xs text-muted-foreground">
-        © 2026 Catalogo360. Todos los derechos reservados.
+        © {new Date().getFullYear()} Catalogo360. Todos los derechos reservados.
       </div>
     </div>
   </footer>
