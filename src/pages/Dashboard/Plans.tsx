@@ -58,9 +58,8 @@ const Plans = () => {
   const [confirmPlan, setConfirmPlan] = useState<PlanDef | null>(null);
   const [changing, setChanging] = useState(false);
 
-  // Simulated current plan state (in production would come from a subscriptions table)
-  const [currentPlan, setCurrentPlan] = useState<string>("trial");
-  const [trialEnd, setTrialEnd] = useState<string>("");
+  // Current plan from store
+  const [currentPlan, setCurrentPlan] = useState<string>("");
 
   // Simulated payment history
   const [payments] = useState<PaymentRecord[]>([]);
