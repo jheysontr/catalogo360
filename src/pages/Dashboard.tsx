@@ -1,7 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle, Rocket } from "lucide-react";
 import { useRealtimeOrders } from "@/hooks/useRealtimeOrders";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useDashboardStore } from "@/hooks/useDashboardStore";
@@ -10,6 +10,7 @@ import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import QRDialog from "@/components/Dashboard/QRDialog";
 import SectionErrorBoundary from "@/components/SectionErrorBoundary";
 import SetupWizard from "@/components/Dashboard/SetupWizard";
+import { Button } from "@/components/ui/button";
 
 // Lazy-loaded dashboard pages
 const Products = lazy(() => import("@/pages/Dashboard/Products"));
@@ -62,12 +63,14 @@ const Dashboard = () => {
   useRealtimeOrders(store?.id ?? null);
   const { isAdmin } = useAdminCheck();
 
-  // Show wizard for first-time users
+  const setupPending = store ? !store.setup_completed : false;
+
+  // Show wizard on first load if setup not completed
   useEffect(() => {
-    if (store && !(store as any).setup_completed) {
+    if (setupPending) {
       setShowWizard(true);
     }
-  }, [store]);
+  }, [setupPending]);
 
   const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuario";
 
@@ -144,7 +147,24 @@ const Dashboard = () => {
           onLogout={handleLogout}
         />
 
-        <main className="flex-1 p-3 sm:p-6 lg:p-8">
+          {setupPending && !showWizard && (
+            <div className="mx-3 sm:mx-6 lg:mx-8 mt-3 sm:mt-6 lg:mt-8 mb-0 rounded-xl border border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/50">
+                  <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-orange-800 dark:text-orange-200">Configuración pendiente</p>
+                  <p className="text-xs text-orange-600 dark:text-orange-400">Tu tienda no estará visible hasta completar la configuración inicial.</p>
+                </div>
+              </div>
+              <Button size="sm" onClick={() => setShowWizard(true)} className="gap-1.5 shrink-0">
+                <Rocket className="h-4 w-4" /> Completar configuración
+              </Button>
+            </div>
+          )}
+
+          <main className="flex-1 p-3 sm:p-6 lg:p-8">
           <SectionErrorBoundary section={activeSection} key={activeSection}>
             <Suspense fallback={<SectionLoader />}>
               {renderSection()}
