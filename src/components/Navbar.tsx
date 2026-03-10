@@ -80,7 +80,7 @@ const Navbar = () => {
           ) : (
             <div className="flex flex-col gap-2">
               <Link to="/login" className="py-2 text-sm" onClick={() => setMobileOpen(false)}>Iniciar sesión</Link>
-              <Button asChild size="sm"><Link to="/register">Crear cuenta</Link></Button>
+              <Button asChild size="sm"><Link to="/register">Empezar Gratis</Link></Button>
             </div>
           )}
         </div>
