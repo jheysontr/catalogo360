@@ -54,8 +54,8 @@ const SetupWizard = ({ storeId, storeName: initialName, storeSlug: initialSlug, 
   const [saving, setSaving] = useState(false);
 
   // Form state
-  const [storeName, setStoreName] = useState(initialName);
-  const [storeSlug, setStoreSlug] = useState(initialSlug);
+  const [storeName, setStoreName] = useState(initialName || "");
+  const [storeSlug, setStoreSlug] = useState(initialSlug || "");
   const [description, setDescription] = useState("");
   const [currency, setCurrency] = useState("BOB");
   const [primaryColor, setPrimaryColor] = useState("#2a9d8f");
@@ -125,7 +125,14 @@ const SetupWizard = ({ storeId, storeName: initialName, storeSlug: initialSlug, 
     onComplete();
   };
 
-  const next = () => setStep((s) => Math.min(s + 1, STEPS.length - 1));
+  const next = () => {
+    // Validate required fields on identity step
+    if (step === 1 && !storeName.trim()) {
+      toast.error("El nombre de tu tienda es obligatorio");
+      return;
+    }
+    setStep((s) => Math.min(s + 1, STEPS.length - 1));
+  };
   const prev = () => setStep((s) => Math.max(s - 1, 0));
 
   const renderStep = () => {
