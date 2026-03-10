@@ -274,25 +274,15 @@ const Coupons = () => {
           </Button>
         </div>
       ) : (
-        <div className="rounded-lg border">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Código</TableHead>
-                <TableHead>Descuento</TableHead>
-                <TableHead className="hidden md:table-cell">Compra mín.</TableHead>
-                <TableHead className="hidden md:table-cell">Usos</TableHead>
-                <TableHead>Estado</TableHead>
-                <TableHead className="hidden lg:table-cell">Expira</TableHead>
-                <TableHead className="w-10" />
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {coupons.map((c) => (
-                <TableRow key={c.id}>
-                  <TableCell>
+        <>
+          {/* Mobile card view */}
+          <div className="space-y-3 sm:hidden">
+            {coupons.map((c) => (
+              <div key={c.id} className="rounded-lg border bg-card p-4 space-y-3">
+                <div className="flex items-start justify-between gap-2">
+                  <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono font-semibold">{c.code}</span>
+                      <span className="font-mono font-semibold text-sm">{c.code}</span>
                       <button onClick={() => copyCode(c.code)} className="text-muted-foreground hover:text-foreground">
                         <Copy className="h-3.5 w-3.5" />
                       </button>
@@ -300,54 +290,129 @@ const Coupons = () => {
                     {c.description && (
                       <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{c.description}</p>
                     )}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {c.discount_type === "free_shipping"
-                      ? "Envío gratis"
-                      : c.discount_type === "percentage"
-                        ? `${c.discount_value}%`
-                        : `Bs${c.discount_value.toFixed(2)}`}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {c.min_purchase > 0 ? `$${c.min_purchase.toFixed(2)}` : "—"}
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell">
-                    {c.max_uses != null ? `${c.used_count}/${c.max_uses}` : `${c.used_count}/∞`}
-                  </TableCell>
-                  <TableCell>{getStatusBadge(c)}</TableCell>
-                  <TableCell className="hidden lg:table-cell text-xs text-muted-foreground">
-                    {c.expires_at
-                      ? new Date(c.expires_at).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })
-                      : "Sin expiración"}
-                  </TableCell>
-                  <TableCell>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8">
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => openEdit(c)}>
-                          <Pencil className="mr-2 h-4 w-4" /> Editar
-                        </DropdownMenuItem>
-                        <DropdownMenuItem onClick={() => toggleActive(c)}>
-                          {c.is_active ? "Desactivar" : "Activar"}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          className="text-destructive focus:text-destructive"
-                          onClick={() => setDeleteTarget(c)}
-                        >
-                          <Trash2 className="mr-2 h-4 w-4" /> Eliminar
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
+                  </div>
+                  {getStatusBadge(c)}
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <div className="space-y-1">
+                    <p className="text-muted-foreground text-xs">Descuento</p>
+                    <p className="font-medium">
+                      {c.discount_type === "free_shipping"
+                        ? "Envío gratis"
+                        : c.discount_type === "percentage"
+                          ? `${c.discount_value}%`
+                          : `Bs${c.discount_value.toFixed(2)}`}
+                    </p>
+                  </div>
+                  <div className="space-y-1 text-center">
+                    <p className="text-muted-foreground text-xs">Usos</p>
+                    <p className="font-medium">{c.max_uses != null ? `${c.used_count}/${c.max_uses}` : `${c.used_count}/∞`}</p>
+                  </div>
+                  <div className="space-y-1 text-right">
+                    <p className="text-muted-foreground text-xs">Expira</p>
+                    <p className="font-medium text-xs">
+                      {c.expires_at
+                        ? new Date(c.expires_at).toLocaleDateString("es-ES", { day: "2-digit", month: "short" })
+                        : "Nunca"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 pt-1 border-t">
+                  <Button variant="ghost" size="sm" className="flex-1 gap-1.5 h-8" onClick={() => openEdit(c)}>
+                    <Pencil className="h-3.5 w-3.5" /> Editar
+                  </Button>
+                  <Button variant="ghost" size="sm" className="h-8" onClick={() => toggleActive(c)}>
+                    {c.is_active ? "Desactivar" : "Activar"}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-destructive hover:text-destructive"
+                    onClick={() => setDeleteTarget(c)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop table view */}
+          <div className="hidden sm:block rounded-lg border">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Código</TableHead>
+                  <TableHead>Descuento</TableHead>
+                  <TableHead className="hidden md:table-cell">Compra mín.</TableHead>
+                  <TableHead className="hidden md:table-cell">Usos</TableHead>
+                  <TableHead>Estado</TableHead>
+                  <TableHead className="hidden lg:table-cell">Expira</TableHead>
+                  <TableHead className="w-10" />
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              </TableHeader>
+              <TableBody>
+                {coupons.map((c) => (
+                  <TableRow key={c.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <span className="font-mono font-semibold">{c.code}</span>
+                        <button onClick={() => copyCode(c.code)} className="text-muted-foreground hover:text-foreground">
+                          <Copy className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                      {c.description && (
+                        <p className="mt-0.5 text-xs text-muted-foreground line-clamp-1">{c.description}</p>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {c.discount_type === "free_shipping"
+                        ? "Envío gratis"
+                        : c.discount_type === "percentage"
+                          ? `${c.discount_value}%`
+                          : `Bs${c.discount_value.toFixed(2)}`}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {c.min_purchase > 0 ? `$${c.min_purchase.toFixed(2)}` : "—"}
+                    </TableCell>
+                    <TableCell className="hidden md:table-cell">
+                      {c.max_uses != null ? `${c.used_count}/${c.max_uses}` : `${c.used_count}/∞`}
+                    </TableCell>
+                    <TableCell>{getStatusBadge(c)}</TableCell>
+                    <TableCell className="hidden lg:table-cell text-xs text-muted-foreground">
+                      {c.expires_at
+                        ? new Date(c.expires_at).toLocaleDateString("es-ES", { day: "2-digit", month: "short", year: "numeric" })
+                        : "Sin expiración"}
+                    </TableCell>
+                    <TableCell>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => openEdit(c)}>
+                            <Pencil className="mr-2 h-4 w-4" /> Editar
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => toggleActive(c)}>
+                            {c.is_active ? "Desactivar" : "Activar"}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="text-destructive focus:text-destructive"
+                            onClick={() => setDeleteTarget(c)}
+                          >
+                            <Trash2 className="mr-2 h-4 w-4" /> Eliminar
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
 
       {/* CREATE / EDIT MODAL */}
