@@ -72,7 +72,7 @@ const AppLayout = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {!hideChrome && <Footer />}
+      {!hideFooter && <Footer />}
     </div>
   );
 };
