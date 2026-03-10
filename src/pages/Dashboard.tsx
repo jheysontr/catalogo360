@@ -160,6 +160,7 @@ const Dashboard = () => {
         storeSlug={store?.store_slug}
       />
     </div>
+  );
 };
 
 export default Dashboard;
