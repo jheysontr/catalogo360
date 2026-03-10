@@ -417,14 +417,14 @@ const Orders = () => {
             </SelectContent>
           </Select>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <DollarSign className="h-4 w-4 text-muted-foreground shrink-0" />
           <Input
             type="number"
             placeholder="Monto mín"
             value={minAmount}
             onChange={(e) => setMinAmount(e.target.value)}
-            className="w-28"
+            className="w-24 sm:w-28"
           />
           <span className="text-xs text-muted-foreground">—</span>
           <Input
@@ -432,10 +432,10 @@ const Orders = () => {
             placeholder="Monto máx"
             value={maxAmount}
             onChange={(e) => setMaxAmount(e.target.value)}
-            className="w-28"
+            className="w-24 sm:w-28"
           />
           {(minAmount || maxAmount || search) && (
-            <Button variant="ghost" size="sm" onClick={() => { setSearch(""); setMinAmount(""); setMaxAmount(""); }}>
+            <Button variant="ghost" size="sm" className="h-8 text-xs" onClick={() => { setSearch(""); setMinAmount(""); setMaxAmount(""); }}>
               <Filter className="h-3.5 w-3.5 mr-1" /> Limpiar
             </Button>
           )}
