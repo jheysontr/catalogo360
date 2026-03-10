@@ -155,16 +155,9 @@ const Plans = () => {
       {/* Header */}
       <div>
         <h1 className="font-display text-2xl font-bold text-foreground">Planes y Facturación</h1>
-        {isTrial ? (
-          <p className="mt-1 text-sm text-muted-foreground">
-            Tienes la prueba gratuita de 7 días. Expira el{" "}
-            <span className="font-semibold text-foreground">{fmtDate(trialEnd)}</span>
-          </p>
-        ) : (
-          <p className="mt-1 text-sm text-muted-foreground">
-            Estás en el plan <span className="font-semibold text-foreground">{activePlanDef?.name}</span>
-          </p>
-        )}
+        <p className="mt-1 text-sm text-muted-foreground">
+          Estás en el plan <span className="font-semibold text-foreground">{activePlanDef?.name ?? "Gratis"}</span>
+        </p>
       </div>
 
       {/* Current plan card */}
@@ -174,21 +167,15 @@ const Plans = () => {
             <div className="flex items-center gap-2">
               <CreditCard className="h-5 w-5 text-primary" />
               <h2 className="text-lg font-bold text-foreground">
-                {isTrial ? "Prueba Gratuita" : `Plan ${activePlanDef?.name}`}
+                Plan {activePlanDef?.name ?? "Gratis"}
               </h2>
             </div>
             <p className="text-2xl font-bold text-foreground">
-              {isTrial
+              {isFree
                 ? "Gratis"
                 : fmtCurrency(annual ? (activePlanDef?.annual ?? 0) : (activePlanDef?.monthly ?? 0))}
-              {!isTrial && <span className="text-sm font-normal text-muted-foreground">/mes</span>}
+              {!isFree && <span className="text-sm font-normal text-muted-foreground">/mes</span>}
             </p>
-            {isTrial && (
-              <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
-                <Clock className="h-4 w-4" />
-                Expira el {fmtDate(trialEnd)}
-              </div>
-            )}
           </div>
 
           <div className="w-full max-w-xs space-y-2">
