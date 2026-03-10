@@ -40,9 +40,6 @@ const Navbar = () => {
           <Link to="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
             Inicio
           </Link>
-          <Link to="/install" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
-            Instalar App
-          </Link>
           {user ? (
             <>
               <Link to="/dashboard" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
