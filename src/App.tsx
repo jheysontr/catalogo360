@@ -20,6 +20,7 @@ import Admin from "./pages/Admin";
 import AffiliatePage from "./pages/AffiliatePage";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import HelpCenter from "./pages/HelpCenter";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useState, useEffect } from "react";
 
@@ -27,7 +28,7 @@ const queryClient = new QueryClient();
 
 const AppLayout = () => {
   const location = useLocation();
-  const knownRoutes = ["/dashboard", "/login", "/register", "/admin", "/linkbox/", "/affiliate/", "/terminos", "/privacidad"];
+  const knownRoutes = ["/dashboard", "/login", "/register", "/admin", "/linkbox/", "/affiliate/", "/terminos", "/privacidad", "/ayuda"];
   const isDashboard = location.pathname.startsWith("/dashboard");
   const isLinkbox = location.pathname.startsWith("/linkbox/");
   const isAdmin = location.pathname.startsWith("/admin");
@@ -57,6 +58,7 @@ const AppLayout = () => {
           
           <Route path="/terminos" element={<TermsOfService />} />
           <Route path="/privacidad" element={<PrivacyPolicy />} />
+          <Route path="/ayuda" element={<HelpCenter />} />
           <Route
             path="/admin"
             element={
