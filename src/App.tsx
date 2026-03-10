@@ -8,7 +8,7 @@ import { CartProvider } from "@/lib/CartContext";
 import { WishlistProvider } from "@/lib/WishlistContext";
 import Footer from "@/components/Footer";
 import PrivateRoute from "@/components/PrivateRoute";
-import SplashScreen from "@/components/SplashScreen";
+
 import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -24,7 +24,7 @@ import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import HelpCenter from "./pages/HelpCenter";
 import ErrorBoundary from "@/components/ErrorBoundary";
-import { useState, useEffect } from "react";
+
 
 const queryClient = new QueryClient();
 
@@ -82,13 +82,6 @@ const AppLayout = () => {
 };
 
 const App = () => {
-  const [showSplash, setShowSplash] = useState(true);
-
-  useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 1400);
-    return () => clearTimeout(timer);
-  }, []);
-
   return (
     <ErrorBoundary>
       <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
@@ -96,7 +89,6 @@ const App = () => {
           <TooltipProvider>
             <CartProvider>
               <WishlistProvider>
-                <SplashScreen show={showSplash} />
                 <Toaster position="top-right" />
                 <BrowserRouter>
                   <AppLayout />
