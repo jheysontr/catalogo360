@@ -1,5 +1,4 @@
 import { Link } from "react-router-dom";
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { motion } from "framer-motion";
@@ -7,96 +6,131 @@ import { motion } from "framer-motion";
 const plans = [
   {
     name: "Gratis",
-    price: 0,
+    price: "$0",
+    subtitle: "Sin tarjeta requerida",
+    description: "Perfecto para emprendedores nuevos. Crea tienda, invita clientes, recibe pedidos. Gratis, siempre.",
     popular: false,
-    cta: "Comenzar gratis",
-    features: ["Hasta 10 productos", "Plantilla personalizable", "Pedidos por WhatsApp", "Diseño responsive"],
+    cta: "Crear tienda Gratis",
+    ctaVariant: "outline" as const,
+    note: "Sin contrato. Cancela o upgrade cuando quieras.",
+    noteColor: "text-muted-foreground",
+    features: [
+      "Hasta 10 productos",
+      "Carrito de compras",
+      "Pedidos por WhatsApp",
+      "Diseño 100% responsive",
+      "Sin límite de tiempo",
+      "Personalización básica",
+    ],
   },
   {
     name: "Emprendedor",
-    price: 49,
+    price: "Bs 49",
+    subtitle: "/mes",
+    description: "El elegido por 63% de usuarios activos. Genera $500-5,000/mes con 50 productos.",
     popular: true,
-    cta: "Elegir Emprendedor",
-    features: ["Hasta 50 productos", "Todo del plan Gratis", "Cupones de descuento", "Zonas de envío", "Soporte prioritario"],
+    cta: "Empezar Emprendedor Ahora",
+    ctaVariant: "default" as const,
+    note: "🔄 Garantía 30 días. Dinero de vuelta si no te gusta.",
+    noteColor: "text-primary",
+    features: [
+      "Hasta 50 productos",
+      "Todo del plan Gratis",
+      "Cupones de descuento",
+      "Múltiples zonas de envío",
+      "Soporte prioritario",
+      "Analíticas de ventas",
+      "Integración con redes sociales",
+    ],
   },
   {
     name: "Negocio",
-    price: 99,
+    price: "Bs 99",
+    subtitle: "/mes",
+    description: "Para negocios consolidados. Productos ilimitados, todas las features, soporte prioritario.",
     popular: false,
-    cta: "Elegir Negocio",
-    features: ["Productos ilimitados", "Todo del plan Emprendedor", "LinkBox", "Estadísticas avanzadas", "Soporte VIP"],
+    cta: "Elegir Plan Negocio",
+    ctaVariant: "outline" as const,
+    note: "Ideal para tiendas con 50+ productos.",
+    noteColor: "text-muted-foreground",
+    features: [
+      "Productos ilimitados",
+      "Todo del plan Emprendedor",
+      "LinkBox (múltiples enlaces)",
+      "Estadísticas avanzadas",
+      "Integraciones personalizadas",
+      "Soporte VIP (respuesta <1h)",
+      "API disponible",
+    ],
   },
 ];
 
-const PricingSection = () => {
-  const [isAnnual, setIsAnnual] = useState(false);
+const PricingSection = () => (
+  <section id="planes" className="py-20 sm:py-28">
+    <div className="container">
+      <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
+        <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
+          Planes y <span className="text-primary">Precios</span>
+        </h2>
+        <p className="mx-auto mt-3 max-w-md text-muted-foreground">Elige el plan perfecto para tu negocio. Cancela cuando quieras.</p>
+      </motion.div>
 
-  return (
-    <section id="planes" className="py-20 sm:py-28">
-      <div className="container">
-        <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
-          <h2 className="font-display text-3xl font-bold text-foreground sm:text-4xl">
-            Planes y <span className="text-primary">Precios</span>
-          </h2>
-          <p className="mx-auto mt-3 max-w-md text-muted-foreground">Elige el plan perfecto para tu negocio. Cancela cuando quieras.</p>
-        </motion.div>
-
-        <div className="mt-10 flex items-center justify-center">
-          <div className="flex items-center gap-1 rounded-full border bg-card p-1 shadow-sm">
-            <button onClick={() => setIsAnnual(false)}
-              className={`rounded-full px-5 py-2 text-sm font-medium transition-all ${!isAnnual ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
-              Mensual
-            </button>
-            <button onClick={() => setIsAnnual(true)}
-              className={`flex items-center gap-2 rounded-full px-5 py-2 text-sm font-medium transition-all ${isAnnual ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}>
-              Anual
-              <span className="rounded-full bg-accent px-2 py-0.5 text-[10px] font-bold text-accent-foreground">2 meses gratis</span>
-            </button>
-          </div>
-        </div>
-
-        <div className="mx-auto mt-12 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
-          {plans.map((plan) => {
-            const price = plan.price === 0 ? 0 : isAnnual ? Math.round(plan.price * 10 / 12) : plan.price;
-            return (
-              <motion.div key={plan.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} whileHover={{ y: -4 }}
-                className={`relative rounded-2xl border bg-card p-8 shadow-sm transition-shadow hover:shadow-lg ${plan.popular ? "border-primary ring-2 ring-primary/20" : ""}`}>
-                {plan.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground shadow-md">Más Popular</span>
-                )}
-                <h3 className="font-display text-xl font-bold text-card-foreground">{plan.name}</h3>
-                <div className="mt-4 flex items-baseline gap-1">
-                  {plan.price === 0 ? (
-                    <span className="font-display text-4xl font-bold text-foreground">Gratis</span>
-                  ) : (
-                    <>
-                      <span className="font-display text-4xl font-bold text-foreground">Bs{price}</span>
-                      <span className="text-sm text-muted-foreground">/{isAnnual ? "mes" : "mes"}</span>
-                    </>
-                  )}
-                </div>
-                {isAnnual && plan.price > 0 && (
-                  <p className="mt-1 text-xs font-medium text-primary">Bs{plan.price * 10}/año — 2 meses gratis</p>
-                )}
-                <ul className="mt-6 space-y-3">
-                  {plan.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> {f}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-8">
-                  <Button asChild className="w-full" variant={plan.popular ? "default" : "outline"}>
-                    <Link to="/register">{plan.cta}</Link>
-                  </Button>
-                </div>
-              </motion.div>
-            );
-          })}
-        </div>
+      <div className="mx-auto mt-12 grid max-w-5xl gap-8 sm:grid-cols-2 lg:grid-cols-3">
+        {plans.map((plan) => (
+          <motion.div
+            key={plan.name}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            whileHover={{ y: -4 }}
+            className={`relative rounded-2xl border p-8 shadow-sm transition-shadow hover:shadow-lg ${
+              plan.popular
+                ? "border-primary bg-accent/30 ring-2 ring-primary/20 scale-105 shadow-[0_12px_32px_-8px_hsl(var(--primary)/0.2)]"
+                : "bg-card"
+            }`}
+          >
+            {plan.popular && (
+              <span className="absolute -top-3 right-6 rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground shadow-md">
+                ⭐ MÁS POPULAR
+              </span>
+            )}
+            <h3 className="font-display text-xl font-bold text-card-foreground">{plan.name}</h3>
+            <div className="mt-4 flex items-baseline gap-1">
+              <span className="font-display text-5xl font-bold text-primary">{plan.price}</span>
+              {plan.subtitle !== "Sin tarjeta requerida" && (
+                <span className="text-sm text-muted-foreground">{plan.subtitle}</span>
+              )}
+            </div>
+            {plan.subtitle === "Sin tarjeta requerida" && (
+              <p className="mt-1 text-sm text-muted-foreground">{plan.subtitle}</p>
+            )}
+            <p className={`mt-4 text-sm leading-relaxed ${plan.popular ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+              {plan.description}
+            </p>
+            <ul className="mt-6 space-y-3">
+              {plan.features.map((f) => (
+                <li key={f} className="flex items-start gap-2 text-sm text-muted-foreground">
+                  <Check className="mt-0.5 h-4 w-4 shrink-0 text-primary" /> {f}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-8">
+              <Button
+                asChild
+                className={`w-full ${plan.popular ? "h-12 text-base font-bold" : ""}`}
+                variant={plan.ctaVariant}
+              >
+                <Link to="/register">{plan.cta}</Link>
+              </Button>
+            </div>
+            <p className={`mt-3 text-center text-xs italic ${plan.noteColor} font-semibold`}>
+              {plan.note}
+            </p>
+          </motion.div>
+        ))}
       </div>
-    </section>
-  );
-};
+    </div>
+  </section>
+);
 
 export default PricingSection;
