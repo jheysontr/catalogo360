@@ -172,7 +172,7 @@ const StoreFrontProductCard = ({
         >
           <Heart className={`h-4 w-4 transition-colors ${isWishlisted ? "fill-white" : ""}`} />
         </button>
-        <div className="absolute bottom-0 left-0 right-0 translate-y-full p-2.5 transition-transform duration-300 group-hover:translate-y-0">
+        <div className="absolute bottom-0 left-0 right-0 p-2.5 sm:translate-y-full sm:transition-transform sm:duration-300 sm:group-hover:translate-y-0">
           <button
             onClick={(e) => onQuickAdd(p, e)}
             className="flex w-full items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-semibold text-white shadow-lg backdrop-blur-sm transition-all hover:brightness-110 sm:text-sm"
