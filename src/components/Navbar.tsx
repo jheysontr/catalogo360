@@ -55,7 +55,7 @@ const Navbar = () => {
                 Iniciar sesión
               </Link>
               <Button asChild size="sm">
-                <Link to="/register">Crear cuenta</Link>
+                <Link to="/register">Empezar Gratis</Link>
               </Button>
             </>
           )}
