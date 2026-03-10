@@ -414,7 +414,7 @@ const SetupWizard = ({ storeId, storeName: initialName, storeSlug: initialSlug, 
               <div className="flex gap-2">
                 {step === 0 && (
                   <Button variant="ghost" size="sm" onClick={handleSkip} disabled={saving}>
-                    Omitir
+                    Configurar después
                   </Button>
                 )}
                 {step < 5 && (

@@ -147,7 +147,24 @@ const Dashboard = () => {
           onLogout={handleLogout}
         />
 
-        <main className="flex-1 p-3 sm:p-6 lg:p-8">
+          {setupPending && !showWizard && (
+            <div className="mx-3 sm:mx-6 lg:mx-8 mt-3 sm:mt-6 lg:mt-8 mb-0 rounded-xl border border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/30 p-4 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+              <div className="flex items-center gap-3 flex-1">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-100 dark:bg-orange-900/50">
+                  <AlertTriangle className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-orange-800 dark:text-orange-200">Configuración pendiente</p>
+                  <p className="text-xs text-orange-600 dark:text-orange-400">Tu tienda no estará visible hasta completar la configuración inicial.</p>
+                </div>
+              </div>
+              <Button size="sm" onClick={() => setShowWizard(true)} className="gap-1.5 shrink-0">
+                <Rocket className="h-4 w-4" /> Completar configuración
+              </Button>
+            </div>
+          )}
+
+          <main className="flex-1 p-3 sm:p-6 lg:p-8">
           <SectionErrorBoundary section={activeSection} key={activeSection}>
             <Suspense fallback={<SectionLoader />}>
               {renderSection()}
