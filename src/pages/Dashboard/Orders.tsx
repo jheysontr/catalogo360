@@ -373,26 +373,23 @@ const Orders = () => {
 
       {/* Status Tabs */}
       <Tabs value={statusFilter} onValueChange={setStatusFilter} className="w-full">
-        <TabsList className="dashboard-tabs-list">
-          {STATUS_OPTIONS.map((o) => (
-            <TabsTrigger
-              key={o.value}
-              value={o.value}
-              className="dashboard-tab-trigger gap-1.5"
-            >
-              {o.label}
-              {statusCounts[o.value] > 0 && (
-                <span className={`ml-1 min-w-[18px] rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
-                  o.value === "pending" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400"
-                  : o.value === "cancelled" ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400"
-                  : "bg-muted text-muted-foreground"
-                }`}>
-                  {statusCounts[o.value]}
-                </span>
-              )}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <ResponsiveTabsList
+          value={statusFilter}
+          onValueChange={setStatusFilter}
+          options={STATUS_OPTIONS.map((o) => ({
+            value: o.value,
+            label: o.label,
+            badge: statusCounts[o.value] > 0 ? (
+              <span className={`ml-1 min-w-[18px] rounded-full px-1.5 py-0.5 text-[10px] font-bold leading-none ${
+                o.value === "pending" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-950/40 dark:text-yellow-400"
+                : o.value === "cancelled" ? "bg-red-100 text-red-700 dark:bg-red-950/40 dark:text-red-400"
+                : "bg-muted text-muted-foreground"
+              }`}>
+                {statusCounts[o.value]}
+              </span>
+            ) : undefined,
+          }))}
+        />
       </Tabs>
 
       {/* Filters */}
