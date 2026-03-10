@@ -58,6 +58,7 @@ const AppLayout = () => {
           
           <Route path="/terminos" element={<TermsOfService />} />
           <Route path="/privacidad" element={<PrivacyPolicy />} />
+          <Route path="/ayuda" element={<HelpCenter />} />
           <Route
             path="/admin"
             element={
