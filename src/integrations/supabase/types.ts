@@ -592,6 +592,7 @@ export type Database = {
           plan_id: string | null
           primary_color: string | null
           secondary_color: string | null
+          setup_completed: boolean
           shipping_config: Json | null
           social_media: Json | null
           store_name: string
@@ -615,6 +616,7 @@ export type Database = {
           plan_id?: string | null
           primary_color?: string | null
           secondary_color?: string | null
+          setup_completed?: boolean
           shipping_config?: Json | null
           social_media?: Json | null
           store_name: string
@@ -638,6 +640,7 @@ export type Database = {
           plan_id?: string | null
           primary_color?: string | null
           secondary_color?: string | null
+          setup_completed?: boolean
           shipping_config?: Json | null
           social_media?: Json | null
           store_name?: string

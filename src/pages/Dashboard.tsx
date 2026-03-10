@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { Loader2 } from "lucide-react";
@@ -9,6 +9,7 @@ import DashboardSidebar from "@/components/Dashboard/DashboardSidebar";
 import DashboardHeader from "@/components/Dashboard/DashboardHeader";
 import QRDialog from "@/components/Dashboard/QRDialog";
 import SectionErrorBoundary from "@/components/SectionErrorBoundary";
+import SetupWizard from "@/components/Dashboard/SetupWizard";
 
 // Lazy-loaded dashboard pages
 const Products = lazy(() => import("@/pages/Dashboard/Products"));
@@ -47,6 +48,7 @@ const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeSection, setActiveSection] = useState("store");
   const [qrOpen, setQrOpen] = useState(false);
+  const [showWizard, setShowWizard] = useState(false);
 
   const {
     store,
@@ -59,6 +61,13 @@ const Dashboard = () => {
 
   useRealtimeOrders(store?.id ?? null);
   const { isAdmin } = useAdminCheck();
+
+  // Show wizard for first-time users
+  useEffect(() => {
+    if (store && !(store as any).setup_completed) {
+      setShowWizard(true);
+    }
+  }, [store]);
 
   const userName = user?.user_metadata?.full_name || user?.email?.split("@")[0] || "Usuario";
 
@@ -98,48 +107,58 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-secondary/20">
-      <DashboardSidebar
-        open={sidebarOpen}
-        onClose={() => setSidebarOpen(false)}
-        activeSection={activeSection}
-        onNavigate={setActiveSection}
-        storeSlug={store?.store_slug}
-        isAdmin={isAdmin}
-        enabledModules={enabledModules}
-        badgeCounts={badgeCounts}
-        onLogout={handleLogout}
-      />
-
-      <div className="flex flex-1 flex-col">
-        <DashboardHeader
-          userName={userName}
-          storeId={store?.id}
+    <>
+      {showWizard && store && (
+        <SetupWizard
+          storeId={store.id}
+          storeName={store.store_name}
+          storeSlug={store.store_slug}
+          onComplete={() => setShowWizard(false)}
+        />
+      )}
+      <div className="flex min-h-screen bg-secondary/20">
+        <DashboardSidebar
+          open={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          activeSection={activeSection}
+          onNavigate={setActiveSection}
           storeSlug={store?.store_slug}
-          currency={store?.currency}
-          onOpenSidebar={() => setSidebarOpen(true)}
-          onOpenQR={() => setQrOpen(true)}
-          onNavigateToOrders={() => setActiveSection("orders")}
-          onNavigateToSettings={() => setActiveSection("settings")}
+          isAdmin={isAdmin}
+          enabledModules={enabledModules}
+          badgeCounts={badgeCounts}
           onLogout={handleLogout}
         />
 
-        <main className="flex-1 p-3 sm:p-6 lg:p-8">
-          <SectionErrorBoundary section={activeSection} key={activeSection}>
-            <Suspense fallback={<SectionLoader />}>
-              {renderSection()}
-            </Suspense>
-          </SectionErrorBoundary>
-        </main>
-      </div>
+        <div className="flex flex-1 flex-col">
+          <DashboardHeader
+            userName={userName}
+            storeId={store?.id}
+            storeSlug={store?.store_slug}
+            currency={store?.currency}
+            onOpenSidebar={() => setSidebarOpen(true)}
+            onOpenQR={() => setQrOpen(true)}
+            onNavigateToOrders={() => setActiveSection("orders")}
+            onNavigateToSettings={() => setActiveSection("settings")}
+            onLogout={handleLogout}
+          />
 
-      <QRDialog
-        open={qrOpen}
-        onOpenChange={setQrOpen}
-        storeName={store?.store_name}
-        storeSlug={store?.store_slug}
-      />
-    </div>
+          <main className="flex-1 p-3 sm:p-6 lg:p-8">
+            <SectionErrorBoundary section={activeSection} key={activeSection}>
+              <Suspense fallback={<SectionLoader />}>
+                {renderSection()}
+              </Suspense>
+            </SectionErrorBoundary>
+          </main>
+        </div>
+
+        <QRDialog
+          open={qrOpen}
+          onOpenChange={setQrOpen}
+          storeName={store?.store_name}
+          storeSlug={store?.store_slug}
+        />
+      </div>
+    </>
   );
 };
 
