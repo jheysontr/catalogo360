@@ -48,7 +48,7 @@ const parseItems = (raw: unknown): ReceiptItem[] =>
 const getName = (i: ReceiptItem) => i.name || i.product_name || "Producto";
 const getQty = (i: ReceiptItem) => i.quantity ?? i.qty ?? 1;
 const getPrice = (i: ReceiptItem) => i.price ?? i.unit_price ?? 0;
-const fmtCurrency = (n: number) => `Bs ${n.toFixed(2)}`;
+// fmtCurrency is now defined inside the component
 const shortId = (id: string) => id.slice(0, 8).toUpperCase();
 
 const statusLabel: Record<string, string> = {
