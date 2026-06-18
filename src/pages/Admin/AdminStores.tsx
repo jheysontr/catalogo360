@@ -41,6 +41,7 @@ interface PlanRow {
 }
 
 const AdminStores = () => {
+  const navigate = useNavigate();
   const [stores, setStores] = useState<StoreRow[]>([]);
   const [plans, setPlans] = useState<PlanRow[]>([]);
   const [search, setSearch] = useState("");
