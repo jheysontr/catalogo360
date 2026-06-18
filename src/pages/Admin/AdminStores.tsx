@@ -266,6 +266,14 @@ const AdminStores = () => {
                         <Button
                           size="icon"
                           variant="ghost"
+                          title="Editar tienda"
+                          onClick={() => openEdit(store)}
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
                           title="Asignar plan"
                           onClick={() => openPlanDialog(store)}
                         >
