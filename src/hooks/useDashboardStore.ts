@@ -44,10 +44,11 @@ export function useDashboardStore(): DashboardStoreState {
 
     const fetchData = async () => {
       setLoading(true);
+      const uid = effectiveUserId(user.id);
       const { data: stores } = await supabase
         .from("stores")
         .select("id, store_name, store_slug, plan_id, currency, setup_completed")
-        .eq("user_id", user.id)
+        .eq("user_id", uid!)
         .limit(1);
 
       if (!stores || stores.length === 0) {
