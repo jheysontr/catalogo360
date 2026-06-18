@@ -140,7 +140,33 @@ const AdminStores = () => {
     fetchData();
   };
 
-  const filteredStores = stores.filter(
+  const openEdit = async (store: StoreRow) => {
+    const { data, error } = await supabase
+      .from("stores")
+      .select("id, store_name, store_slug, email, description, address, currency, primary_color, secondary_color, logo_url, banner_url, is_active")
+      .eq("id", store.id)
+      .maybeSingle();
+    if (error || !data) {
+      toast.error("No se pudo cargar la tienda");
+      return;
+    }
+    setEditStore(data);
+  };
+
+  const saveEdit = async () => {
+    if (!editStore) return;
+    setEditSaving(true);
+    const { id, ...payload } = editStore;
+    const { error } = await supabase.from("stores").update(payload).eq("id", id);
+    setEditSaving(false);
+    if (error) {
+      toast.error(error.message || "Error al guardar");
+      return;
+    }
+    toast.success("Tienda actualizada");
+    setEditStore(null);
+    fetchData();
+  };
     (s) =>
       s.store_name.toLowerCase().includes(search.toLowerCase()) ||
       s.store_slug.toLowerCase().includes(search.toLowerCase()) ||
