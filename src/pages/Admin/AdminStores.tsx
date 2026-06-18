@@ -52,8 +52,7 @@ const AdminStores = () => {
   const [qrStore, setQrStore] = useState<StoreRow | null>(null);
   const [productCounts, setProductCounts] = useState<Record<string, number>>({});
   const [orderCounts, setOrderCounts] = useState<Record<string, number>>({});
-  const [editStore, setEditStore] = useState<any | null>(null);
-  const [editSaving, setEditSaving] = useState(false);
+  const [confirmStore, setConfirmStore] = useState<StoreRow | null>(null);
 
   const fetchData = async () => {
     setLoading(true);
