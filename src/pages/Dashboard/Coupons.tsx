@@ -78,7 +78,7 @@ const Coupons = () => {
       const { data } = await supabase
         .from("stores")
         .select("id, currency")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId(user.id)!)
         .limit(1);
       if (data?.[0]) {
         setStoreId(data[0].id);

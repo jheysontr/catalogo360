@@ -92,7 +92,7 @@ const StoreSettings = () => {
       const { data, error } = await supabase
         .from("stores")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId(user.id)!)
         .limit(1);
 
       if (data && data.length > 0) {

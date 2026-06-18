@@ -89,7 +89,7 @@ const Plans = () => {
       const { data: stores } = await supabase
         .from("stores")
         .select("id, plan_id")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId(user.id)!)
         .limit(1);
 
       if (stores?.[0]) {

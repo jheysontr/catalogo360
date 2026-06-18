@@ -126,7 +126,7 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
     if (!user) return;
     const load = async () => {
       setLoading(true);
-      const { data: stores } = await supabase.from("stores").select("id").eq("user_id", user.id).limit(1);
+      const { data: stores } = await supabase.from("stores").select("id").eq("user_id", effectiveUserId(user.id)!).limit(1);
       if (!stores?.[0]) { setLoading(false); return; }
       const sid = stores[0].id;
       setStoreId(sid);

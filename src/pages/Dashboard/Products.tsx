@@ -44,7 +44,7 @@ const Products = () => {
     supabase
       .from("stores")
       .select("id")
-      .eq("user_id", user.id)
+      .eq("user_id", effectiveUserId(user.id)!)
       .limit(1)
       .then(({ data }) => {
         if (data?.[0]) setStoreId(data[0].id);

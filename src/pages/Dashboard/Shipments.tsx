@@ -100,7 +100,7 @@ const Shipments = () => {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabase.from("stores").select("id").eq("user_id", user.id).limit(1);
+      const { data } = await supabase.from("stores").select("id").eq("user_id", effectiveUserId(user.id)!).limit(1);
       if (data?.[0]) setStoreId(data[0].id);
     })();
   }, [user]);
