@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { effectiveUserId } from "@/lib/impersonation";
 import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -61,7 +62,7 @@ const ShippingConfig = () => {
       const { data } = await supabase
         .from("stores")
         .select("id, shipping_config")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId(user.id)!)
         .limit(1);
       if (data?.[0]) {
         setStoreId(data[0].id);

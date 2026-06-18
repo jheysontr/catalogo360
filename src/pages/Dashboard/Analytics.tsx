@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { effectiveUserId } from "@/lib/impersonation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import ResponsiveTabsList from "@/components/Dashboard/ResponsiveTabs";
@@ -126,7 +127,7 @@ const Analytics = ({ currency = "BOB" }: AnalyticsProps) => {
     if (!user) return;
     const load = async () => {
       setLoading(true);
-      const { data: stores } = await supabase.from("stores").select("id").eq("user_id", user.id).limit(1);
+      const { data: stores } = await supabase.from("stores").select("id").eq("user_id", effectiveUserId(user.id)!).limit(1);
       if (!stores?.[0]) { setLoading(false); return; }
       const sid = stores[0].id;
       setStoreId(sid);

@@ -1,6 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { effectiveUserId } from "@/lib/impersonation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -191,7 +192,7 @@ const Orders = () => {
     supabase
       .from("stores")
       .select("id, social_media, store_name, logo_url, address, email, currency")
-      .eq("user_id", user.id)
+      .eq("user_id", effectiveUserId(user.id)!)
       .limit(1)
       .then(({ data }) => {
         if (data?.[0]) {

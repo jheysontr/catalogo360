@@ -19,6 +19,9 @@ import { Switch } from "@/components/ui/switch";
 import { Store, Search, Eye, Ban, CheckCircle, Trash2, CreditCard, QrCode, Download, Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 import { QRCodeSVG } from "qrcode.react";
+import { useNavigate } from "react-router-dom";
+import { setImpersonation } from "@/lib/impersonation";
+import { LogIn } from "lucide-react";
 
 interface StoreRow {
   id: string;
@@ -38,6 +41,7 @@ interface PlanRow {
 }
 
 const AdminStores = () => {
+  const navigate = useNavigate();
   const [stores, setStores] = useState<StoreRow[]>([]);
   const [plans, setPlans] = useState<PlanRow[]>([]);
   const [search, setSearch] = useState("");
@@ -262,6 +266,21 @@ const AdminStores = () => {
                           onClick={() => window.open(`/${store.store_slug}`, "_blank")}
                         >
                           <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          title="Administrar como dueño"
+                          onClick={() => {
+                            setImpersonation({
+                              storeId: store.id,
+                              userId: store.user_id,
+                              storeName: store.store_name,
+                            });
+                            navigate("/dashboard");
+                          }}
+                        >
+                          <LogIn className="h-4 w-4 text-primary" />
                         </Button>
                         <Button
                           size="icon"

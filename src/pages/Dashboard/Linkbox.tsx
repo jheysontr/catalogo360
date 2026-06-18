@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { effectiveUserId } from "@/lib/impersonation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -129,7 +130,7 @@ const Linkbox = () => {
       const { data } = await supabase
         .from("stores")
         .select("id, store_slug, store_name, logo_url, primary_color, secondary_color, linkbox_config")
-        .eq("user_id", user.id)
+        .eq("user_id", effectiveUserId(user.id)!)
         .limit(1);
       if (data?.[0]) {
         setStoreId(data[0].id);

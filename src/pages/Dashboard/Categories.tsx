@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { effectiveUserId } from "@/lib/impersonation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -66,7 +67,7 @@ const Categories = () => {
     supabase
       .from("stores")
       .select("id")
-      .eq("user_id", user.id)
+      .eq("user_id", effectiveUserId(user.id)!)
       .limit(1)
       .then(({ data }) => { if (data?.[0]) setStoreId(data[0].id); });
   }, [user]);
