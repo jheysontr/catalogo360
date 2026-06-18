@@ -19,6 +19,9 @@ import { Switch } from "@/components/ui/switch";
 import { Store, Search, Eye, Ban, CheckCircle, Trash2, CreditCard, QrCode, Download, Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 import { QRCodeSVG } from "qrcode.react";
+import { useNavigate } from "react-router-dom";
+import { setImpersonation } from "@/lib/impersonation";
+import { LogIn } from "lucide-react";
 
 interface StoreRow {
   id: string;
