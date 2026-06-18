@@ -81,9 +81,19 @@ const Dashboard = () => {
     coupons: activeCouponCount,
   };
 
+  const impersonation = getImpersonation();
+
   const handleLogout = async () => {
+    clearImpersonation();
     await signOut();
     navigate("/");
+  };
+
+  const exitImpersonation = () => {
+    clearImpersonation();
+    navigate("/admin");
+    // Force reload so all hooks re-fetch with the real user
+    setTimeout(() => window.location.reload(), 50);
   };
 
   const renderSection = () => {
