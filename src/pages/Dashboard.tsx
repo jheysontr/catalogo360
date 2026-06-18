@@ -1,7 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
-import { Loader2, AlertTriangle, Rocket } from "lucide-react";
+import { Loader2, AlertTriangle, Rocket, ShieldAlert, X } from "lucide-react";
 import { useRealtimeOrders } from "@/hooks/useRealtimeOrders";
 import { useAdminCheck } from "@/hooks/useAdminCheck";
 import { useDashboardStore } from "@/hooks/useDashboardStore";
@@ -11,6 +11,7 @@ import QRDialog from "@/components/Dashboard/QRDialog";
 import SectionErrorBoundary from "@/components/SectionErrorBoundary";
 import SetupWizard from "@/components/Dashboard/SetupWizard";
 import { Button } from "@/components/ui/button";
+import { getImpersonation, clearImpersonation } from "@/lib/impersonation";
 
 // Lazy-loaded dashboard pages
 const Products = lazy(() => import("@/pages/Dashboard/Products"));
