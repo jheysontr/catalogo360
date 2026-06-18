@@ -270,6 +270,21 @@ const AdminStores = () => {
                         <Button
                           size="icon"
                           variant="ghost"
+                          title="Administrar como dueño"
+                          onClick={() => {
+                            setImpersonation({
+                              storeId: store.id,
+                              userId: store.user_id,
+                              storeName: store.store_name,
+                            });
+                            navigate("/dashboard");
+                          }}
+                        >
+                          <LogIn className="h-4 w-4 text-primary" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
                           title="Editar tienda"
                           onClick={() => openEdit(store)}
                         >
