@@ -167,6 +167,8 @@ const AdminStores = () => {
     setEditStore(null);
     fetchData();
   };
+
+  const filteredStores = stores.filter(
     (s) =>
       s.store_name.toLowerCase().includes(search.toLowerCase()) ||
       s.store_slug.toLowerCase().includes(search.toLowerCase()) ||
