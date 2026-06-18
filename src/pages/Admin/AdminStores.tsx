@@ -272,14 +272,7 @@ const AdminStores = () => {
                           size="icon"
                           variant="ghost"
                           title="Administrar como dueño"
-                          onClick={() => {
-                            setImpersonation({
-                              storeId: store.id,
-                              userId: store.user_id,
-                              storeName: store.store_name,
-                            });
-                            navigate("/dashboard");
-                          }}
+                          onClick={() => setConfirmStore(store)}
                         >
                           <LogIn className="h-4 w-4 text-primary" />
                         </Button>
@@ -513,6 +506,36 @@ const AdminStores = () => {
             </Button>
             <Button onClick={saveEdit} disabled={editSaving}>
               {editSaving ? "Guardando..." : "Guardar cambios"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!confirmStore} onOpenChange={(open) => !open && setConfirmStore(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Administrar tienda como dueño</DialogTitle>
+            <DialogDescription>
+              Vas a entrar en modo administrador para gestionar la tienda <strong>{confirmStore?.store_name}</strong>. Cualquier cambio que realices se aplicará como si fueras el dueño.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setConfirmStore(null)}>
+              Cancelar
+            </Button>
+            <Button
+              onClick={() => {
+                if (!confirmStore) return;
+                setImpersonation({
+                  storeId: confirmStore.id,
+                  userId: confirmStore.user_id,
+                  storeName: confirmStore.store_name,
+                });
+                setConfirmStore(null);
+                navigate("/dashboard");
+              }}
+            >
+              Confirmar
             </Button>
           </DialogFooter>
         </DialogContent>
