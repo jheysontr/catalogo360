@@ -389,6 +389,114 @@ const AdminStores = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <Dialog open={!!editStore} onOpenChange={(open) => !open && setEditStore(null)}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Administrar tienda</DialogTitle>
+            <DialogDescription>
+              Edita la información de la tienda del cliente como administrador.
+            </DialogDescription>
+          </DialogHeader>
+          {editStore && (
+            <div className="grid gap-4 py-2 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <Label>Nombre de la tienda</Label>
+                <Input
+                  value={editStore.store_name || ""}
+                  onChange={(e) => setEditStore({ ...editStore, store_name: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Slug</Label>
+                <Input
+                  value={editStore.store_slug || ""}
+                  onChange={(e) => setEditStore({ ...editStore, store_slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-") })}
+                />
+              </div>
+              <div>
+                <Label>Email</Label>
+                <Input
+                  type="email"
+                  value={editStore.email || ""}
+                  onChange={(e) => setEditStore({ ...editStore, email: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Moneda</Label>
+                <Input
+                  value={editStore.currency || ""}
+                  onChange={(e) => setEditStore({ ...editStore, currency: e.target.value.toUpperCase() })}
+                  placeholder="USD, BOB, MXN..."
+                />
+              </div>
+              <div>
+                <Label>Dirección</Label>
+                <Input
+                  value={editStore.address || ""}
+                  onChange={(e) => setEditStore({ ...editStore, address: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Color primario</Label>
+                <Input
+                  type="color"
+                  value={editStore.primary_color || "#000000"}
+                  onChange={(e) => setEditStore({ ...editStore, primary_color: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Color secundario</Label>
+                <Input
+                  type="color"
+                  value={editStore.secondary_color || "#000000"}
+                  onChange={(e) => setEditStore({ ...editStore, secondary_color: e.target.value })}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label>Logo URL</Label>
+                <Input
+                  value={editStore.logo_url || ""}
+                  onChange={(e) => setEditStore({ ...editStore, logo_url: e.target.value })}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label>Banner URL</Label>
+                <Input
+                  value={editStore.banner_url || ""}
+                  onChange={(e) => setEditStore({ ...editStore, banner_url: e.target.value })}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label>Descripción</Label>
+                <Textarea
+                  rows={3}
+                  value={editStore.description || ""}
+                  onChange={(e) => setEditStore({ ...editStore, description: e.target.value })}
+                />
+              </div>
+              <div className="sm:col-span-2 flex items-center justify-between rounded-lg border p-3">
+                <div>
+                  <Label className="font-medium">Tienda activa</Label>
+                  <p className="text-xs text-muted-foreground">Si está desactivada, no será accesible al público.</p>
+                </div>
+                <Switch
+                  checked={!!editStore.is_active}
+                  onCheckedChange={(v) => setEditStore({ ...editStore, is_active: v })}
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditStore(null)} disabled={editSaving}>
+              Cancelar
+            </Button>
+            <Button onClick={saveEdit} disabled={editSaving}>
+              {editSaving ? "Guardando..." : "Guardar cambios"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
