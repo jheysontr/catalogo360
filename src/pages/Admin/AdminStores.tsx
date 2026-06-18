@@ -11,9 +11,12 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription,
 } from "@/components/ui/dialog";
-import { Store, Search, Eye, Ban, CheckCircle, Trash2, CreditCard, QrCode, Download } from "lucide-react";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
+import { Store, Search, Eye, Ban, CheckCircle, Trash2, CreditCard, QrCode, Download, Pencil } from "lucide-react";
 import toast from "react-hot-toast";
 import { QRCodeSVG } from "qrcode.react";
 
@@ -45,6 +48,8 @@ const AdminStores = () => {
   const [qrStore, setQrStore] = useState<StoreRow | null>(null);
   const [productCounts, setProductCounts] = useState<Record<string, number>>({});
   const [orderCounts, setOrderCounts] = useState<Record<string, number>>({});
+  const [editStore, setEditStore] = useState<any | null>(null);
+  const [editSaving, setEditSaving] = useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -132,6 +137,34 @@ const AdminStores = () => {
     }
     toast.success("Plan asignado correctamente");
     setPlanDialogOpen(false);
+    fetchData();
+  };
+
+  const openEdit = async (store: StoreRow) => {
+    const { data, error } = await supabase
+      .from("stores")
+      .select("id, store_name, store_slug, email, description, address, currency, primary_color, secondary_color, logo_url, banner_url, is_active")
+      .eq("id", store.id)
+      .maybeSingle();
+    if (error || !data) {
+      toast.error("No se pudo cargar la tienda");
+      return;
+    }
+    setEditStore(data);
+  };
+
+  const saveEdit = async () => {
+    if (!editStore) return;
+    setEditSaving(true);
+    const { id, ...payload } = editStore;
+    const { error } = await supabase.from("stores").update(payload).eq("id", id);
+    setEditSaving(false);
+    if (error) {
+      toast.error(error.message || "Error al guardar");
+      return;
+    }
+    toast.success("Tienda actualizada");
+    setEditStore(null);
     fetchData();
   };
 
@@ -229,6 +262,14 @@ const AdminStores = () => {
                           onClick={() => window.open(`/${store.store_slug}`, "_blank")}
                         >
                           <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          title="Editar tienda"
+                          onClick={() => openEdit(store)}
+                        >
+                          <Pencil className="h-4 w-4" />
                         </Button>
                         <Button
                           size="icon"
@@ -344,6 +385,114 @@ const AdminStores = () => {
             >
               <Download className="h-4 w-4 mr-2" />
               Descargar PNG
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={!!editStore} onOpenChange={(open) => !open && setEditStore(null)}>
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Administrar tienda</DialogTitle>
+            <DialogDescription>
+              Edita la información de la tienda del cliente como administrador.
+            </DialogDescription>
+          </DialogHeader>
+          {editStore && (
+            <div className="grid gap-4 py-2 sm:grid-cols-2">
+              <div className="sm:col-span-2">
+                <Label>Nombre de la tienda</Label>
+                <Input
+                  value={editStore.store_name || ""}
+                  onChange={(e) => setEditStore({ ...editStore, store_name: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Slug</Label>
+                <Input
+                  value={editStore.store_slug || ""}
+                  onChange={(e) => setEditStore({ ...editStore, store_slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, "-") })}
+                />
+              </div>
+              <div>
+                <Label>Email</Label>
+                <Input
+                  type="email"
+                  value={editStore.email || ""}
+                  onChange={(e) => setEditStore({ ...editStore, email: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Moneda</Label>
+                <Input
+                  value={editStore.currency || ""}
+                  onChange={(e) => setEditStore({ ...editStore, currency: e.target.value.toUpperCase() })}
+                  placeholder="USD, BOB, MXN..."
+                />
+              </div>
+              <div>
+                <Label>Dirección</Label>
+                <Input
+                  value={editStore.address || ""}
+                  onChange={(e) => setEditStore({ ...editStore, address: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Color primario</Label>
+                <Input
+                  type="color"
+                  value={editStore.primary_color || "#000000"}
+                  onChange={(e) => setEditStore({ ...editStore, primary_color: e.target.value })}
+                />
+              </div>
+              <div>
+                <Label>Color secundario</Label>
+                <Input
+                  type="color"
+                  value={editStore.secondary_color || "#000000"}
+                  onChange={(e) => setEditStore({ ...editStore, secondary_color: e.target.value })}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label>Logo URL</Label>
+                <Input
+                  value={editStore.logo_url || ""}
+                  onChange={(e) => setEditStore({ ...editStore, logo_url: e.target.value })}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label>Banner URL</Label>
+                <Input
+                  value={editStore.banner_url || ""}
+                  onChange={(e) => setEditStore({ ...editStore, banner_url: e.target.value })}
+                />
+              </div>
+              <div className="sm:col-span-2">
+                <Label>Descripción</Label>
+                <Textarea
+                  rows={3}
+                  value={editStore.description || ""}
+                  onChange={(e) => setEditStore({ ...editStore, description: e.target.value })}
+                />
+              </div>
+              <div className="sm:col-span-2 flex items-center justify-between rounded-lg border p-3">
+                <div>
+                  <Label className="font-medium">Tienda activa</Label>
+                  <p className="text-xs text-muted-foreground">Si está desactivada, no será accesible al público.</p>
+                </div>
+                <Switch
+                  checked={!!editStore.is_active}
+                  onCheckedChange={(v) => setEditStore({ ...editStore, is_active: v })}
+                />
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditStore(null)} disabled={editSaving}>
+              Cancelar
+            </Button>
+            <Button onClick={saveEdit} disabled={editSaving}>
+              {editSaving ? "Guardando..." : "Guardar cambios"}
             </Button>
           </DialogFooter>
         </DialogContent>
