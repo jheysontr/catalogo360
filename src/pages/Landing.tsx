@@ -90,41 +90,59 @@ const LandingNav = () => {
             </Link>
 
             {/* Mobile trigger */}
-            <button
-              onClick={() => setOpen((v) => !v)}
-              aria-label={open ? "Cerrar menú" : "Abrir menú"}
-              aria-expanded={open}
-              className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-300 transition-colors hover:bg-white/5 hover:text-white lg:hidden"
-            >
-              {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-            </button>
+            <Sheet open={open} onOpenChange={setOpen}>
+              <SheetTrigger asChild>
+                <button
+                  aria-label={open ? "Cerrar menú" : "Abrir menú"}
+                  className="flex h-10 w-10 items-center justify-center rounded-lg text-slate-300 transition-colors hover:bg-white/5 hover:text-white lg:hidden"
+                >
+                  {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+                </button>
+              </SheetTrigger>
+
+              <SheetContent
+                side="right"
+                className="w-full max-w-xs border-white/10 bg-[#0d1b2a]/95 p-0 shadow-[0_20px_50px_rgba(0,0,0,0.4)] backdrop-blur-xl"
+                aria-describedby="mobile-menu-desc"
+              >
+                <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
+                <SheetDescription id="mobile-menu-desc" className="sr-only">
+                  Navega por las secciones de Catalogo360 o inicia sesión.
+                </SheetDescription>
+                <div className="flex h-full flex-col p-6">
+                  <div className="flex flex-col gap-1">
+                    {NAV_LINKS.map((l) => (
+                      <a
+                        key={l.href}
+                        href={l.href}
+                        onClick={() => setOpen(false)}
+                        className="rounded-lg px-4 py-3 text-base font-medium text-slate-300 transition-colors hover:bg-white/5 hover:text-[#2dd4a8]"
+                      >
+                        {l.label}
+                      </a>
+                    ))}
+                  </div>
+                  <div className="mt-6 border-t border-white/10 pt-6">
+                    <Link
+                      to="/login"
+                      onClick={() => setOpen(false)}
+                      className="block rounded-lg px-4 py-3 text-base font-medium text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
+                    >
+                      Iniciar sesión
+                    </Link>
+                    <Link
+                      to="/register"
+                      onClick={() => setOpen(false)}
+                      className="mt-3 block rounded-xl bg-[#2dd4a8] px-4 py-3 text-center font-display text-sm font-bold text-[#0d1b2a] shadow-[0_0_20px_rgba(45,212,168,0.3)] transition-all hover:shadow-[0_0_30px_rgba(45,212,168,0.5)]"
+                    >
+                      Empezar Gratis
+                    </Link>
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </nav>
-
-        {/* Mobile menu panel */}
-        {open && (
-          <div className="w-full rounded-2xl border border-white/10 bg-[#0d1b2a]/90 p-3 shadow-[0_20px_50px_rgba(0,0,0,0.4)] backdrop-blur-xl lg:hidden">
-            <div className="flex flex-col">
-              {NAV_LINKS.map((l) => (
-                <a
-                  key={l.href}
-                  href={l.href}
-                  onClick={() => setOpen(false)}
-                  className="rounded-lg px-4 py-3 text-sm font-medium text-slate-300 transition-colors hover:bg-white/5 hover:text-[#2dd4a8]"
-                >
-                  {l.label}
-                </a>
-              ))}
-              <Link
-                to="/login"
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-4 py-3 text-sm font-medium text-slate-300 transition-colors hover:bg-white/5 hover:text-white"
-              >
-                Iniciar sesión
-              </Link>
-            </div>
-          </div>
-        )}
       </div>
     </header>
   );
