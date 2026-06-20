@@ -9,6 +9,7 @@ import FAQSection from "@/components/Landing/FAQSection";
 import PricingSection from "@/components/Landing/PricingSection";
 import FooterCTA, { Footer } from "@/components/Landing/FooterCTA";
 import FloatingCTA from "@/components/Landing/FloatingCTA";
+import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 
 const NAV_LINKS = [
   { href: "#funciones", label: "Funciones" },
