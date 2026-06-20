@@ -38,7 +38,7 @@ const AppLayout = () => {
   const isKnownRoute = location.pathname === "/" || knownRoutes.some(r => location.pathname.startsWith(r));
   const isStoreFront = !isKnownRoute;
   const isLanding = location.pathname === "/";
-  const hideNavbar = isDashboard || isStoreFront || isLinkbox || isAdmin || isAffiliate;
+  const hideNavbar = isDashboard || isStoreFront || isLinkbox || isAdmin || isAffiliate || isLanding;
   const hideFooter = hideNavbar || isLanding;
   return (
     <div className="flex min-h-screen flex-col">
