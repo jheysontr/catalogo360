@@ -34,7 +34,7 @@ const StoreHeader = ({ store, primaryColor, secondaryColor, onInfoClick, onShare
               {store.logo_url ? (
                 <img src={store.logo_url} alt={store.store_name} className="h-full w-full object-cover" loading="lazy" />
               ) : (
-                <StoreIcon className="h-8 w-8 text-white sm:h-9 sm:w-9" />
+                <span className="text-3xl font-bold text-white sm:text-4xl">{(store.store_name || "T").trim().charAt(0).toUpperCase()}</span>
               )}
             </div>
             <div className="flex flex-1 flex-col items-center gap-1 sm:items-start">
