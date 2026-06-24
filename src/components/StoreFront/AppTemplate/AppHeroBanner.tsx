@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Store as StoreIcon, Sparkles, Zap, Leaf, ShoppingBag } from "lucide-react";
 import type { TemplateTheme } from "./templateThemes";
 
 interface AppHeroBannerProps {
@@ -15,284 +14,243 @@ interface AppHeroBannerProps {
   customDescription?: string;
 }
 
-/* Helper to resolve greeting & description */
 const useTexts = (props: AppHeroBannerProps) => ({
   greeting: props.customGreeting || props.theme.bannerGreeting,
   desc: props.customDescription || props.store.description,
 });
 
-/* ── Full-bleed cinematic banner (Elegante) ── */
+/* ──────────────────────────────────────────────────────────────
+ * BOUTIQUE — full-bleed cinematic editorial (Elegante)
+ * Tall image · serif headline · vendor primary as fine accent line
+ * ────────────────────────────────────────────────────────────── */
 const FullBanner = (props: AppHeroBannerProps) => {
   const { greeting, desc } = useTexts(props);
   const { store, primaryColor, theme } = props;
   return (
-    <motion.div
+    <motion.section
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 0.8 }}
+      transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
       className="relative overflow-hidden"
+      aria-label={`Banner ${store.store_name}`}
     >
       <div
-        className={`relative ${theme.bannerHeight} sm:h-56 w-full`}
+        className={`relative ${theme.bannerHeight} w-full sm:h-72 md:h-80`}
         style={{
-          background: store.banner_url
-            ? undefined
-            : `linear-gradient(160deg, ${primaryColor}, #000 80%)`,
+          backgroundColor: "hsl(24 14% 12%)",
+          backgroundImage: store.banner_url ? `url(${store.banner_url})` : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
-        {store.banner_url && (
-          <img src={store.banner_url} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
-        <div className="absolute inset-0" style={{ background: `radial-gradient(ellipse at center, transparent 50%, ${primaryColor}33 100%)` }} />
+        {/* Editorial double-overlay for legibility */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/55" />
+        <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
 
-        <div className="absolute top-4 left-4 w-8 h-8 border-l border-t border-white/30" />
-        <div className="absolute bottom-4 right-4 w-8 h-8 border-r border-b border-white/30" />
+        {/* Editorial frame marks */}
+        <div className="absolute left-5 top-5 h-6 w-6 border-l border-t border-white/40" />
+        <div className="absolute right-5 top-5 h-6 w-6 border-r border-t border-white/40" />
 
-        <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8">
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-px flex-1 max-w-[40px]" style={{ backgroundColor: `${primaryColor}99` }} />
-            <p className="text-[10px] uppercase tracking-[0.4em] text-white/60">{greeting}</p>
+        <div className="absolute inset-x-0 bottom-0 container px-4 pb-8 sm:pb-10">
+          <div className="flex items-center gap-3">
+            <span className="h-px w-10" style={{ backgroundColor: primaryColor }} />
+            <p className="text-[10px] uppercase tracking-[0.4em] text-white/85">{greeting}</p>
           </div>
+          <h2 className="editorial-serif mt-2 max-w-2xl text-3xl leading-tight text-white sm:text-5xl">
+            {store.store_name}
+          </h2>
           {desc && (
-            <p className="text-sm text-white/70 line-clamp-2 max-w-md font-light italic">{desc}</p>
+            <p className="mt-2 max-w-md text-sm leading-relaxed text-white/75 line-clamp-2 sm:text-base">
+              {desc}
+            </p>
           )}
         </div>
       </div>
-    </motion.div>
+    </motion.section>
   );
 };
 
-/* ── Moda: Editorial magazine-style full banner ── */
-const ModaBanner = (props: AppHeroBannerProps) => {
-  const { greeting, desc } = useTexts(props);
-  const { store, primaryColor, theme } = props;
-  return (
-    <motion.div
-      initial={{ opacity: 0, scale: 1.02 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.7 }}
-      className="relative overflow-hidden"
-    >
-      <div
-        className={`relative ${theme.bannerHeight} sm:h-60 w-full`}
-        style={{
-          background: store.banner_url ? undefined : `linear-gradient(180deg, ${primaryColor}22, ${primaryColor}cc)`,
-        }}
-      >
-        {store.banner_url && (
-          <img src={store.banner_url} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
-        )}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-black/60" />
-
-        <div className="absolute top-0 left-0 right-0 flex justify-center pt-3">
-          <span className="text-[9px] uppercase tracking-[0.5em] text-white/50 border-b border-white/20 pb-1 px-4">
-            {greeting}
-          </span>
-        </div>
-
-        <div className="absolute bottom-0 left-0 right-0 p-5 flex items-end justify-between">
-          <div>
-            {desc && (
-              <p className="text-xs text-white/60 line-clamp-1 max-w-[200px]">{desc}</p>
-            )}
-          </div>
-          <div className="flex items-center gap-1.5">
-            <ShoppingBag className="h-3.5 w-3.5 text-white/50" />
-            <span className="text-[9px] text-white/50 uppercase tracking-wider">Shop Now</span>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-/* ── Split banner with diagonal cut (Moderna) ── */
+/* ──────────────────────────────────────────────────────────────
+ * STUDIO — asymmetric split (Moderna)
+ * Two-column: vendor color block + image with hairline divider
+ * ────────────────────────────────────────────────────────────── */
 const SplitBanner = (props: AppHeroBannerProps) => {
   const { greeting, desc } = useTexts(props);
   const { store, primaryColor, theme } = props;
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
+    <motion.section
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="container px-4 pt-4"
-    >
-      <div className={`relative flex overflow-hidden ${theme.bannerRounded} ${theme.cardShadow}`} style={{ backgroundColor: primaryColor }}>
-        <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.08)" }} />
-        <div className="absolute -right-2 top-8 h-16 w-16 rounded-full" style={{ backgroundColor: "rgba(255,255,255,0.05)" }} />
-        <div className="absolute left-1/2 -bottom-4 h-12 w-12 rotate-45" style={{ backgroundColor: "rgba(255,255,255,0.06)" }} />
-
-        <div className="flex-1 p-5 sm:p-6 flex flex-col justify-center relative z-10">
-          <div className="flex items-center gap-2 mb-1.5">
-            <Zap className="h-3.5 w-3.5 text-white/70" />
-            <p className="text-[10px] uppercase tracking-widest text-white/70 font-semibold">{greeting}</p>
-          </div>
-          {desc && (
-            <p className="text-xs text-white/70 line-clamp-2 mt-1">{desc}</p>
-          )}
-        </div>
-        {store.banner_url && (
-          <div className="w-2/5 overflow-hidden relative">
-            <div className="absolute inset-0 -skew-x-6 -ml-4 overflow-hidden">
-              <img src={store.banner_url} alt="" className="h-full w-full object-cover skew-x-6 scale-110" loading="lazy" />
-            </div>
-          </div>
-        )}
-      </div>
-    </motion.div>
-  );
-};
-
-/* ── Frutas: Organic wave banner ── */
-const MinimalBanner = (props: AppHeroBannerProps) => {
-  const { greeting, desc } = useTexts(props);
-  const { primaryColor } = props;
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: -5 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="relative"
-    >
-      <div className="container px-4 pt-3">
-        <div
-          className="relative overflow-hidden rounded-3xl p-4"
-          style={{ background: `linear-gradient(135deg, ${primaryColor}15, ${primaryColor}08)` }}
-        >
-          <div className="absolute -right-3 -top-3 h-16 w-16 rounded-full" style={{ backgroundColor: `${primaryColor}10` }} />
-          <div className="absolute -left-2 -bottom-2 h-12 w-12 rounded-full" style={{ backgroundColor: `${primaryColor}08` }} />
-
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full" style={{ backgroundColor: `${primaryColor}20` }}>
-              <Leaf className="h-4 w-4" style={{ color: primaryColor }} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[10px] font-medium" style={{ color: primaryColor }}>{greeting}</p>
-              {desc && (
-                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{desc}</p>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-/* ── Compact tech-style banner (App, Electrónica) ── */
-const CompactBanner = (props: AppHeroBannerProps) => {
-  const { greeting, desc } = useTexts(props);
-  const { store, primaryColor, theme } = props;
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="container px-4 pt-4"
+      className="container px-4 pt-5"
     >
       <div
-        className={`relative overflow-hidden ${theme.bannerRounded} p-4 sm:p-5`}
-        style={{
-          background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}bb)`,
-        }}
+        className={`relative grid ${theme.bannerHeight} grid-cols-5 overflow-hidden border border-border bg-background sm:h-40`}
+        style={{ borderRadius: 2 }}
       >
-        {store.banner_url && (
-          <img
-            src={store.banner_url}
-            alt=""
-            className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`}
-            loading="lazy"
-          />
-        )}
-
-        <div
-          className="absolute inset-0 opacity-[0.07]"
-          style={{
-            backgroundImage: `linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px)`,
-            backgroundSize: "20px 20px",
-          }}
-        />
-
-        <div className="absolute right-4 top-4 flex gap-1">
-          <div className="h-1.5 w-1.5 rounded-full bg-white/30" />
-          <div className="h-1.5 w-1.5 rounded-full bg-white/50" />
-          <div className="h-1.5 w-1.5 rounded-full bg-white/70" />
+        {/* Text block — 3 cols */}
+        <div className="col-span-3 flex flex-col justify-center gap-2 border-r border-border px-5 sm:px-7">
+          <div className="flex items-center gap-2.5">
+            <span className="h-px w-7" style={{ backgroundColor: primaryColor }} />
+            <span className="editorial-eyebrow" style={{ color: primaryColor }}>{greeting}</span>
+          </div>
+          <h2 className="editorial-serif text-xl leading-tight text-foreground sm:text-2xl">
+            {store.store_name}
+          </h2>
+          {desc && (
+            <p className="line-clamp-2 max-w-md text-xs text-muted-foreground sm:text-sm">
+              {desc}
+            </p>
+          )}
         </div>
 
-        <div className="relative z-10 space-y-1">
-          <p className="text-xs font-medium text-white/80">{greeting}</p>
-          {desc && (
-            <p className="text-xs text-white/70 line-clamp-2 max-w-sm">{desc}</p>
+        {/* Image / color block — 2 cols */}
+        <div className="relative col-span-2 overflow-hidden">
+          {store.banner_url ? (
+            <img
+              src={store.banner_url}
+              alt=""
+              className="absolute inset-0 h-full w-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div
+              className="absolute inset-0"
+              style={{
+                background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}88)`,
+              }}
+            />
           )}
         </div>
       </div>
-    </motion.div>
+    </motion.section>
   );
 };
 
-/* ── Comida: Warm rounded delivery-style banner ── */
+/* ──────────────────────────────────────────────────────────────
+ * MINIMAL — quiet tape strip (rare, used by minimal style)
+ * ────────────────────────────────────────────────────────────── */
+const MinimalBanner = (props: AppHeroBannerProps) => {
+  const { greeting, desc } = useTexts(props);
+  const { primaryColor, store } = props;
+  return (
+    <motion.section
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.4 }}
+      className="container px-4 pt-5"
+    >
+      <div className="flex items-center gap-4 border-y border-border py-4">
+        <span className="h-px flex-1" style={{ backgroundColor: primaryColor }} />
+        <div className="text-center">
+          <span className="editorial-eyebrow" style={{ color: primaryColor }}>{greeting}</span>
+          <p className="editorial-serif mt-0.5 text-lg text-foreground">{store.store_name}</p>
+          {desc && (
+            <p className="mt-0.5 line-clamp-1 max-w-md text-xs text-muted-foreground">{desc}</p>
+          )}
+        </div>
+        <span className="h-px flex-1" style={{ backgroundColor: primaryColor }} />
+      </div>
+    </motion.section>
+  );
+};
+
+/* ──────────────────────────────────────────────────────────────
+ * DIARIO — compact editorial tape (App)
+ * Hairline frame · vendor color rule · serif store name
+ * ────────────────────────────────────────────────────────────── */
+const CompactBanner = (props: AppHeroBannerProps) => {
+  const { greeting, desc } = useTexts(props);
+  const { store, primaryColor } = props;
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 6 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4 }}
+      className="container px-4 pt-5"
+    >
+      <div
+        className="relative flex items-stretch overflow-hidden border border-border bg-card"
+        style={{ borderRadius: 2 }}
+      >
+        {/* Vendor color accent rule */}
+        <span className="w-1 shrink-0" style={{ backgroundColor: primaryColor }} />
+
+        {/* Text */}
+        <div className="flex-1 px-4 py-4 sm:px-5 sm:py-5">
+          <span className="editorial-eyebrow" style={{ color: primaryColor }}>{greeting}</span>
+          <h2 className="editorial-serif mt-0.5 text-xl leading-tight text-foreground sm:text-2xl">
+            {store.store_name}
+          </h2>
+          {desc && (
+            <p className="mt-1 line-clamp-2 max-w-xl text-xs text-muted-foreground sm:text-sm">
+              {desc}
+            </p>
+          )}
+        </div>
+
+        {/* Banner thumbnail (if present) */}
+        {store.banner_url && (
+          <div className="relative hidden w-40 shrink-0 overflow-hidden border-l border-border sm:block">
+            <img src={store.banner_url} alt="" className="absolute inset-0 h-full w-full object-cover" loading="lazy" />
+          </div>
+        )}
+      </div>
+    </motion.section>
+  );
+};
+
+/* ──────────────────────────────────────────────────────────────
+ * HERO (default fallback) — editorial hero block
+ * ────────────────────────────────────────────────────────────── */
 const HeroBanner = (props: AppHeroBannerProps) => {
   const { greeting, desc } = useTexts(props);
   const { store, primaryColor, theme } = props;
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 10 }}
+    <motion.section
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4 }}
-      className="container px-4 pt-4"
+      transition={{ duration: 0.5 }}
+      className="container px-4 pt-5"
     >
       <div
-        className={`relative overflow-hidden ${theme.bannerRounded} p-5 sm:p-6`}
+        className={`relative overflow-hidden border border-border ${theme.bannerRounded}`}
         style={{
-          background: `linear-gradient(160deg, ${primaryColor}, ${primaryColor}dd 60%, ${primaryColor}aa)`,
+          backgroundColor: "hsl(36 18% 92%)",
+          backgroundImage: store.banner_url ? `url(${store.banner_url})` : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
         }}
       >
         {store.banner_url && (
-          <img
-            src={store.banner_url}
-            alt=""
-            className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`}
-            loading="lazy"
-          />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-transparent" />
         )}
-
-        <svg className="absolute bottom-0 left-0 right-0 h-6 text-background/10" viewBox="0 0 400 24" preserveAspectRatio="none">
-          <path d="M0,24 Q100,0 200,12 Q300,24 400,6 L400,24 Z" fill="currentColor" />
-        </svg>
-
-        <div className="absolute right-4 top-3 h-14 w-14 rounded-full border-2 border-white/10" />
-        <div className="absolute right-8 top-6 h-8 w-8 rounded-full bg-white/10" />
-
-        <div className="relative z-10 space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-white/15 px-3 py-1">
-            <Sparkles className="h-3 w-3 text-white" />
-            <p className="text-xs font-semibold text-white">{greeting}</p>
+        <div className="relative px-5 py-7 sm:px-8 sm:py-10">
+          <div className="flex items-center gap-2.5">
+            <span className="h-px w-7" style={{ backgroundColor: primaryColor }} />
+            <span className="editorial-eyebrow" style={{ color: primaryColor }}>{greeting}</span>
           </div>
+          <h2 className="editorial-serif mt-2 max-w-xl text-3xl leading-tight text-foreground sm:text-4xl">
+            {store.store_name}
+          </h2>
           {desc && (
-            <p className="text-sm text-white/80 line-clamp-2 max-w-sm">{desc}</p>
+            <p className="mt-2 max-w-lg text-sm text-muted-foreground line-clamp-2 sm:text-base">
+              {desc}
+            </p>
           )}
         </div>
       </div>
-    </motion.div>
+    </motion.section>
   );
 };
 
 const AppHeroBanner = (props: AppHeroBannerProps) => {
-  if (props.theme.id === "moda") {
-    return <ModaBanner {...props} />;
-  }
   switch (props.theme.bannerStyle) {
-    case "full":
-      return <FullBanner {...props} />;
-    case "split":
-      return <SplitBanner {...props} />;
-    case "minimal":
-      return <MinimalBanner {...props} />;
-    case "compact":
-      return <CompactBanner {...props} />;
-    default:
-      return <HeroBanner {...props} />;
+    case "full":    return <FullBanner {...props} />;
+    case "split":   return <SplitBanner {...props} />;
+    case "minimal": return <MinimalBanner {...props} />;
+    case "compact": return <CompactBanner {...props} />;
+    default:        return <HeroBanner {...props} />;
   }
 };
 

@@ -38,7 +38,7 @@ interface AppProductCardProps {
   catName?: string | null;
 }
 
-/* ═══════════════ OVERLAY CARD (Elegante, Moda) ═══════════════ */
+/* ═══════════════ OVERLAY CARD — Boutique editorial (Elegante) ═══════════════ */
 const OverlayCard = ({
   product: p, finalPrice, currencySymbol, primaryColor, isWishlisted,
   onQuickAdd, onToggleWishlist, onOpenDetail, theme,
@@ -48,64 +48,84 @@ const OverlayCard = ({
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
-    transition={{ duration: 0.4 }}
-    className="group cursor-pointer relative overflow-hidden"
+    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+    className="group relative cursor-pointer overflow-hidden"
     onClick={() => onOpenDetail(p)}
   >
-    <div className={`relative ${theme.cardAspect} overflow-hidden ${theme.cardRounded} bg-muted`}>
+    <div className={`relative ${theme.cardAspect} overflow-hidden bg-muted`}>
       {p.image_url ? (
-        <ProgressiveImage src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105" />
+        <ProgressiveImage
+          src={p.image_url}
+          alt={p.name}
+          className="h-full w-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-[1.04]"
+        />
       ) : (
-        <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/60">
-          <StoreIcon className="h-10 w-10 text-muted-foreground/20" />
+        <div className="flex h-full w-full items-center justify-center bg-muted">
+          <StoreIcon className="h-10 w-10 text-muted-foreground/25" />
         </div>
       )}
-      {/* Dark gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
-      {/* Sale badge */}
+      {/* Single bottom gradient — quieter editorial */}
+      <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
+
+      {/* Sale badge — typographic */}
       {p.on_sale && p.discount_percent && (
-        <span className={`absolute left-2.5 top-2.5 ${theme.pillRounded} bg-destructive px-2.5 py-1 text-[10px] font-bold text-destructive-foreground`}>
-          -{p.discount_percent}%
+        <span
+          className="editorial-eyebrow absolute left-3 top-3 inline-flex items-center bg-white px-2 py-1 text-foreground"
+          style={{ letterSpacing: "0.18em" }}
+        >
+          −{p.discount_percent}%
         </span>
       )}
 
       {/* Wishlist */}
       <button
         onClick={(e) => onToggleWishlist(p, e)}
-        className={`absolute right-2.5 top-2.5 flex h-8 w-8 items-center justify-center rounded-full transition-all duration-200 hover:scale-110 ${
-          isWishlisted ? "bg-red-500 text-white" : "bg-white/20 backdrop-blur-md text-white hover:bg-white/40"
+        className={`absolute right-3 top-3 flex h-9 w-9 items-center justify-center backdrop-blur-md transition-colors ${
+          isWishlisted ? "bg-red-500 text-white" : "bg-white/15 text-white hover:bg-white/30"
         }`}
+        style={{ borderRadius: 999 }}
       >
-        <Heart className={`h-3.5 w-3.5 ${isWishlisted ? "fill-white" : ""}`} />
+        <Heart className={`h-4 w-4 ${isWishlisted ? "fill-white" : ""}`} strokeWidth={1.5} />
       </button>
 
-      {/* Bottom info overlay */}
-      <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4">
-        <p className={`text-xs font-semibold text-white/90 ${theme.nameStyle === "uppercase" ? "uppercase tracking-wider text-[10px]" : ""}`}>
+      {/* Bottom info — overlay editorial */}
+      <div className="absolute inset-x-0 bottom-0 p-4 sm:p-5">
+        <h3 className="editorial-serif text-base uppercase tracking-[0.06em] text-white sm:text-lg">
           {p.name}
-        </p>
-        <div className="flex items-center justify-between mt-1">
+        </h3>
+        <div className="mt-2 flex items-end justify-between">
           <div className="flex items-baseline gap-2">
             {p.on_sale && p.discount_percent ? (
               <>
-                <span className="text-sm font-bold text-white">{currencySymbol}{finalPrice.toFixed(2)}</span>
-                <span className="text-[10px] text-white/50 line-through">{currencySymbol}{p.price.toFixed(2)}</span>
+                <span className="text-sm font-medium text-white tabular-nums">
+                  {currencySymbol}{finalPrice.toFixed(2)}
+                </span>
+                <span className="text-[11px] text-white/55 line-through tabular-nums">
+                  {currencySymbol}{p.price.toFixed(2)}
+                </span>
               </>
             ) : (
-              <span className="text-sm font-bold text-white">{currencySymbol}{p.price.toFixed(2)}</span>
+              <span className="text-sm font-medium text-white tabular-nums">
+                {currencySymbol}{p.price.toFixed(2)}
+              </span>
             )}
           </div>
           <button
             onClick={(e) => onQuickAdd(p, e)}
-            className={`flex items-center gap-1 ${theme.ctaRounded} px-3 py-1.5 text-[10px] font-semibold text-white backdrop-blur-md transition-all hover:scale-105`}
-            style={{ backgroundColor: `${primaryColor}cc` }}
+            className="flex items-center gap-1.5 border border-white/60 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em] text-white transition-colors hover:bg-white hover:text-foreground"
           >
-            <Plus className="h-3 w-3" />
+            <Plus className="h-3 w-3" strokeWidth={1.8} />
             {theme.ctaText}
           </button>
         </div>
       </div>
+
+      {/* Hairline vendor accent on hover */}
+      <span
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[2px] origin-left scale-x-0 transition-transform duration-500 group-hover:scale-x-100"
+        style={{ backgroundColor: primaryColor }}
+      />
     </div>
   </motion.div>
 );
