@@ -114,8 +114,21 @@ const Products = () => {
     return categories.find((c) => c.id === catId)?.name ?? "Sin categoría";
   };
 
+  /* ── Limit helpers ── */
+  const atLimit = totalCount >= maxProducts;
+  const limitToast = () => {
+    toast({
+      title: "Límite del plan alcanzado",
+      description: `Tu plan permite ${maxProducts} producto${maxProducts === 1 ? "" : "s"}. Actualiza tu plan para agregar más.`,
+      variant: "destructive",
+    });
+  };
+
   /* ── Actions ── */
-  const openAddModal = () => { setEditingProduct(null); setModalOpen(true); };
+  const openAddModal = () => {
+    if (atLimit) return limitToast();
+    setEditingProduct(null); setModalOpen(true);
+  };
   const openEditModal = (product: Product) => { setEditingProduct(product); setModalOpen(true); };
 
   const handleDuplicate = async (product: Product) => {
