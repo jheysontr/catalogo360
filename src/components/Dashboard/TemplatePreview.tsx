@@ -27,6 +27,8 @@ interface TemplatePreviewProps {
   bannerUrl: string | null;
   primaryColor: string;
   secondaryColor: string;
+  backgroundColor?: string;
+  accentColor?: string;
   description: string;
   products?: RealProduct[];
   currency?: string;
@@ -53,6 +55,8 @@ const TemplatePreview = ({
   bannerUrl,
   primaryColor,
   secondaryColor,
+  backgroundColor,
+  accentColor,
   description,
   products,
   currency = "BOB",
@@ -65,6 +69,7 @@ const TemplatePreview = ({
   const sym = getCurrencySymbol(currency);
   const greeting = customGreeting || theme.bannerGreeting;
   const bannerDesc = customBannerDescription || description;
+  const accent = accentColor || "#ef4444";
 
   const previewProducts: PreviewProduct[] = products && products.length > 0
     ? products.map((p) => {
