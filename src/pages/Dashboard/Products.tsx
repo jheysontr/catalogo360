@@ -24,6 +24,7 @@ const ITEMS_PER_PAGE = 15;
 
 const Products = () => {
   const { user } = useAuth();
+  const { maxProducts } = useDashboardStore();
   const { toast } = useToast();
   const [storeId, setStoreId] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
