@@ -108,6 +108,40 @@ const TemplatePreview = ({
     }
 
 
+    if (theme.bannerStyle === "fresh") {
+      const highlight = theme.bannerHighlight || "Oferta";
+      const cta = theme.bannerCta || "Comprar";
+      return (
+        <div className="px-2.5 pt-2">
+          <p className="px-0.5 pb-1.5 text-[9px] font-bold text-foreground leading-tight">
+            Fresh <span style={{ color: primaryColor }}>{storeName || "Tienda"}.</span> <span className="text-foreground/60">Sin complicaciones.</span>
+          </p>
+          <div
+            className="relative flex items-stretch overflow-hidden rounded-xl"
+            style={{
+              backgroundColor: "#FFE8B3",
+              backgroundImage: bannerUrl
+                ? `linear-gradient(90deg, #FFE8B3 0%, #FFE8B3 45%, rgba(255,232,179,0.2) 100%), url(${bannerUrl})`
+                : undefined,
+              backgroundSize: "cover",
+              backgroundPosition: "right center",
+              minHeight: "62px",
+            }}
+          >
+            <div className="relative z-10 flex flex-1 flex-col justify-center gap-1 p-2">
+              <span className="inline-flex w-fit items-center rounded-full bg-white/85 px-1.5 py-0.5 text-[5px] font-semibold" style={{ color: primaryColor }}>
+                {highlight}
+              </span>
+              {bannerDesc && <p className="text-[6px] font-bold text-foreground line-clamp-1 max-w-[14ch]">{bannerDesc}</p>}
+              <span className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[6px] font-semibold text-white" style={{ backgroundColor: "#FD730D" }}>
+                {cta}
+              </span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     switch (theme.bannerStyle) {
       case "full":
         return (
@@ -205,30 +239,37 @@ const TemplatePreview = ({
   const renderCategoryPills = () => {
     const isUnderline = theme.pillStyle === "underline";
     const isOutline = theme.pillStyle === "outline";
+    const isFilled = theme.pillStyle === "filled";
 
     return (
       <div className={`flex ${isUnderline ? "gap-0 border-b mx-2.5" : "gap-1 px-2.5"} pt-2 overflow-hidden`}>
-        {MOCK_CATEGORIES.map((cat, i) => (
-          <span
-            key={cat}
-            className={`whitespace-nowrap ${isUnderline ? "px-2 py-1 text-[7px]" : `${theme.pillRounded} px-2 py-0.5 text-[7px]`} font-medium`}
-            style={
-              i === 0
-                ? isUnderline
-                  ? { borderBottom: `2px solid ${primaryColor}`, color: primaryColor }
-                  : isOutline
-                    ? { border: `1px solid ${primaryColor}`, color: primaryColor }
-                    : { backgroundColor: primaryColor, color: "white" }
-                : isOutline
-                  ? { border: `1px solid hsl(var(--border))`, color: "hsl(var(--muted-foreground))" }
-                  : isUnderline
-                    ? { color: "hsl(var(--muted-foreground))" }
-                    : {}
-            }
-          >
-            {cat}
-          </span>
-        ))}
+        {MOCK_CATEGORIES.map((cat, i) => {
+          const active = i === 0;
+          const style = isUnderline
+            ? active
+              ? { borderBottom: `2px solid ${primaryColor}`, color: primaryColor }
+              : { color: "hsl(var(--muted-foreground))" }
+            : isOutline
+              ? active
+                ? { border: `1px solid ${primaryColor}`, color: primaryColor }
+                : { border: `1px solid hsl(var(--border))`, color: "hsl(var(--muted-foreground))" }
+              : isFilled
+                ? active
+                  ? { backgroundColor: primaryColor, color: "white" }
+                  : { backgroundColor: "white", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))" }
+                : active
+                  ? { backgroundColor: primaryColor, color: "white" }
+                  : {};
+          return (
+            <span
+              key={cat}
+              className={`whitespace-nowrap ${isUnderline ? "px-2 py-1 text-[7px]" : `${theme.pillRounded} px-2 py-0.5 text-[7px]`} font-medium`}
+              style={style}
+            >
+              {cat}
+            </span>
+          );
+        })}
       </div>
     );
   };
@@ -246,6 +287,28 @@ const TemplatePreview = ({
 
   const renderProductCard = (product: PreviewProduct, i: number) => {
     switch (theme.cardLayout) {
+      case "fresh":
+        return (
+          <div key={i} className="rounded-xl border bg-card p-1.5 shadow-sm">
+            <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+              {renderImage(product.imageUrl)}
+              {product.sale && (
+                <span className="absolute left-1 top-1 rounded-full bg-white/90 px-1 py-0.5 text-[5px] font-semibold" style={{ color: primaryColor }}>
+                  Oferta
+                </span>
+              )}
+            </div>
+            <div className="mt-1 flex items-center justify-between px-0.5">
+              <div className="min-w-0">
+                <p className="truncate text-[7px] font-semibold text-foreground">{product.name}</p>
+                <p className="text-[8px] font-bold text-foreground">{sym}{product.price}</p>
+              </div>
+              <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-white shadow-sm" style={{ backgroundColor: primaryColor }}>
+                <Plus className="h-2.5 w-2.5" strokeWidth={2.5} />
+              </div>
+            </div>
+          </div>
+        );
       case "overlay":
         return (
           <div key={i} className={`relative overflow-hidden ${theme.cardRounded} ${theme.cardAspect} bg-muted`}>

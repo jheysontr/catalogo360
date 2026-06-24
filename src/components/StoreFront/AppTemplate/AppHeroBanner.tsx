@@ -244,8 +244,69 @@ const HeroBanner = (props: AppHeroBannerProps) => {
   );
 };
 
+/* ──────────────────────────────────────────────────────────────
+ * FRESH — grocery-app promo card (Elegante)
+ * Cream/accent tinted background · discount pill · CTA · subject image right
+ * ────────────────────────────────────────────────────────────── */
+const FreshBanner = (props: AppHeroBannerProps) => {
+  const { greeting, desc } = useTexts(props);
+  const { store, primaryColor, theme } = props;
+  const highlight = theme.bannerHighlight || "Oferta";
+  const cta = theme.bannerCta || "Comprar ahora";
+
+  return (
+    <motion.section
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+      className="container px-4 pt-4"
+      aria-label={`Banner ${store.store_name}`}
+    >
+      {/* Headline above card */}
+      <h2 className="px-1 pb-3 text-2xl font-bold leading-tight text-foreground sm:text-3xl">
+        {greeting}{" "}
+        <span style={{ color: primaryColor }}>{store.store_name}.</span>{" "}
+        <span className="text-foreground/70">Sin complicaciones.</span>
+      </h2>
+
+      <div
+        className="relative flex items-stretch overflow-hidden rounded-2xl"
+        style={{
+          backgroundColor: "#FFE8B3",
+          backgroundImage: store.banner_url
+            ? `linear-gradient(90deg, #FFE8B3 0%, #FFE8B3 45%, rgba(255,232,179,0.3) 100%), url(${store.banner_url})`
+            : undefined,
+          backgroundSize: "cover",
+          backgroundPosition: "right center",
+          minHeight: "150px",
+        }}
+      >
+        <div className="relative z-10 flex flex-1 flex-col justify-center gap-2.5 p-5 sm:p-6">
+          <span
+            className="inline-flex w-fit items-center rounded-full bg-white/85 px-3 py-1 text-[11px] font-semibold backdrop-blur-sm"
+            style={{ color: primaryColor }}
+          >
+            {highlight}
+          </span>
+          <p className="max-w-[16ch] text-lg font-bold leading-tight text-foreground sm:text-xl">
+            {desc || "Compra fresco. Vive mejor."}
+          </p>
+          <button
+            type="button"
+            className="mt-1 inline-flex w-fit items-center rounded-full px-5 py-2 text-xs font-semibold text-white shadow-sm transition-transform hover:scale-[1.03] active:scale-95"
+            style={{ backgroundColor: "#FD730D" }}
+          >
+            {cta}
+          </button>
+        </div>
+      </div>
+    </motion.section>
+  );
+};
+
 const AppHeroBanner = (props: AppHeroBannerProps) => {
   switch (props.theme.bannerStyle) {
+    case "fresh":   return <FreshBanner {...props} />;
     case "full":    return <FullBanner {...props} />;
     case "split":   return <SplitBanner {...props} />;
     case "minimal": return <MinimalBanner {...props} />;
