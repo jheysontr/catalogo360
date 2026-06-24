@@ -142,9 +142,7 @@ const StoreFrontProductCard = ({
         {p.image_url ? (
           <ProgressiveImage src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-muted">
-            <StoreIcon className="h-10 w-10 text-muted-foreground/25" />
-          </div>
+          <ProductImagePlaceholder productId={p.id} name={p.name} iconSize="lg" />
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
