@@ -133,6 +133,7 @@ const Products = () => {
 
   const handleDuplicate = async (product: Product) => {
     if (!storeId) return;
+    if (atLimit) return limitToast();
     const { error } = await supabase.from("products").insert({
       name: `${product.name} (copia)`,
       description: product.description,
