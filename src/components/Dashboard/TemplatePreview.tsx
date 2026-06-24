@@ -328,7 +328,7 @@ const TemplatePreview = ({
         return (
           <div key={i} className="rounded-xl border bg-card p-1.5 shadow-sm">
             <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-              {renderImage(product.imageUrl)}
+              {renderImage(product.imageUrl, product.emoji, product.tint)}
               {product.sale && (
                 <span className="absolute left-1 top-1 rounded-full bg-white/90 px-1 py-0.5 text-[5px] font-semibold" style={{ color: primaryColor }}>
                   Oferta
@@ -349,7 +349,7 @@ const TemplatePreview = ({
       case "overlay":
         return (
           <div key={i} className={`relative overflow-hidden ${theme.cardRounded} ${theme.cardAspect} bg-muted`}>
-            {renderImage(product.imageUrl)}
+            {renderImage(product.imageUrl, product.emoji, product.tint)}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
             {product.sale && (
               <span className={`absolute left-1 top-1 ${theme.pillRounded} px-1 py-0.5 text-[5px] font-bold text-white`} style={{ backgroundColor: accent }}>Oferta</span>
@@ -369,7 +369,7 @@ const TemplatePreview = ({
         return (
           <div key={i} className={`flex overflow-hidden ${theme.cardRounded} bg-card ${theme.cardShadow.split(" ")[0]}`}>
             <div className="h-14 w-14 flex-shrink-0 bg-muted overflow-hidden">
-              {renderImage(product.imageUrl)}
+              {renderImage(product.imageUrl, product.emoji, product.tint)}
             </div>
             <div className="flex flex-1 items-center justify-between p-1.5">
               <div>
@@ -387,7 +387,7 @@ const TemplatePreview = ({
         return (
           <div key={i} className={`overflow-hidden ${theme.cardRounded} ${theme.cardBorder ? "border" : ""} bg-card ${theme.cardShadow.split(" ")[0]}`}>
             <div className={`relative ${theme.cardAspect} bg-muted overflow-hidden`}>
-              {renderImage(product.imageUrl)}
+              {renderImage(product.imageUrl, product.emoji, product.tint)}
               {product.sale && (
                 <span className={`absolute left-0.5 top-0.5 ${theme.pillRounded} px-1 py-0.5 text-[5px] font-bold text-white`} style={{ backgroundColor: accent }}>Oferta</span>
               )}
