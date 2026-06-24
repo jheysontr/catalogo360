@@ -257,24 +257,42 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
       variant_prices: cleanVariantPrices,
     };
 
-    if (editingProduct) {
-      const { error } = await supabase.from("products").update(payload).eq("id", editingProduct.id);
-      if (error) toast({ title: "Error", description: "Error al actualizar", variant: "destructive" });
-      else toast({ title: "Producto actualizado" });
-    } else {
-      const { error } = await supabase.from("products").insert(payload);
-      if (error) toast({ title: "Error", description: "Error al crear", variant: "destructive" });
-      else toast({ title: "Producto creado" });
-    }
+    try {
+      const { error } = editingProduct
+        ? await supabase.from("products").update(payload).eq("id", editingProduct.id)
+        : await supabase.from("products").insert(payload);
 
-    setSaving(false);
-    if (addAnother) {
-      resetForm();
-    } else {
-      onOpenChange(false);
-      resetForm();
+      if (error) {
+        const detail = [error.message, error.details, error.hint].filter(Boolean).join(" · ");
+        console.error("[ProductFormDialog] save error", { error, payload });
+        toast({
+          title: editingProduct ? "Error al actualizar producto" : "Error al crear producto",
+          description: detail || `Código ${error.code ?? "desconocido"}. Revisa la consola para más detalles.`,
+          variant: "destructive",
+        });
+        setSaving(false);
+        return;
+      }
+
+      toast({ title: editingProduct ? "Producto actualizado" : "Producto creado" });
+
+      if (addAnother) {
+        resetForm();
+      } else {
+        onOpenChange(false);
+        resetForm();
+      }
+      onSaved();
+    } catch (err: any) {
+      console.error("[ProductFormDialog] unexpected save error", err);
+      toast({
+        title: "Error inesperado",
+        description: err?.message ?? "No se pudo guardar el producto. Intenta de nuevo.",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
     }
-    onSaved();
   };
 
   return (
