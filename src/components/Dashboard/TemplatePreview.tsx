@@ -32,6 +32,7 @@ interface TemplatePreviewProps {
   currency?: string;
   customGreeting?: string;
   customBannerDescription?: string;
+  fontFamily?: string;
 }
 
 const FALLBACK_PRODUCTS: PreviewProduct[] = [
@@ -57,6 +58,7 @@ const TemplatePreview = ({
   currency = "BOB",
   customGreeting,
   customBannerDescription,
+  fontFamily,
 }: TemplatePreviewProps) => {
   const theme = getTheme(templateId);
   const isClassic = templateId === "classic";
@@ -317,7 +319,7 @@ const TemplatePreview = ({
       : previewProducts.slice(0, 4);
 
   return (
-    <div className="relative mx-auto w-full max-w-[280px] overflow-hidden rounded-[2rem] border-[6px] border-foreground/10 bg-background shadow-2xl">
+    <div className="relative mx-auto w-full max-w-[280px] overflow-hidden rounded-[2rem] border-[6px] border-foreground/10 bg-background shadow-2xl" style={fontFamily ? { fontFamily } : undefined}>
       {/* Phone status bar */}
       <div className="flex items-center justify-between bg-foreground/5 px-4 py-1.5">
         <span className="text-[9px] font-medium text-muted-foreground">9:41</span>
