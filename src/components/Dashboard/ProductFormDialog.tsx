@@ -11,9 +11,12 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Plus, ImagePlus, Loader2, Trash2, X } from "lucide-react";
+import { Plus, ImagePlus, Loader2, Trash2, X, Crown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { compressImage } from "@/lib/imageCompression";
+import { parsePlanLimitError } from "@/lib/planLimitError";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Link } from "react-router-dom";
 
 /* ─── Types ──────────────────────────────────────── */
 
@@ -62,6 +65,7 @@ const discountedPrice = (price: number, discount: number) =>
 const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, categories, onSaved, onDelete }: Props) => {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const [planLimit, setPlanLimit] = useState<{ max: number | null } | null>(null);
 
   // Form state
   const [formName, setFormName] = useState("");
@@ -87,6 +91,7 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
     setFormStock(""); setFormOnSale(false); setFormDiscount(""); setFormImageFile(null);
     setFormImagePreview(null); setFormSlug(""); setFormMetaDesc("");
     setFormAttributes([]); setFormExtraImages([]); setFormExtraFiles([]); setFormVariantStock({}); setFormVariantPrices({});
+    setPlanLimit(null);
   };
 
   // Initialize form when dialog opens or editingProduct changes
@@ -263,13 +268,25 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
         : await supabase.from("products").insert(payload);
 
       if (error) {
-        const detail = [error.message, error.details, error.hint].filter(Boolean).join(" · ");
         console.error("[ProductFormDialog] save error", { error, payload });
-        toast({
-          title: editingProduct ? "Error al actualizar producto" : "Error al crear producto",
-          description: detail || `Código ${error.code ?? "desconocido"}. Revisa la consola para más detalles.`,
-          variant: "destructive",
-        });
+        const planErr = parsePlanLimitError(error);
+        if (planErr.isPlanLimit) {
+          setPlanLimit({ max: planErr.max });
+          toast({
+            title: "Límite del plan alcanzado",
+            description: planErr.max
+              ? `Tu plan permite máximo ${planErr.max} producto${planErr.max === 1 ? "" : "s"}. Mejora tu plan para agregar más.`
+              : planErr.message,
+            variant: "destructive",
+          });
+        } else {
+          const detail = [error.message, error.details, error.hint].filter(Boolean).join(" · ");
+          toast({
+            title: editingProduct ? "Error al actualizar producto" : "Error al crear producto",
+            description: detail || `Código ${error.code ?? "desconocido"}. Revisa la consola para más detalles.`,
+            variant: "destructive",
+          });
+        }
         setSaving(false);
         return;
       }
@@ -307,7 +324,27 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
           </DialogDescription>
         </DialogHeader>
 
+        {planLimit && (
+          <Alert variant="destructive" className="border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100">
+            <Crown className="h-4 w-4" />
+            <AlertTitle>Límite del plan alcanzado</AlertTitle>
+            <AlertDescription className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <span>
+                {planLimit.max
+                  ? <>Tu plan actual permite máximo <strong>{planLimit.max}</strong> producto{planLimit.max === 1 ? "" : "s"}. Mejora tu plan para agregar más.</>
+                  : <>Has alcanzado el límite de productos de tu plan.</>}
+              </span>
+              <Button asChild size="sm" variant="default" className="shrink-0 gap-1.5">
+                <Link to="/dashboard/plans" onClick={() => { onOpenChange(false); resetForm(); }}>
+                  <Crown className="h-3.5 w-3.5" /> Ver planes
+                </Link>
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
         <div className="grid gap-6 py-2">
+
           {/* 1. Image */}
           <div>
             <Label className="text-sm font-semibold">Imagen</Label>
