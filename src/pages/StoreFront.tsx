@@ -28,6 +28,7 @@ import TestimonialsSection from "@/components/StoreFront/sections/TestimonialsSe
 import { getFontStack } from "@/lib/storefrontFonts";
 import { hexToHslTriple } from "@/lib/colorUtils";
 import { PLACEHOLDER_PRODUCTS } from "@/lib/storefrontPlaceholders";
+import SectionErrorBoundary from "@/components/SectionErrorBoundary";
 
 /* Lazy-load heavy dialogs/panels (not needed on initial render) */
 const CartPanel = lazy(() => import("@/components/StoreFront/CartPanel"));
