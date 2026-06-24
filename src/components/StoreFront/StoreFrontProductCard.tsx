@@ -68,9 +68,7 @@ const StoreFrontProductCard = ({
           {p.image_url ? (
             <ProgressiveImage src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/60">
-              <StoreIcon className="h-10 w-10 text-muted-foreground/20" />
-            </div>
+            <ProductImagePlaceholder productId={p.id} name={p.name} iconSize="md" />
           )}
           {p.on_sale && p.discount_percent && (
             <span className="absolute left-1.5 top-1.5 inline-flex items-center rounded-lg bg-destructive px-2 py-0.5 text-[10px] font-bold text-destructive-foreground shadow-sm">-{p.discount_percent}%</span>
