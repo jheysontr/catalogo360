@@ -214,8 +214,10 @@ const Personalization = () => {
           onValueChange={setActiveTab}
           options={[
             { value: "apariencia", label: "Apariencia", icon: <Palette className="h-4 w-4" /> },
+            { value: "tipografia", label: "Tipografía", icon: <Type className="h-4 w-4" /> },
             { value: "imagenes", label: "Imágenes", icon: <ImageIcon className="h-4 w-4" /> },
             { value: "plantilla", label: "Plantilla", icon: <Layout className="h-4 w-4" /> },
+            { value: "opciones", label: "Opciones", icon: <Eye className="h-4 w-4" /> },
           ]}
         />
 
