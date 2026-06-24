@@ -422,10 +422,83 @@ const Personalization = () => {
                         currency={store?.currency || "BOB"}
                         customGreeting={bannerGreeting}
                         customBannerDescription={bannerDescription}
+                        fontFamily={getFontStack(fontFamily)}
                       />
                     </div>
                   </button>
                 ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* TIPOGRAFÍA */}
+        <TabsContent value="tipografia" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Tipografía de la tienda</CardTitle>
+              <CardDescription>Elige la fuente que se usará en toda tu tienda pública</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div>
+                <Label htmlFor="font-family">Fuente principal</Label>
+                <Select value={fontFamily} onValueChange={setFontFamily}>
+                  <SelectTrigger id="font-family" className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STOREFRONT_FONTS.map((f) => (
+                      <SelectItem key={f.value} value={f.value} style={{ fontFamily: f.stack }}>
+                        {f.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Separator />
+
+              <div className="rounded-xl border bg-card p-5" style={{ fontFamily: getFontStack(fontFamily) }}>
+                <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Vista previa</p>
+                <h3 className="mt-2 text-2xl font-bold text-foreground">{store?.store_name || "Mi Tienda"}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {store?.description || "Aquí va la descripción de tu tienda con la fuente seleccionada."}
+                </p>
+                <div className="mt-4 flex items-center gap-3">
+                  <span className="text-xl font-bold" style={{ color: primaryColor }}>Bs 120.00</span>
+                  <span className="text-sm text-muted-foreground line-through">Bs 150.00</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* OPCIONES */}
+        <TabsContent value="opciones" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Comportamiento del catálogo</CardTitle>
+              <CardDescription>Controla cómo se muestran los productos en tu tienda</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="flex items-start justify-between gap-4 rounded-lg border p-3">
+                <div className="flex-1">
+                  <Label htmlFor="hide-sold" className="text-sm font-medium">Ocultar productos agotados</Label>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Los productos sin stock no aparecerán en el catálogo público.
+                  </p>
+                </div>
+                <Switch id="hide-sold" checked={hideSoldOut} onCheckedChange={setHideSoldOut} />
+              </div>
+
+              <div className="flex items-start justify-between gap-4 rounded-lg border p-3">
+                <div className="flex-1">
+                  <Label htmlFor="compact-spacing" className="text-sm font-medium">Espaciado compacto</Label>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Reduce el espacio entre elementos para mostrar más productos a la vez.
+                  </p>
+                </div>
+                <Switch id="compact-spacing" checked={compactSpacing} onCheckedChange={setCompactSpacing} />
               </div>
             </CardContent>
           </Card>
