@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import {
   Package, Store, ShoppingCart, BarChart3, CreditCard, Settings,
   ExternalLink, Eye, X, LogOut, FolderOpen, Ticket,
-  Truck, Link2, Wallet, Shield, Sparkles,
+  Truck, Link2, Wallet, Shield, Sparkles, Palette,
 } from "lucide-react";
 
 type SidebarItem =
@@ -21,6 +21,7 @@ const sidebarLinks: SidebarItem[] = [
   { type: "link", label: "Cupones", icon: Ticket, id: "coupons" },
   { type: "link", label: "Linkbox", icon: Link2, id: "linkbox" },
   { type: "group", label: "Tienda" },
+  { type: "link", label: "Personalización", icon: Palette, id: "personalization" },
   { type: "link", label: "Zonas de Envío", icon: Truck, id: "shipments" },
   { type: "link", label: "Métodos de Pago", icon: Wallet, id: "payment_methods" },
   { type: "link", label: "Planes", icon: CreditCard, id: "plans" },
