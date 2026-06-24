@@ -21,7 +21,10 @@ import AppCategoryPills from "@/components/StoreFront/AppTemplate/AppCategoryPil
 import AppProductCard from "@/components/StoreFront/AppTemplate/AppProductCard";
 import AppSortBar from "@/components/StoreFront/AppTemplate/AppSortBar";
 import { getTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
-import { resolveTheme, normalizeLayoutConfig, visibleSections, type LayoutConfig, type SectionId } from "@/components/StoreFront/AppTemplate/layoutConfig";
+import { resolveTheme, normalizeLayoutConfig, visibleSections, getSectionConfig, type LayoutConfig, type SectionId } from "@/components/StoreFront/AppTemplate/layoutConfig";
+import FeaturedProductsSection from "@/components/StoreFront/sections/FeaturedProductsSection";
+import PromoBannerSection from "@/components/StoreFront/sections/PromoBannerSection";
+import TestimonialsSection from "@/components/StoreFront/sections/TestimonialsSection";
 import { getFontStack } from "@/lib/storefrontFonts";
 import { hexToHslTriple } from "@/lib/colorUtils";
 import { PLACEHOLDER_PRODUCTS } from "@/lib/storefrontPlaceholders";
@@ -398,6 +401,32 @@ const StoreFront = () => {
         )}
       </div>
     ),
+    featured: () => layoutConfig ? (
+      <FeaturedProductsSection
+        config={getSectionConfig(layoutConfig, "featured")}
+        products={sourceProducts}
+        primaryColor={primaryColor}
+        currencySymbol={currencySymbol}
+        theme={theme}
+        isInWishlist={isInWishlist}
+        onQuickAdd={handleQuickAdd}
+        onToggleWishlist={toggleWishlist}
+        onOpenDetail={setSelectedProduct}
+        getCategoryName={getCategoryName}
+      />
+    ) : null,
+    promo: () => layoutConfig ? (
+      <PromoBannerSection
+        config={getSectionConfig(layoutConfig, "promo")}
+        primaryColor={primaryColor}
+      />
+    ) : null,
+    testimonials: () => layoutConfig ? (
+      <TestimonialsSection
+        config={getSectionConfig(layoutConfig, "testimonials")}
+        primaryColor={primaryColor}
+      />
+    ) : null,
     footer: () => null, // footer is rendered outside the section flow
   };
 

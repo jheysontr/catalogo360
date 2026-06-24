@@ -10,13 +10,47 @@ export type SectionId =
   | "banner"
   | "categories"
   | "sort"
+  | "featured"
+  | "promo"
+  | "testimonials"
   | "products"
   | "footer";
+
+/** Per-section structured config (separate from theme overrides). */
+export interface FeaturedSectionConfig {
+  title?: string;
+  count?: number; // 1–8
+  source?: "on_sale" | "newest";
+}
+export interface PromoSectionConfig {
+  title?: string;
+  subtitle?: string;
+  ctaText?: string;
+  ctaUrl?: string;
+  background?: string; // hex
+  textColor?: "light" | "dark";
+}
+export interface TestimonialItem {
+  name: string;
+  text: string;
+  role?: string;
+}
+export interface TestimonialsSectionConfig {
+  title?: string;
+  items?: TestimonialItem[];
+}
+
+export type SectionConfigMap = {
+  featured: FeaturedSectionConfig;
+  promo: PromoSectionConfig;
+  testimonials: TestimonialsSectionConfig;
+};
 
 export interface LayoutSection {
   id: SectionId;
   enabled: boolean;
   order: number;
+  config?: Record<string, any>;
 }
 
 /** Subset of TemplateTheme fields that can be overridden per-store. */
@@ -61,23 +95,32 @@ export const DEFAULT_SECTIONS: LayoutSection[] = [
   { id: "header", enabled: true, order: 0 },
   { id: "banner", enabled: true, order: 1 },
   { id: "categories", enabled: true, order: 2 },
-  { id: "sort", enabled: true, order: 3 },
-  { id: "products", enabled: true, order: 4 },
-  { id: "footer", enabled: true, order: 5 },
+  { id: "featured", enabled: false, order: 3, config: { title: "Destacados", count: 4, source: "on_sale" } },
+  { id: "promo", enabled: false, order: 4, config: { title: "Oferta especial", subtitle: "Hasta 30% de descuento", ctaText: "Ver más", background: "#FFE8B3", textColor: "dark" } },
+  { id: "sort", enabled: true, order: 5 },
+  { id: "products", enabled: true, order: 6 },
+  { id: "testimonials", enabled: false, order: 7, config: { title: "Lo que dicen", items: [
+    { name: "María", text: "Excelente atención y productos." },
+    { name: "Carlos", text: "Entrega rápida, todo perfecto." },
+  ] } },
+  { id: "footer", enabled: true, order: 8 },
 ];
 
-export const SECTION_META: Record<SectionId, { label: string; description: string; locked?: boolean }> = {
+export const SECTION_META: Record<SectionId, { label: string; description: string; locked?: boolean; configurable?: boolean }> = {
   header: { label: "Encabezado", description: "Navbar flotante con buscador y acciones", locked: true },
   banner: { label: "Banner hero", description: "Imagen principal con saludo y descripción" },
   categories: { label: "Categorías", description: "Pills o mosaico de categorías" },
+  featured: { label: "Destacados", description: "Carrusel de productos destacados", configurable: true },
+  promo: { label: "Promo banner", description: "Banner promocional con CTA", configurable: true },
   sort: { label: "Barra de orden", description: "Filtro de orden, vista y resultados" },
   products: { label: "Grid de productos", description: "Catálogo principal", locked: true },
+  testimonials: { label: "Testimonios", description: "Reseñas de clientes", configurable: true },
   footer: { label: "Pie de tienda", description: "Información y redes sociales", locked: true },
 };
 
 export const defaultLayoutConfig = (base = "app"): LayoutConfig => ({
   base,
-  sections: DEFAULT_SECTIONS.map((s) => ({ ...s })),
+  sections: DEFAULT_SECTIONS.map((s) => ({ ...s, config: s.config ? { ...s.config } : undefined })),
   overrides: {},
 });
 
@@ -112,7 +155,8 @@ export const normalizeLayoutConfig = (raw: unknown): LayoutConfig => {
       id: d.id,
       enabled: found?.enabled ?? d.enabled,
       order: found?.order ?? idx,
-    };
+      config: { ...(d.config || {}), ...(found?.config || {}) },
+    } as LayoutSection;
   }).sort((a, b) => a.order - b.order)
     .map((s, idx) => ({ ...s, order: idx }));
 
@@ -122,3 +166,12 @@ export const normalizeLayoutConfig = (raw: unknown): LayoutConfig => {
 /** Visible sections in render order. */
 export const visibleSections = (cfg: LayoutConfig): LayoutSection[] =>
   [...cfg.sections].sort((a, b) => a.order - b.order).filter((s) => s.enabled);
+
+/** Strongly-typed config lookup. */
+export const getSectionConfig = <K extends keyof SectionConfigMap>(
+  cfg: LayoutConfig,
+  id: K,
+): SectionConfigMap[K] => {
+  const found = cfg.sections.find((s) => s.id === id);
+  return (found?.config || {}) as SectionConfigMap[K];
+};

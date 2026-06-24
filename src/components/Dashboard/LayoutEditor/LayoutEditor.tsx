@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sparkles, RotateCcw, Smartphone, Monitor, Eye } from "lucide-react";
 import SectionList from "./SectionList";
 import SectionConfig from "./SectionConfig";
+import SectionContentConfig from "./SectionContentConfig";
 import TemplatePreview from "@/components/Dashboard/TemplatePreview";
 import {
   defaultLayoutConfig,
@@ -164,6 +165,21 @@ const LayoutEditor = ({ value, onChange, onEnableCustomTemplate, isActive, previ
                 overrides={value.overrides}
                 resolved={resolvedTheme}
                 onChange={handleOverridesChange}
+              />
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Contenido de secciones</CardTitle>
+              <CardDescription>
+                Configura los destacados, banner promocional y testimonios. Solo se muestran si la sección está activa.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SectionContentConfig
+                sections={value.sections}
+                onChange={handleSectionsChange}
               />
             </CardContent>
           </Card>
