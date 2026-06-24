@@ -268,18 +268,28 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
         : await supabase.from("products").insert(payload);
 
       if (error) {
-        const detail = [error.message, error.details, error.hint].filter(Boolean).join(" · ");
         console.error("[ProductFormDialog] save error", { error, payload });
-        toast({
-          title: editingProduct ? "Error al actualizar producto" : "Error al crear producto",
-          description: detail || `Código ${error.code ?? "desconocido"}. Revisa la consola para más detalles.`,
-          variant: "destructive",
-        });
+        const planErr = parsePlanLimitError(error);
+        if (planErr.isPlanLimit) {
+          setPlanLimit({ max: planErr.max });
+          toast({
+            title: "Límite del plan alcanzado",
+            description: planErr.max
+              ? `Tu plan permite máximo ${planErr.max} producto${planErr.max === 1 ? "" : "s"}. Mejora tu plan para agregar más.`
+              : planErr.message,
+            variant: "destructive",
+          });
+        } else {
+          const detail = [error.message, error.details, error.hint].filter(Boolean).join(" · ");
+          toast({
+            title: editingProduct ? "Error al actualizar producto" : "Error al crear producto",
+            description: detail || `Código ${error.code ?? "desconocido"}. Revisa la consola para más detalles.`,
+            variant: "destructive",
+          });
+        }
         setSaving(false);
         return;
       }
-
-      toast({ title: editingProduct ? "Producto actualizado" : "Producto creado" });
 
       if (addAnother) {
         resetForm();
