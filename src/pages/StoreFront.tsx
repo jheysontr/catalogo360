@@ -24,6 +24,7 @@ import AppSortBar from "@/components/StoreFront/AppTemplate/AppSortBar";
 import { getTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
 import { getFontStack } from "@/lib/storefrontFonts";
 import { hexToHslTriple } from "@/lib/colorUtils";
+import { PLACEHOLDER_PRODUCTS } from "@/lib/storefrontPlaceholders";
 
 /* Lazy-load heavy dialogs/panels (not needed on initial render) */
 const CartPanel = lazy(() => import("@/components/StoreFront/CartPanel"));
