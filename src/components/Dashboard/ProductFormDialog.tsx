@@ -291,6 +291,8 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
         return;
       }
 
+      toast({ title: editingProduct ? "Producto actualizado" : "Producto creado" });
+
       if (addAnother) {
         resetForm();
       } else {
