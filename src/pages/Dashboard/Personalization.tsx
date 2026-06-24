@@ -473,6 +473,8 @@ const Personalization = () => {
                         bannerUrl={bannerUrl}
                         primaryColor={primaryColor}
                         secondaryColor={secondaryColor}
+                        backgroundColor={backgroundColor}
+                        accentColor={accentColor}
                         description={store?.description ?? ""}
                         products={storeProducts}
                         currency={store?.currency || "BOB"}
