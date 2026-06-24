@@ -1,7 +1,8 @@
 import { memo } from "react";
-import { Heart, ShoppingCart, Store as StoreIcon, Plus } from "lucide-react";
+import { Heart, ShoppingCart, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import ProgressiveImage from "../ProgressiveImage";
+import ProductImagePlaceholder from "../ProductImagePlaceholder";
 import type { TemplateTheme } from "./templateThemes";
 
 interface ProductAttribute {
@@ -60,9 +61,7 @@ const OverlayCard = ({
           className="h-full w-full object-cover transition-transform duration-[1100ms] ease-out group-hover:scale-[1.04]"
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center bg-muted">
-          <StoreIcon className="h-10 w-10 text-muted-foreground/25" />
-        </div>
+        <ProductImagePlaceholder productId={p.id} name={p.name} iconSize="lg" />
       )}
 
       {/* Single bottom gradient — quieter editorial */}
@@ -150,9 +149,7 @@ const HorizontalMiniCard = ({
         {p.image_url ? (
           <ProgressiveImage src={p.image_url} alt={p.name} className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110" />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/60">
-            <StoreIcon className="h-8 w-8 text-muted-foreground/20" />
-          </div>
+          <ProductImagePlaceholder productId={p.id} name={p.name} iconSize="lg" />
         )}
         {p.on_sale && p.discount_percent && (
           <span className="absolute left-1 top-1 rounded-lg bg-destructive px-1.5 py-0.5 text-[9px] font-bold text-destructive-foreground">
@@ -233,9 +230,7 @@ const VerticalCard = ({
             className="h-full w-full object-cover transition-transform duration-[900ms] ease-out group-hover:scale-[1.04]"
           />
         ) : (
-          <div className="flex h-full w-full items-center justify-center bg-muted">
-            <StoreIcon className="h-10 w-10 text-muted-foreground/25" />
-          </div>
+          <ProductImagePlaceholder productId={p.id} name={p.name} iconSize="lg" />
         )}
 
         {/* Top-left editorial badges */}
@@ -350,9 +345,7 @@ const FreshCard = ({
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center">
-          <StoreIcon className="h-8 w-8 text-muted-foreground/25" />
-        </div>
+        <ProductImagePlaceholder productId={p.id} name={p.name} iconSize="lg" />
       )}
       {p.on_sale && p.discount_percent && (
         <span

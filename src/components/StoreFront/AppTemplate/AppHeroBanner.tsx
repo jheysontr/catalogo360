@@ -19,6 +19,28 @@ const useTexts = (props: AppHeroBannerProps) => ({
   desc: props.customDescription || props.store.description,
 });
 
+/** Friendly emoji decor used when the store has no banner image. */
+const BannerPlaceholderDecor = ({ tone = "light" }: { tone?: "light" | "dark" }) => {
+  const opacity = tone === "dark" ? "opacity-30" : "opacity-50";
+  const emojis = ["🛍️", "🍎", "🥖", "☕", "🌿", "✨"];
+  return (
+    <div className={`pointer-events-none absolute inset-0 ${opacity}`} aria-hidden="true">
+      {emojis.map((e, i) => (
+        <span
+          key={i}
+          className="absolute text-3xl sm:text-4xl"
+          style={{
+            top: `${10 + (i * 13) % 70}%`,
+            left: `${(i * 17 + 8) % 90}%`,
+            transform: `rotate(${(i * 23) % 40 - 20}deg)`,
+          }}
+        >{e}</span>
+      ))}
+    </div>
+  );
+};
+
+
 /* ──────────────────────────────────────────────────────────────
  * BOUTIQUE — full-bleed cinematic editorial (Elegante)
  * Tall image · serif headline · vendor primary as fine accent line
@@ -37,15 +59,20 @@ const FullBanner = (props: AppHeroBannerProps) => {
       <div
         className={`relative ${theme.bannerHeight} w-full sm:h-72 md:h-80`}
         style={{
-          backgroundColor: "hsl(24 14% 12%)",
+          background: store.banner_url
+            ? undefined
+            : `linear-gradient(135deg, ${primaryColor}, hsl(24 14% 12%) 90%)`,
+          backgroundColor: store.banner_url ? "hsl(24 14% 12%)" : undefined,
           backgroundImage: store.banner_url ? `url(${store.banner_url})` : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
+        {!store.banner_url && <BannerPlaceholderDecor tone="dark" />}
         {/* Editorial double-overlay for legibility */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/55" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
+
 
         {/* Editorial frame marks */}
         <div className="absolute left-5 top-5 h-6 w-6 border-l border-t border-white/40" />
@@ -216,14 +243,19 @@ const HeroBanner = (props: AppHeroBannerProps) => {
       <div
         className={`relative overflow-hidden border border-border ${theme.bannerRounded}`}
         style={{
-          backgroundColor: "hsl(36 18% 92%)",
+          background: store.banner_url
+            ? undefined
+            : `linear-gradient(135deg, ${primaryColor}22, ${primaryColor}10 60%, hsl(36 18% 96%))`,
+          backgroundColor: store.banner_url ? "hsl(36 18% 92%)" : undefined,
           backgroundImage: store.banner_url ? `url(${store.banner_url})` : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        {store.banner_url && (
+        {store.banner_url ? (
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-transparent" />
+        ) : (
+          <BannerPlaceholderDecor tone="light" />
         )}
         <div className="relative px-5 py-7 sm:px-8 sm:py-10">
           <div className="flex items-center gap-2.5">

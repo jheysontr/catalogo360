@@ -24,6 +24,7 @@ import AppSortBar from "@/components/StoreFront/AppTemplate/AppSortBar";
 import { getTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
 import { getFontStack } from "@/lib/storefrontFonts";
 import { hexToHslTriple } from "@/lib/colorUtils";
+import { PLACEHOLDER_PRODUCTS } from "@/lib/storefrontPlaceholders";
 
 /* Lazy-load heavy dialogs/panels (not needed on initial render) */
 const CartPanel = lazy(() => import("@/components/StoreFront/CartPanel"));
@@ -118,8 +119,11 @@ const StoreFront = () => {
   if (accentColor) scopeStyle["--sf-accent"] = accentColor;
   if (accentHsl) scopeStyle["--destructive"] = accentHsl;
 
+  const usingPlaceholderProducts = products.length === 0;
+  const sourceProducts = usingPlaceholderProducts ? (PLACEHOLDER_PRODUCTS as unknown as Product[]) : products;
+
   const filteredProducts = useMemo(() => {
-    let items = [...products];
+    let items = [...sourceProducts];
     if (hideSoldOut) items = items.filter((p) => (p.stock ?? 0) > 0);
     if (search) items = items.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
     if (activeCategory !== "all") items = items.filter((p) => p.category_id === activeCategory);
@@ -129,7 +133,7 @@ const StoreFront = () => {
       default: break;
     }
     return items;
-  }, [products, search, activeCategory, sortBy, hideSoldOut]);
+  }, [sourceProducts, search, activeCategory, sortBy, hideSoldOut]);
 
   const totalPages = Math.ceil(filteredProducts.length / perPage);
   const paginatedProducts = useMemo(
@@ -165,6 +169,10 @@ const StoreFront = () => {
 
   const handleQuickAdd = useCallback((p: Product, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (p.id.startsWith("__ph-")) {
+      toast({ title: "Producto de muestra", description: "Agrega productos reales desde el panel.", duration: 1800 });
+      return;
+    }
     const hasAttrs = Array.isArray(p.attributes) && (p.attributes as ProductAttribute[]).length > 0;
     if (hasAttrs) { setSelectedProduct(p); return; }
     addToCart(toCartProduct(p), 1);
@@ -183,6 +191,10 @@ const StoreFront = () => {
   }, [isInWishlist, removeFromWishlist, addToWishlist, toast]);
 
   const handleAddFromDetail = useCallback((product: Product, qty: number, attrs?: Record<string, string>) => {
+    if (product.id.startsWith("__ph-")) {
+      toast({ title: "Producto de muestra", description: "Agrega productos reales desde el panel.", duration: 1800 });
+      return;
+    }
     addToCart(toCartProduct(product), qty, attrs);
     toast({ title: "✓ Agregado", description: product.name, duration: 1500 });
   }, [addToCart, toCartProduct, toast]);
@@ -324,6 +336,11 @@ const StoreFront = () => {
           />
 
           <div className="container px-4 pb-8 pt-4">
+            {usingPlaceholderProducts && (
+              <div className="mb-4 rounded-xl border border-dashed border-border bg-muted/40 px-4 py-2.5 text-center text-xs text-muted-foreground">
+                Vista previa con productos de muestra. Agrega tus productos para reemplazar este contenido.
+              </div>
+            )}
             {filteredProducts.length === 0 ? renderEmpty() : (
               <>
                 <LayoutGroup>
@@ -414,6 +431,11 @@ const StoreFront = () => {
           />
 
           <div className="container px-4 pb-8 pt-4">
+            {usingPlaceholderProducts && (
+              <div className="mb-4 rounded-xl border border-dashed border-border bg-muted/40 px-4 py-2.5 text-center text-xs text-muted-foreground">
+                Vista previa con productos de muestra. Agrega tus productos para reemplazar este contenido.
+              </div>
+            )}
             {filteredProducts.length === 0 ? renderEmpty() : (
               <>
                 <LayoutGroup>
