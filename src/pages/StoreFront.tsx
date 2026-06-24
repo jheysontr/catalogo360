@@ -580,11 +580,13 @@ const StoreFront = () => {
         )}
       </Suspense>
 
-      <StoreFooter
-        store={store}
-        secondaryColor={secondaryColor}
-        socialMedia={socialMedia}
-      />
+      {(!isCustomTemplate || !layoutConfig || layoutConfig.sections.find((s) => s.id === "footer")?.enabled !== false) && (
+        <StoreFooter
+          store={store}
+          secondaryColor={secondaryColor}
+          socialMedia={socialMedia}
+        />
+      )}
     </div>
   );
 };
