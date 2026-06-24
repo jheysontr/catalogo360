@@ -260,16 +260,16 @@ const TemplatePreview = ({
         { name: "Snacks", icon: "🥐" },
       ];
       return (
-        <div className="px-2.5 pt-2">
-          <div className="grid grid-cols-2 gap-1.5">
+        <div className="pt-2">
+          <div className="flex gap-1 overflow-hidden px-2.5">
             {TILES.map((t, i) => (
               <div
                 key={t.name}
-                className="flex aspect-[5/3] flex-col items-center justify-center gap-0.5 rounded-lg p-1"
+                className="flex h-9 w-9 shrink-0 flex-col items-center justify-center gap-0.5 rounded-lg p-0.5"
                 style={{ backgroundColor: PASTELS[i % PASTELS.length] }}
               >
-                <span className="text-[10px] leading-none">{t.icon}</span>
-                <span className="text-[6px] font-semibold text-foreground">{t.name}</span>
+                <span className="text-[8px] leading-none">{t.icon}</span>
+                <span className="text-[5px] font-semibold leading-none text-foreground">{t.name}</span>
               </div>
             ))}
           </div>
