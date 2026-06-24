@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Info, Share2, Store as StoreIcon } from "lucide-react";
+import { Info, Share2 } from "lucide-react";
 
 interface StoreHeaderProps {
   store: {
