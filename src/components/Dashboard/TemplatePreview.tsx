@@ -66,6 +66,7 @@ const TemplatePreview = ({
   customGreeting,
   customBannerDescription,
   fontFamily,
+  usePlaceholders = false,
 }: TemplatePreviewProps) => {
   const theme = getTheme(templateId);
   const isClassic = templateId === "classic";
@@ -74,7 +75,12 @@ const TemplatePreview = ({
   const bannerDesc = customBannerDescription || description;
   const accent = accentColor || "#ef4444";
 
-  const previewProducts: PreviewProduct[] = products && products.length > 0
+  // When placeholders mode is on, ignore real store assets for a consistent showcase
+  const effectiveLogo = usePlaceholders ? null : logoUrl;
+  const effectiveBanner = usePlaceholders ? null : bannerUrl;
+  const effectiveName = usePlaceholders ? (storeName || "Mi Tienda") : storeName;
+
+  const previewProducts: PreviewProduct[] = (!usePlaceholders && products && products.length > 0)
     ? products.map((p) => {
         const finalPrice = p.on_sale && p.discount_percent
           ? p.price * (1 - p.discount_percent / 100)
