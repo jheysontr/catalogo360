@@ -206,17 +206,39 @@ const Products = () => {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground">Productos</h1>
-          <p className="text-sm text-muted-foreground">{totalCount}/{MAX_PRODUCTS} productos usados</p>
+          <p className="text-sm text-muted-foreground">
+            {totalCount}/{maxProducts} productos usados
+            {atLimit && <span className="ml-2 font-medium text-destructive">· Límite alcanzado</span>}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="gap-1.5" onClick={exportProductsCSV} disabled={products.length === 0}>
             <FileDown className="h-4 w-4" /> Exportar CSV
           </Button>
-          <Button className="gap-2" onClick={openAddModal}>
-            <Plus className="h-4 w-4" /> Agregar producto
-          </Button>
+          {atLimit ? (
+            <Button asChild className="gap-2">
+              <Link to="/dashboard/plans"><Crown className="h-4 w-4" /> Mejorar plan</Link>
+            </Button>
+          ) : (
+            <Button className="gap-2" onClick={openAddModal}>
+              <Plus className="h-4 w-4" /> Agregar producto
+            </Button>
+          )}
         </div>
       </div>
+
+      {/* Plan limit banner */}
+      {atLimit && (
+        <div className="flex flex-col gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-700 dark:bg-amber-950/30 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 text-sm text-amber-800 dark:text-amber-200">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            <span>Alcanzaste el límite de <strong>{maxProducts}</strong> productos de tu plan actual. Mejora tu plan para agregar o duplicar más productos.</span>
+          </div>
+          <Button asChild size="sm" variant="default" className="gap-1.5">
+            <Link to="/dashboard/plans"><Crown className="h-4 w-4" /> Ver planes</Link>
+          </Button>
+        </div>
+      )}
 
       {/* Inventory alerts */}
       {(lowStockProducts.length > 0 || outOfStockProducts.length > 0) && (
