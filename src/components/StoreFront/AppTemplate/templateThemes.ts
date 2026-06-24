@@ -24,7 +24,7 @@ export interface TemplateTheme {
   gridGap: string;
   // Category pills
   pillRounded: string;
-  pillStyle: "filled" | "outline" | "underline";
+  pillStyle: "filled" | "outline" | "underline" | "tiles";
   // Header
   headerBorder: boolean;
   // CTA
