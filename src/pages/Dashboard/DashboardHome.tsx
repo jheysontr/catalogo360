@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   DollarSign, ShoppingCart, Package, TrendingUp, TrendingDown,
-  Eye, ChevronRight, Clock, Loader2, ArrowUpRight,
+  Eye, ChevronRight, Loader2, ArrowUpRight,
   AlertTriangle, Star, Ticket, BarChart3,
 } from "lucide-react";
 import {
