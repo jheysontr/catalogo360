@@ -239,30 +239,37 @@ const TemplatePreview = ({
   const renderCategoryPills = () => {
     const isUnderline = theme.pillStyle === "underline";
     const isOutline = theme.pillStyle === "outline";
+    const isFilled = theme.pillStyle === "filled";
 
     return (
       <div className={`flex ${isUnderline ? "gap-0 border-b mx-2.5" : "gap-1 px-2.5"} pt-2 overflow-hidden`}>
-        {MOCK_CATEGORIES.map((cat, i) => (
-          <span
-            key={cat}
-            className={`whitespace-nowrap ${isUnderline ? "px-2 py-1 text-[7px]" : `${theme.pillRounded} px-2 py-0.5 text-[7px]`} font-medium`}
-            style={
-              i === 0
-                ? isUnderline
-                  ? { borderBottom: `2px solid ${primaryColor}`, color: primaryColor }
-                  : isOutline
-                    ? { border: `1px solid ${primaryColor}`, color: primaryColor }
-                    : { backgroundColor: primaryColor, color: "white" }
-                : isOutline
-                  ? { border: `1px solid hsl(var(--border))`, color: "hsl(var(--muted-foreground))" }
-                  : isUnderline
-                    ? { color: "hsl(var(--muted-foreground))" }
-                    : {}
-            }
-          >
-            {cat}
-          </span>
-        ))}
+        {MOCK_CATEGORIES.map((cat, i) => {
+          const active = i === 0;
+          const style = isUnderline
+            ? active
+              ? { borderBottom: `2px solid ${primaryColor}`, color: primaryColor }
+              : { color: "hsl(var(--muted-foreground))" }
+            : isOutline
+              ? active
+                ? { border: `1px solid ${primaryColor}`, color: primaryColor }
+                : { border: `1px solid hsl(var(--border))`, color: "hsl(var(--muted-foreground))" }
+              : isFilled
+                ? active
+                  ? { backgroundColor: primaryColor, color: "white" }
+                  : { backgroundColor: "white", border: "1px solid hsl(var(--border))", color: "hsl(var(--foreground))" }
+                : active
+                  ? { backgroundColor: primaryColor, color: "white" }
+                  : {};
+          return (
+            <span
+              key={cat}
+              className={`whitespace-nowrap ${isUnderline ? "px-2 py-1 text-[7px]" : `${theme.pillRounded} px-2 py-0.5 text-[7px]`} font-medium`}
+              style={style}
+            >
+              {cat}
+            </span>
+          );
+        })}
       </div>
     );
   };
