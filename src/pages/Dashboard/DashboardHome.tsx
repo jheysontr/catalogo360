@@ -161,12 +161,12 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
 
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
-  const kpis = [
+  const kpis: Array<{ label: string; value: string; sub: string; icon: any; accent: string; change?: number }> = [
     { label: "Ventas hoy", value: fmt(todayRevenue), sub: `${todayOrders.length} orden${todayOrders.length !== 1 ? "es" : ""}`, icon: DollarSign, accent: "emerald" },
     { label: "Esta semana", value: fmtK(weekRevenue), sub: `${last7.length} órdenes`, icon: TrendingUp, change: revenueChange, accent: "teal" },
     { label: "Este mes", value: fmtK(monthRevenue), sub: `${orders.length} órdenes`, icon: ShoppingCart, accent: "violet" },
     { label: "Ticket prom.", value: fmt(avgOrderValue), sub: `${allTimeOrders} históricas`, icon: Package, accent: "amber" },
-  ] as const;
+  ];
 
   const accentMap: Record<string, string> = {
     emerald: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
