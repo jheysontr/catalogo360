@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { effectiveUserId } from "@/lib/impersonation";
@@ -11,18 +12,19 @@ import {
 import { Tabs } from "@/components/ui/tabs";
 import ResponsiveTabsList from "@/components/Dashboard/ResponsiveTabs";
 import {
-  Plus, Search, Package, Loader2, LayoutGrid, List, FileDown, AlertTriangle,
+  Plus, Search, Package, Loader2, LayoutGrid, List, FileDown, AlertTriangle, Crown,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ProductFormDialog from "@/components/Dashboard/ProductFormDialog";
 import ProductListView from "@/components/Dashboard/ProductListView";
 import type { Product, Category } from "@/components/Dashboard/ProductFormDialog";
+import { useDashboardStore } from "@/hooks/useDashboardStore";
 
 const ITEMS_PER_PAGE = 15;
-const MAX_PRODUCTS = 60;
 
 const Products = () => {
   const { user } = useAuth();
+  const { maxProducts } = useDashboardStore();
   const { toast } = useToast();
   const [storeId, setStoreId] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
@@ -112,12 +114,26 @@ const Products = () => {
     return categories.find((c) => c.id === catId)?.name ?? "Sin categoría";
   };
 
+  /* ── Limit helpers ── */
+  const atLimit = totalCount >= maxProducts;
+  const limitToast = () => {
+    toast({
+      title: "Límite del plan alcanzado",
+      description: `Tu plan permite ${maxProducts} producto${maxProducts === 1 ? "" : "s"}. Actualiza tu plan para agregar más.`,
+      variant: "destructive",
+    });
+  };
+
   /* ── Actions ── */
-  const openAddModal = () => { setEditingProduct(null); setModalOpen(true); };
+  const openAddModal = () => {
+    if (atLimit) return limitToast();
+    setEditingProduct(null); setModalOpen(true);
+  };
   const openEditModal = (product: Product) => { setEditingProduct(product); setModalOpen(true); };
 
   const handleDuplicate = async (product: Product) => {
     if (!storeId) return;
+    if (atLimit) return limitToast();
     const { error } = await supabase.from("products").insert({
       name: `${product.name} (copia)`,
       description: product.description,
@@ -190,17 +206,39 @@ const Products = () => {
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-bold text-foreground">Productos</h1>
-          <p className="text-sm text-muted-foreground">{totalCount}/{MAX_PRODUCTS} productos usados</p>
+          <p className="text-sm text-muted-foreground">
+            {totalCount}/{maxProducts} productos usados
+            {atLimit && <span className="ml-2 font-medium text-destructive">· Límite alcanzado</span>}
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" className="gap-1.5" onClick={exportProductsCSV} disabled={products.length === 0}>
             <FileDown className="h-4 w-4" /> Exportar CSV
           </Button>
-          <Button className="gap-2" onClick={openAddModal}>
-            <Plus className="h-4 w-4" /> Agregar producto
-          </Button>
+          {atLimit ? (
+            <Button asChild className="gap-2">
+              <Link to="/dashboard/plans"><Crown className="h-4 w-4" /> Mejorar plan</Link>
+            </Button>
+          ) : (
+            <Button className="gap-2" onClick={openAddModal}>
+              <Plus className="h-4 w-4" /> Agregar producto
+            </Button>
+          )}
         </div>
       </div>
+
+      {/* Plan limit banner */}
+      {atLimit && (
+        <div className="flex flex-col gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 dark:border-amber-700 dark:bg-amber-950/30 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-2 text-sm text-amber-800 dark:text-amber-200">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            <span>Alcanzaste el límite de <strong>{maxProducts}</strong> productos de tu plan actual. Mejora tu plan para agregar o duplicar más productos.</span>
+          </div>
+          <Button asChild size="sm" variant="default" className="gap-1.5">
+            <Link to="/dashboard/plans"><Crown className="h-4 w-4" /> Ver planes</Link>
+          </Button>
+        </div>
+      )}
 
       {/* Inventory alerts */}
       {(lowStockProducts.length > 0 || outOfStockProducts.length > 0) && (
