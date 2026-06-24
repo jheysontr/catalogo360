@@ -65,10 +65,12 @@ const generateSlug = (name: string) =>
 const discountedPrice = (price: number, discount: number) =>
   (price * (1 - discount / 100)).toFixed(2);
 
-const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, categories, onSaved, onDelete }: Props) => {
+const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, categories, onSaved, onDelete, atLimit = false, maxProducts }: Props) => {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [planLimit, setPlanLimit] = useState<{ max: number | null } | null>(null);
+  const blockNew = !editingProduct && atLimit;
+
 
   // Form state
   const [formName, setFormName] = useState("");
