@@ -18,12 +18,28 @@ const StoreHeader = ({ store, primaryColor, secondaryColor, onInfoClick, onShare
   return (
     <header className="relative">
       <div
-        className="relative h-48 w-full bg-cover bg-center sm:h-60 md:h-72"
+        className="relative h-48 w-full overflow-hidden bg-cover bg-center sm:h-60 md:h-72"
         style={{
-          backgroundColor: secondaryColor,
+          background: store.banner_url ? undefined : `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
+          backgroundColor: store.banner_url ? secondaryColor : undefined,
           backgroundImage: store.banner_url ? `url(${store.banner_url})` : undefined,
         }}
       >
+        {!store.banner_url && (
+          <div className="pointer-events-none absolute inset-0 opacity-25" aria-hidden="true">
+            {["🛍️", "🍎", "🥖", "☕", "🌿", "✨", "🥑", "🧀"].map((e, i) => (
+              <span
+                key={i}
+                className="absolute text-4xl sm:text-5xl"
+                style={{
+                  top: `${10 + (i * 11) % 75}%`,
+                  left: `${(i * 19 + 6) % 92}%`,
+                  transform: `rotate(${(i * 27) % 50 - 25}deg)`,
+                }}
+              >{e}</span>
+            ))}
+          </div>
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 container px-4 pb-5 sm:pb-6">
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:items-end sm:gap-5">
