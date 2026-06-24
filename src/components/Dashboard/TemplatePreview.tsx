@@ -1,5 +1,6 @@
 import { Store as StoreIcon, Search, ShoppingCart, Heart, Plus } from "lucide-react";
 import { getTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
+import { resolveTheme, type LayoutConfig } from "@/components/StoreFront/AppTemplate/layoutConfig";
 import { getCurrencySymbol } from "@/lib/currency";
 
 interface RealProduct {
