@@ -1,4 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
+import { Link } from "react-router-dom";
 import { useAuth } from "@/lib/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { effectiveUserId } from "@/lib/impersonation";
@@ -11,15 +12,15 @@ import {
 import { Tabs } from "@/components/ui/tabs";
 import ResponsiveTabsList from "@/components/Dashboard/ResponsiveTabs";
 import {
-  Plus, Search, Package, Loader2, LayoutGrid, List, FileDown, AlertTriangle,
+  Plus, Search, Package, Loader2, LayoutGrid, List, FileDown, AlertTriangle, Crown,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import ProductFormDialog from "@/components/Dashboard/ProductFormDialog";
 import ProductListView from "@/components/Dashboard/ProductListView";
 import type { Product, Category } from "@/components/Dashboard/ProductFormDialog";
+import { useDashboardStore } from "@/hooks/useDashboardStore";
 
 const ITEMS_PER_PAGE = 15;
-const MAX_PRODUCTS = 60;
 
 const Products = () => {
   const { user } = useAuth();
