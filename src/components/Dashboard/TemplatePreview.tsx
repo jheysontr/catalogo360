@@ -108,6 +108,40 @@ const TemplatePreview = ({
     }
 
 
+    if (theme.bannerStyle === "fresh") {
+      const highlight = theme.bannerHighlight || "Oferta";
+      const cta = theme.bannerCta || "Comprar";
+      return (
+        <div className="px-2.5 pt-2">
+          <p className="px-0.5 pb-1.5 text-[9px] font-bold text-foreground leading-tight">
+            Fresh <span style={{ color: primaryColor }}>{storeName || "Tienda"}.</span> <span className="text-foreground/60">Sin complicaciones.</span>
+          </p>
+          <div
+            className="relative flex items-stretch overflow-hidden rounded-xl"
+            style={{
+              backgroundColor: "#FFE8B3",
+              backgroundImage: bannerUrl
+                ? `linear-gradient(90deg, #FFE8B3 0%, #FFE8B3 45%, rgba(255,232,179,0.2) 100%), url(${bannerUrl})`
+                : undefined,
+              backgroundSize: "cover",
+              backgroundPosition: "right center",
+              minHeight: "62px",
+            }}
+          >
+            <div className="relative z-10 flex flex-1 flex-col justify-center gap-1 p-2">
+              <span className="inline-flex w-fit items-center rounded-full bg-white/85 px-1.5 py-0.5 text-[5px] font-semibold" style={{ color: primaryColor }}>
+                {highlight}
+              </span>
+              {bannerDesc && <p className="text-[6px] font-bold text-foreground line-clamp-1 max-w-[14ch]">{bannerDesc}</p>}
+              <span className="inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[6px] font-semibold text-white" style={{ backgroundColor: "#FD730D" }}>
+                {cta}
+              </span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     switch (theme.bannerStyle) {
       case "full":
         return (
