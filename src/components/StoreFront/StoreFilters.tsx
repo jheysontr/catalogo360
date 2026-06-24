@@ -28,99 +28,99 @@ const StoreFilters = ({
   onCategoryChange, primaryColor, productCount, activeCategoryName,
   perPage, onPerPageChange,
 }: StoreFiltersProps) => (
-  <div className="container space-y-5 px-4 pt-6">
-    {/* Search + controls */}
-    <div className="flex items-center gap-2">
-      <div className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" strokeWidth={1.5} />
+  <div className="container px-4 pt-8">
+    <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      {/* Search */}
+      <div className="relative max-w-xs flex-1">
+        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input
-          placeholder="Buscar productos…"
-          className="h-10 border-border bg-background pl-9"
+          type="text"
+          placeholder="Buscar productos..."
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
+          className="h-10 w-full rounded-xl border bg-card pl-10 pr-4 text-sm focus-visible:ring-2 focus-visible:ring-primary/30"
         />
       </div>
-      <Select value={sortBy} onValueChange={onSortChange}>
-        <SelectTrigger className="h-10 w-[130px] shrink-0 border-border bg-background text-xs sm:w-44" style={{ borderRadius: 2 }}>
-          <SelectValue placeholder="Ordenar" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="newest">Más nuevos</SelectItem>
-          <SelectItem value="price_high">Mayor precio</SelectItem>
-          <SelectItem value="price_low">Menor precio</SelectItem>
-        </SelectContent>
-      </Select>
-      <div className="flex shrink-0 border border-border" style={{ borderRadius: 2 }}>
-        <button
-          onClick={() => onViewModeChange("grid")}
-          className={`flex h-10 w-10 items-center justify-center transition-colors ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
-        >
-          <LayoutGrid className="h-4 w-4" strokeWidth={1.5} />
-        </button>
-        <button
-          onClick={() => onViewModeChange("list")}
-          className={`flex h-10 w-10 items-center justify-center transition-colors ${viewMode === "list" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
-        >
-          <List className="h-4 w-4" strokeWidth={1.5} />
-        </button>
-      </div>
+
+      {/* Category pills — filled with vendor primary when active */}
+      {categories.length > 0 && (
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <button
+            onClick={() => onCategoryChange("all")}
+            className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium transition-all ${
+              activeCategory === "all"
+                ? "text-white shadow-md"
+                : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+            }`}
+            style={activeCategory === "all" ? { backgroundColor: primaryColor } : undefined}
+          >
+            Todos
+          </button>
+          {categories.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => onCategoryChange(cat.id)}
+              className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-medium transition-all ${
+                activeCategory === cat.id
+                  ? "text-white shadow-md"
+                  : "bg-secondary text-muted-foreground hover:bg-secondary/80"
+              }`}
+              style={activeCategory === cat.id ? { backgroundColor: primaryColor } : undefined}
+            >
+              {cat.icon && <span>{cat.icon}</span>}
+              {cat.name}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
 
-    {/* Categories — editorial underline strip */}
-    {categories.length > 0 && (
-      <div className="-mx-4 flex gap-6 overflow-x-auto border-b border-border px-4 scrollbar-hide">
-        <button
-          onClick={() => onCategoryChange("all")}
-          className={`relative whitespace-nowrap px-1 pb-2 pt-1 text-[13px] font-medium tracking-wide transition-colors ${
-            activeCategory === "all" ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-          }`}
-        >
-          Todos
-          {activeCategory === "all" && (
-            <span className="absolute inset-x-0 -bottom-px h-[2px]" style={{ backgroundColor: primaryColor }} />
-          )}
-        </button>
-        {categories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => onCategoryChange(cat.id)}
-            className={`relative whitespace-nowrap px-1 pb-2 pt-1 text-[13px] font-medium tracking-wide transition-colors ${
-              activeCategory === cat.id ? "text-foreground" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {cat.icon && <span className="mr-1.5">{cat.icon}</span>}
-            {cat.name}
-            {activeCategory === cat.id && (
-              <span className="absolute inset-x-0 -bottom-px h-[2px]" style={{ backgroundColor: primaryColor }} />
-            )}
-          </button>
-        ))}
-      </div>
-    )}
-
-    {/* Editorial section header */}
-    <div className="flex items-end justify-between border-b border-border pb-3">
-      <div>
-        <span className="editorial-eyebrow">Catálogo</span>
-        <h2 className="mt-0.5 text-2xl leading-none text-foreground sm:text-3xl">
-          {activeCategory !== "all" ? activeCategoryName || "Productos" : "Productos"}
-        </h2>
-        <p className="mt-1 text-xs text-muted-foreground">
-          {productCount} {productCount === 1 ? "artículo disponible" : "artículos disponibles"}
-        </p>
-      </div>
-      {productCount > 12 && (
-        <Select value={String(perPage)} onValueChange={(v) => onPerPageChange(Number(v))}>
-          <SelectTrigger className="h-7 w-auto gap-1 border-0 px-2 text-xs text-muted-foreground hover:text-foreground">
-            <SelectValue />
+    {/* Meta row: count + sort + view + per-page */}
+    <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+      <p className="text-xs text-muted-foreground">
+        {productCount} {productCount === 1 ? "producto" : "productos"}
+        {activeCategory !== "all" && activeCategoryName ? ` en ${activeCategoryName}` : ""}
+      </p>
+      <div className="flex items-center gap-2">
+        <Select value={sortBy} onValueChange={onSortChange}>
+          <SelectTrigger className="h-9 w-[140px] rounded-xl border bg-card text-xs">
+            <SelectValue placeholder="Ordenar" />
           </SelectTrigger>
-          <SelectContent align="end">
-            <SelectItem value="12">12 / pág</SelectItem>
-            <SelectItem value="20">20 / pág</SelectItem>
-            <SelectItem value="40">40 / pág</SelectItem>
+          <SelectContent>
+            <SelectItem value="newest">Más nuevos</SelectItem>
+            <SelectItem value="price_high">Mayor precio</SelectItem>
+            <SelectItem value="price_low">Menor precio</SelectItem>
           </SelectContent>
         </Select>
-      )}
+        {productCount > 12 && (
+          <Select value={String(perPage)} onValueChange={(v) => onPerPageChange(Number(v))}>
+            <SelectTrigger className="h-9 w-[110px] rounded-xl border bg-card text-xs">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent align="end">
+              <SelectItem value="12">12 / pág</SelectItem>
+              <SelectItem value="20">20 / pág</SelectItem>
+              <SelectItem value="40">40 / pág</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+        <div className="flex shrink-0 rounded-xl border bg-card">
+          <button
+            onClick={() => onViewModeChange("grid")}
+            className={`flex h-9 w-9 items-center justify-center rounded-l-xl transition-colors ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+            aria-label="Vista cuadrícula"
+          >
+            <LayoutGrid className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => onViewModeChange("list")}
+            className={`flex h-9 w-9 items-center justify-center rounded-r-xl transition-colors ${viewMode === "list" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+            aria-label="Vista lista"
+          >
+            <List className="h-4 w-4" />
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 );
