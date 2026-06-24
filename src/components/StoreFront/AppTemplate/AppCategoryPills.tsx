@@ -20,6 +20,47 @@ const AppCategoryPills = ({
 
   const style = theme.pillStyle;
 
+  // TILES — pastel mosaic of large category cards (Market template)
+  if (style === "tiles") {
+    const PASTELS = [
+      { bg: "#DCEFD8", ring: "#A8D4A0" }, // green
+      { bg: "#FFE6CC", ring: "#F4B678" }, // orange
+      { bg: "#FBDADA", ring: "#E89999" }, // red
+      { bg: "#F1E0F5", ring: "#C9A0DC" }, // purple
+      { bg: "#FFF4C9", ring: "#F0D88C" }, // yellow
+      { bg: "#D7EAF7", ring: "#8FB8D9" }, // blue
+    ];
+    const all = [{ id: "all", name: "Todos", icon: "🛍️" }, ...categories];
+    return (
+      <div className="container px-4 pt-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {all.map((cat, i) => {
+            const active = activeCategory === cat.id;
+            const p = PASTELS[i % PASTELS.length];
+            return (
+              <button
+                key={cat.id}
+                onClick={() => onCategoryChange(cat.id)}
+                className={`group relative flex aspect-[5/3] flex-col items-center justify-center gap-1.5 rounded-2xl p-3 text-center transition-all ${
+                  active ? "shadow-md ring-2" : "hover:shadow-sm"
+                }`}
+                style={{
+                  backgroundColor: p.bg,
+                  // @ts-ignore custom prop for ring
+                  ["--tw-ring-color" as any]: active ? primaryColor : p.ring,
+                }}
+              >
+                {cat.icon && <span className="text-2xl leading-none">{cat.icon}</span>}
+                <span className="line-clamp-2 text-[13px] font-semibold text-foreground">{cat.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
+
   // FILLED — grocery-app style (Fresh / Elegante)
   if (style === "filled") {
     const pillClass = (active: boolean) =>
