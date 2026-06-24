@@ -78,7 +78,7 @@ const TemplatePreview = ({
   // When placeholders mode is on, ignore real store assets for a consistent showcase
   const effectiveLogo = usePlaceholders ? null : logoUrl;
   const effectiveBanner = usePlaceholders ? null : bannerUrl;
-  const effectiveName = usePlaceholders ? (effectiveName) : storeName;
+  const effectiveName = storeName || "Mi Tienda";
 
   const previewProducts: PreviewProduct[] = (!usePlaceholders && products && products.length > 0)
     ? products.map((p) => {
