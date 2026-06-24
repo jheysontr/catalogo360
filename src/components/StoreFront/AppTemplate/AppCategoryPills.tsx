@@ -33,7 +33,7 @@ const AppCategoryPills = ({
     const all = [{ id: "all", name: "Todos", icon: "🛍️" }, ...categories];
     return (
       <div className="container px-4 pt-4">
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+        <div className="-mx-4 flex gap-2.5 overflow-x-auto px-4 pb-1 scrollbar-hide">
           {all.map((cat, i) => {
             const active = activeCategory === cat.id;
             const p = PASTELS[i % PASTELS.length];
@@ -41,7 +41,7 @@ const AppCategoryPills = ({
               <button
                 key={cat.id}
                 onClick={() => onCategoryChange(cat.id)}
-                className={`group relative flex aspect-[5/3] flex-col items-center justify-center gap-1.5 rounded-2xl p-3 text-center transition-all ${
+                className={`group relative flex h-20 w-20 shrink-0 flex-col items-center justify-center gap-1 rounded-2xl p-2 text-center transition-all ${
                   active ? "shadow-md ring-2" : "hover:shadow-sm"
                 }`}
                 style={{
@@ -50,8 +50,8 @@ const AppCategoryPills = ({
                   ["--tw-ring-color" as any]: active ? primaryColor : p.ring,
                 }}
               >
-                {cat.icon && <span className="text-2xl leading-none">{cat.icon}</span>}
-                <span className="line-clamp-2 text-[13px] font-semibold text-foreground">{cat.name}</span>
+                {cat.icon && <span className="text-xl leading-none">{cat.icon}</span>}
+                <span className="line-clamp-2 text-[11px] font-semibold leading-tight text-foreground">{cat.name}</span>
               </button>
             );
           })}
