@@ -240,6 +240,33 @@ const TemplatePreview = ({
     const isUnderline = theme.pillStyle === "underline";
     const isOutline = theme.pillStyle === "outline";
     const isFilled = theme.pillStyle === "filled";
+    const isTiles = theme.pillStyle === "tiles";
+
+    if (isTiles) {
+      const PASTELS = ["#DCEFD8", "#FFE6CC", "#FBDADA", "#F1E0F5"];
+      const TILES = [
+        { name: "Frutas", icon: "🥗" },
+        { name: "Aceites", icon: "🫒" },
+        { name: "Carnes", icon: "🥩" },
+        { name: "Snacks", icon: "🥐" },
+      ];
+      return (
+        <div className="px-2.5 pt-2">
+          <div className="grid grid-cols-2 gap-1.5">
+            {TILES.map((t, i) => (
+              <div
+                key={t.name}
+                className="flex aspect-[5/3] flex-col items-center justify-center gap-0.5 rounded-lg p-1"
+                style={{ backgroundColor: PASTELS[i % PASTELS.length] }}
+              >
+                <span className="text-[10px] leading-none">{t.icon}</span>
+                <span className="text-[6px] font-semibold text-foreground">{t.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
 
     return (
       <div className={`flex ${isUnderline ? "gap-0 border-b mx-2.5" : "gap-1 px-2.5"} pt-2 overflow-hidden`}>
@@ -273,6 +300,7 @@ const TemplatePreview = ({
       </div>
     );
   };
+
 
   const renderImage = (imageUrl: string | null) => {
     if (imageUrl) {
