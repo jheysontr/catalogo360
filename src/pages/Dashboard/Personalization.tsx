@@ -491,15 +491,10 @@ const Personalization = () => {
                 <Switch id="hide-sold" checked={hideSoldOut} onCheckedChange={setHideSoldOut} />
               </div>
 
-              <div className="flex items-start justify-between gap-4 rounded-lg border p-3">
-                <div className="flex-1">
-                  <Label htmlFor="compact-spacing" className="text-sm font-medium">Espaciado compacto</Label>
-                  <p className="mt-0.5 text-xs text-muted-foreground">
-                    Reduce el espacio entre elementos para mostrar más productos a la vez.
-                  </p>
-                </div>
-                <Switch id="compact-spacing" checked={compactSpacing} onCheckedChange={setCompactSpacing} />
+              <div className="rounded-lg border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground">
+                Próximamente: más opciones de visualización (densidad, badges, etiquetas de stock).
               </div>
+
             </CardContent>
           </Card>
         </TabsContent>
