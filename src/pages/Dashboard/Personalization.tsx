@@ -12,8 +12,10 @@ import ResponsiveTabsList from "@/components/Dashboard/ResponsiveTabs";
 import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Loader2, Upload, Store, Palette, Layout, Eye, Image as ImageIcon, Type } from "lucide-react";
+import { Loader2, Upload, Store, Palette, Layout, Eye, Image as ImageIcon, Type, Sparkles } from "lucide-react";
 import TemplatePreview from "@/components/Dashboard/TemplatePreview";
+import LayoutEditor from "@/components/Dashboard/LayoutEditor/LayoutEditor";
+import { defaultLayoutConfig, normalizeLayoutConfig, type LayoutConfig } from "@/components/StoreFront/AppTemplate/layoutConfig";
 import { STOREFRONT_FONTS, getFontStack } from "@/lib/storefrontFonts";
 import { PALETTE_PRESETS } from "@/lib/colorUtils";
 import toast from "react-hot-toast";
@@ -60,6 +62,7 @@ const Personalization = () => {
   const [fontFamily, setFontFamily] = useState("default");
   const [hideSoldOut, setHideSoldOut] = useState(false);
   const [compactSpacing, setCompactSpacing] = useState(false);
+  const [layoutConfig, setLayoutConfig] = useState<LayoutConfig>(() => defaultLayoutConfig("app"));
 
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
@@ -91,6 +94,7 @@ const Personalization = () => {
         setCompactSpacing(!!sfConfig.compact_spacing);
         setBackgroundColor(sfConfig.background_color || "#ffffff");
         setAccentColor(sfConfig.accent_color || "#e76f51");
+        setLayoutConfig(normalizeLayoutConfig(sfConfig.layout_config));
 
         const { data: prods } = await supabase
           .from("products")
@@ -153,6 +157,7 @@ const Personalization = () => {
       compact_spacing: compactSpacing,
       background_color: backgroundColor,
       accent_color: accentColor,
+      layout_config: layoutConfig,
     };
 
     const { error } = await supabase
@@ -189,6 +194,7 @@ const Personalization = () => {
     setCompactSpacing(!!storefrontConfig.compact_spacing);
     setBackgroundColor(storefrontConfig.background_color || "#ffffff");
     setAccentColor(storefrontConfig.accent_color || "#e76f51");
+    setLayoutConfig(normalizeLayoutConfig(storefrontConfig.layout_config));
     toast("Cambios descartados");
   };
 
