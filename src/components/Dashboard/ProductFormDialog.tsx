@@ -197,10 +197,22 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
 
   /* ── Save product ── */
   const handleSave = async (addAnother = false) => {
+    if (blockNew) {
+      toast({
+        title: "Límite del plan alcanzado",
+        description: maxProducts
+          ? `Tu plan permite máximo ${maxProducts} producto${maxProducts === 1 ? "" : "s"}. Mejora tu plan para agregar más.`
+          : "Has alcanzado el límite de productos de tu plan.",
+        variant: "destructive",
+      });
+      setPlanLimit({ max: maxProducts ?? null });
+      return;
+    }
     if (!formName.trim() || formName.trim().length < 3) {
       toast({ title: "Error", description: "El nombre debe tener al menos 3 caracteres", variant: "destructive" });
       return;
     }
+
     const priceNum = Number(formPrice);
     if (!formPrice || priceNum <= 0) {
       toast({ title: "Error", description: "Ingresa un precio válido (> 0)", variant: "destructive" });
