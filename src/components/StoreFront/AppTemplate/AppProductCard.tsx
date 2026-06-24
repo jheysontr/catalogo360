@@ -1,7 +1,8 @@
 import { memo } from "react";
-import { Heart, ShoppingCart, Store as StoreIcon, Plus } from "lucide-react";
+import { Heart, ShoppingCart, Plus } from "lucide-react";
 import { motion } from "framer-motion";
 import ProgressiveImage from "../ProgressiveImage";
+import ProductImagePlaceholder from "../ProductImagePlaceholder";
 import type { TemplateTheme } from "./templateThemes";
 
 interface ProductAttribute {
