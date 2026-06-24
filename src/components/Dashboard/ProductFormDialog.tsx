@@ -11,9 +11,12 @@ import {
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Plus, ImagePlus, Loader2, Trash2, X } from "lucide-react";
+import { Plus, ImagePlus, Loader2, Trash2, X, Crown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { compressImage } from "@/lib/imageCompression";
+import { parsePlanLimitError } from "@/lib/planLimitError";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Link } from "react-router-dom";
 
 /* ─── Types ──────────────────────────────────────── */
 
