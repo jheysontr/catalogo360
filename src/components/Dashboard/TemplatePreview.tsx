@@ -1,5 +1,6 @@
 import { Store as StoreIcon, Search, ShoppingCart, Heart, Plus } from "lucide-react";
 import { getTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
+import { resolveTheme, type LayoutConfig } from "@/components/StoreFront/AppTemplate/layoutConfig";
 import { getCurrencySymbol } from "@/lib/currency";
 
 interface RealProduct {
@@ -38,6 +39,7 @@ interface TemplatePreviewProps {
   customBannerDescription?: string;
   fontFamily?: string;
   usePlaceholders?: boolean;
+  layoutConfig?: LayoutConfig | null;
 }
 
 const FALLBACK_PRODUCTS: PreviewProduct[] = [
@@ -67,8 +69,11 @@ const TemplatePreview = ({
   customBannerDescription,
   fontFamily,
   usePlaceholders = false,
+  layoutConfig,
 }: TemplatePreviewProps) => {
-  const theme = getTheme(templateId);
+  const theme = templateId === "custom" && layoutConfig
+    ? resolveTheme("custom", layoutConfig)
+    : getTheme(templateId);
   const isClassic = templateId === "classic";
   const sym = getCurrencySymbol(currency);
   const greeting = customGreeting || theme.bannerGreeting;

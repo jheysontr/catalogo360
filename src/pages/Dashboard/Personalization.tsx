@@ -506,6 +506,21 @@ const Personalization = () => {
             onChange={setLayoutConfig}
             isActive={storeTemplate === "custom"}
             onEnableCustomTemplate={() => setStoreTemplate("custom")}
+            previewContext={{
+              storeName: store?.store_name || "",
+              logoUrl,
+              bannerUrl,
+              primaryColor,
+              secondaryColor,
+              backgroundColor,
+              accentColor,
+              description: store?.description ?? "",
+              currency: store?.currency || "BOB",
+              customGreeting: bannerGreeting,
+              customBannerDescription: bannerDescription,
+              fontFamily: getFontStack(fontFamily),
+              products: storeProducts,
+            }}
           />
         </TabsContent>
 
