@@ -19,6 +19,7 @@ import ProductFormDialog from "@/components/Dashboard/ProductFormDialog";
 import ProductListView from "@/components/Dashboard/ProductListView";
 import type { Product, Category } from "@/components/Dashboard/ProductFormDialog";
 import { useDashboardStore } from "@/hooks/useDashboardStore";
+import { parsePlanLimitError } from "@/lib/planLimitError";
 
 const ITEMS_PER_PAGE = 15;
 
