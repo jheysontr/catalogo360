@@ -257,60 +257,84 @@ const Personalization = () => {
         <TabsContent value="apariencia" className="mt-6 space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Colores de marca</CardTitle>
-              <CardDescription>Define la paleta de tu tienda</CardDescription>
+              <CardTitle className="text-base">Paleta de colores</CardTitle>
+              <CardDescription>Primario, secundario, fondo y acento. Aplica en tu tienda pública.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="s-primary">Color primario</Label>
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <input
-                      id="s-primary"
-                      type="color"
-                      value={primaryColor}
-                      onChange={(e) => setPrimaryColor(e.target.value)}
-                      className="h-10 w-10 cursor-pointer rounded border-0 bg-transparent p-0"
-                    />
-                    <Input value={primaryColor} onChange={(e) => setPrimaryColor(e.target.value)} className="flex-1" maxLength={7} />
-                  </div>
-                </div>
-                <div>
-                  <Label htmlFor="s-secondary">Color secundario</Label>
-                  <div className="mt-1.5 flex items-center gap-2">
-                    <input
-                      id="s-secondary"
-                      type="color"
-                      value={secondaryColor}
-                      onChange={(e) => setSecondaryColor(e.target.value)}
-                      className="h-10 w-10 cursor-pointer rounded border-0 bg-transparent p-0"
-                    />
-                    <Input value={secondaryColor} onChange={(e) => setSecondaryColor(e.target.value)} className="flex-1" maxLength={7} />
-                  </div>
+              {/* Presets */}
+              <div>
+                <Label className="mb-2 block text-xs">Paletas predefinidas</Label>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {PALETTE_PRESETS.map((p) => {
+                    const active =
+                      p.primary === primaryColor &&
+                      p.secondary === secondaryColor &&
+                      p.background === backgroundColor &&
+                      p.accent === accentColor;
+                    return (
+                      <button
+                        key={p.name}
+                        type="button"
+                        onClick={() => applyPreset(p)}
+                        className={`group flex items-center gap-2 rounded-lg border p-2 text-left transition-all ${
+                          active ? "border-primary bg-primary/5 ring-1 ring-primary/30" : "border-border hover:border-primary/40"
+                        }`}
+                      >
+                        <div className="flex h-7 overflow-hidden rounded-md ring-1 ring-border/60">
+                          <div className="w-4" style={{ backgroundColor: p.primary }} />
+                          <div className="w-4" style={{ backgroundColor: p.secondary }} />
+                          <div className="w-4" style={{ backgroundColor: p.background }} />
+                          <div className="w-4" style={{ backgroundColor: p.accent }} />
+                        </div>
+                        <span className="truncate text-xs font-medium text-foreground">{p.name}</span>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
               <Separator />
 
+              {/* 4-color editor */}
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+                <ColorField id="c-primary"    label="Primario"   value={primaryColor}    onChange={setPrimaryColor} />
+                <ColorField id="c-secondary"  label="Secundario" value={secondaryColor}  onChange={setSecondaryColor} />
+                <ColorField id="c-background" label="Fondo"      value={backgroundColor} onChange={setBackgroundColor} />
+                <ColorField id="c-accent"     label="Acento"     value={accentColor}     onChange={setAccentColor} />
+              </div>
+
+              <Separator />
+
+              {/* Live preview */}
               <div>
                 <Label className="mb-1.5 flex items-center gap-1.5">
                   <Eye className="h-3.5 w-3.5" />
                   Vista previa
                 </Label>
-                <div className="overflow-hidden rounded-xl border">
-                  <div className="h-16 w-full" style={{ backgroundColor: primaryColor }} />
+                <div className="overflow-hidden rounded-xl border" style={{ backgroundColor }}>
+                  <div className="h-14 w-full" style={{ backgroundColor: primaryColor }} />
                   <div className="flex items-center gap-3 p-3" style={{ backgroundColor: secondaryColor }}>
                     {logoUrl ? (
                       <img src={logoUrl} alt="Logo" className="h-8 w-8 rounded-full object-cover" />
                     ) : (
-                      <div className="h-8 w-8 rounded-full bg-muted" />
+                      <div className="h-8 w-8 rounded-full bg-white/20" />
                     )}
                     <span className="text-sm font-semibold text-white">{store?.store_name || "Tu Tienda"}</span>
+                  </div>
+                  <div className="flex items-center justify-between gap-3 p-3">
+                    <span className="text-sm text-foreground">Producto destacado</span>
+                    <span
+                      className="rounded-md px-2 py-1 text-[11px] font-bold text-white"
+                      style={{ backgroundColor: accentColor }}
+                    >
+                      -20%
+                    </span>
                   </div>
                 </div>
               </div>
             </CardContent>
           </Card>
+
 
           <Card>
             <CardHeader>
