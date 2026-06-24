@@ -162,11 +162,18 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
   if (loading) return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
 
   const kpis = [
-    { label: "Ventas hoy", value: fmt(todayRevenue), sub: `${todayOrders.length} orden${todayOrders.length !== 1 ? "es" : ""}`, icon: DollarSign, color: "bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400" },
-    { label: "Esta semana", value: fmtK(weekRevenue), sub: `${last7.length} órdenes`, icon: TrendingUp, change: revenueChange, color: "bg-blue-100 text-blue-600 dark:bg-blue-950/40 dark:text-blue-400" },
-    { label: "Este mes", value: fmtK(monthRevenue), sub: `${orders.length} órdenes`, icon: ShoppingCart, color: "bg-violet-100 text-violet-600 dark:bg-violet-950/40 dark:text-violet-400" },
-    { label: "Ticket prom.", value: fmt(avgOrderValue), sub: `${allTimeOrders} históricas`, icon: Package, color: "bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400" },
-  ];
+    { label: "Ventas hoy", value: fmt(todayRevenue), sub: `${todayOrders.length} orden${todayOrders.length !== 1 ? "es" : ""}`, icon: DollarSign, accent: "emerald" },
+    { label: "Esta semana", value: fmtK(weekRevenue), sub: `${last7.length} órdenes`, icon: TrendingUp, change: revenueChange, accent: "teal" },
+    { label: "Este mes", value: fmtK(monthRevenue), sub: `${orders.length} órdenes`, icon: ShoppingCart, accent: "violet" },
+    { label: "Ticket prom.", value: fmt(avgOrderValue), sub: `${allTimeOrders} históricas`, icon: Package, accent: "amber" },
+  ] as const;
+
+  const accentMap: Record<string, string> = {
+    emerald: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
+    teal: "bg-[hsl(var(--shell-teal-500))]/10 text-[hsl(var(--shell-teal-500))]",
+    violet: "bg-violet-500/10 text-violet-600 dark:text-violet-400",
+    amber: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+  };
 
   const quickActions = [
     { label: "Órdenes", icon: ShoppingCart, section: "orders", count: orders.length },
@@ -179,49 +186,69 @@ const DashboardHome = ({ storeId, storeName, storeSlug, productCount, currency =
   return (
     <div className="space-y-5 sm:space-y-6">
 
-      {/* ── 1. Header + Alert ── */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="font-display text-xl sm:text-2xl font-bold text-foreground">¡Hola, {storeName}! 👋</h1>
-          <p className="mt-0.5 text-sm text-muted-foreground">Resumen de los últimos 30 días</p>
+      {/* ── 1. Hero card ── */}
+      <div className="relative overflow-hidden rounded-3xl bg-[hsl(var(--shell-deep))] p-6 sm:p-8 shadow-xl">
+        <div className="absolute -top-24 -right-24 h-72 w-72 rounded-full bg-[hsl(var(--shell-teal-500))]/15 blur-3xl" />
+        <div className="absolute -bottom-20 left-1/3 h-48 w-48 rounded-full bg-[hsl(var(--shell-teal-300))]/10 blur-3xl" />
+        <div className="relative z-10 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="font-display text-2xl sm:text-3xl font-bold text-white truncate">¡Hola, {storeName}! 👋</h1>
+            <p className="mt-1.5 text-sm sm:text-base text-slate-300">
+              {pendingOrders.length > 0 ? (
+                <>
+                  Tienes <span className="font-bold text-[hsl(var(--shell-teal-300))]">{pendingOrders.length} pedido{pendingOrders.length !== 1 ? "s" : ""} pendiente{pendingOrders.length !== 1 ? "s" : ""}</span> esperando respuesta.
+                </>
+              ) : (
+                <>Resumen de los últimos 30 días — todo en orden.</>
+              )}
+            </p>
+          </div>
+          <div className="flex gap-2 shrink-0">
+            <Button
+              variant="ghost"
+              onClick={() => onNavigate("products")}
+              className="rounded-xl bg-white/5 text-white hover:bg-white/10 border border-white/10"
+            >
+              Productos
+            </Button>
+            <Button
+              onClick={() => onNavigate("orders")}
+              className="rounded-xl bg-[hsl(var(--shell-teal-500))] text-[hsl(var(--shell-deep))] hover:bg-[hsl(var(--shell-teal-300))] font-bold shadow-lg shadow-[hsl(var(--shell-teal-500))]/25"
+            >
+              Ver pedidos
+              {pendingOrders.length > 0 && (
+                <span className="ml-2 rounded-full bg-[hsl(var(--shell-deep))]/15 px-2 py-0.5 text-[10px] font-bold">
+                  {pendingOrders.length}
+                </span>
+              )}
+            </Button>
+          </div>
         </div>
-        {pendingOrders.length > 0 && (
-          <button
-            onClick={() => onNavigate("orders")}
-            className="flex items-center gap-2.5 rounded-xl border border-yellow-200 bg-yellow-50 px-4 py-2.5 text-left transition-colors hover:bg-yellow-100 dark:border-yellow-800 dark:bg-yellow-950/30 dark:hover:bg-yellow-950/50 sm:self-end"
-          >
-            <Clock className="h-4 w-4 text-yellow-600 dark:text-yellow-400 shrink-0" />
-            <span className="text-sm font-semibold text-yellow-800 dark:text-yellow-300">
-              {pendingOrders.length} pendiente{pendingOrders.length !== 1 ? "s" : ""}
-            </span>
-            <ChevronRight className="h-3.5 w-3.5 text-yellow-600 dark:text-yellow-400" />
-          </button>
-        )}
       </div>
 
       {/* ── 2. KPI Cards ── */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         {kpis.map((k) => (
-          <Card key={k.label} className="border-0 shadow-sm hover:shadow-md transition-shadow">
-            <CardContent className="p-3 sm:p-4">
-              <div className="flex items-start justify-between gap-2">
-                <div className="min-w-0 space-y-0.5">
-                  <p className="text-[10px] sm:text-xs font-medium text-muted-foreground truncate">{k.label}</p>
-                  <p className="text-base sm:text-xl font-bold text-foreground truncate">{k.value}</p>
+          <Card key={k.label} className="border border-border/60 rounded-2xl shadow-sm hover:shadow-md hover:border-primary/30 transition-all">
+            <CardContent className="p-4 sm:p-5">
+              <div className="flex items-start justify-between gap-2 mb-3">
+                <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl ${accentMap[k.accent]}`}>
+                  <k.icon className="h-5 w-5" />
                 </div>
-                <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${k.color}`}>
-                  <k.icon className="h-4 w-4" />
-                </div>
-              </div>
-              <div className="mt-1 flex items-center gap-1.5">
-                <span className="text-[10px] sm:text-xs text-muted-foreground">{k.sub}</span>
                 {k.change !== undefined && (
-                  <span className={`flex items-center gap-0.5 text-[10px] font-semibold ${k.change >= 0 ? "text-emerald-600" : "text-red-500"}`}>
+                  <span className={`flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                    k.change >= 0
+                      ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                      : "bg-red-500/10 text-red-600 dark:text-red-400"
+                  }`}>
                     {k.change >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
                     {k.change >= 0 ? "+" : ""}{k.change.toFixed(0)}%
                   </span>
                 )}
               </div>
+              <p className="text-[11px] sm:text-xs font-medium text-muted-foreground">{k.label}</p>
+              <p className="font-display text-lg sm:text-2xl font-bold text-foreground truncate mt-0.5">{k.value}</p>
+              <p className="mt-1 text-[10px] sm:text-[11px] text-muted-foreground">{k.sub}</p>
             </CardContent>
           </Card>
         ))}
