@@ -293,18 +293,21 @@ const StoreFront = () => {
 
       {isAppTemplate ? (
         <>
-          {/* ── APP TEMPLATE ── */}
-          <AppStoreHeader
+          {/* ── APP-FAMILY TEMPLATES ── */}
+          <FloatingHeader
             store={store}
             primaryColor={primaryColor}
+            theme={theme}
             search={search}
             onSearchChange={setSearch}
             itemCount={itemCount}
             wishlistCount={wishlistCount}
+            whatsapp={socialMedia?.whatsapp}
             onCartOpen={() => setCartOpen(true)}
             onWishlistOpen={() => setWishlistOpen(true)}
             onInfoClick={() => setInfoOpen(true)}
           />
+
 
           <AppHeroBanner
             store={store}
