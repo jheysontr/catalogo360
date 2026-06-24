@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Loader2, Upload, Store, Palette, Layout, Eye, Image as ImageIcon, Type } from "lucide-react";
 import TemplatePreview from "@/components/Dashboard/TemplatePreview";
 import { STOREFRONT_FONTS, getFontStack } from "@/lib/storefrontFonts";
+import { PALETTE_PRESETS } from "@/lib/colorUtils";
 import toast from "react-hot-toast";
 import { compressImage } from "@/lib/imageCompression";
 
@@ -48,6 +49,8 @@ const Personalization = () => {
   // Form fields
   const [primaryColor, setPrimaryColor] = useState("#2a9d8f");
   const [secondaryColor, setSecondaryColor] = useState("#264653");
+  const [backgroundColor, setBackgroundColor] = useState("#ffffff");
+  const [accentColor, setAccentColor] = useState("#e76f51");
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [bannerUrl, setBannerUrl] = useState<string | null>(null);
   const [storeTemplate, setStoreTemplate] = useState("classic");
@@ -85,6 +88,8 @@ const Personalization = () => {
         setFontFamily(sfConfig.font_family || "default");
         setHideSoldOut(!!sfConfig.hide_sold_out);
         setCompactSpacing(!!sfConfig.compact_spacing);
+        setBackgroundColor(sfConfig.background_color || "#ffffff");
+        setAccentColor(sfConfig.accent_color || "#e76f51");
 
         const { data: prods } = await supabase
           .from("products")
@@ -145,6 +150,8 @@ const Personalization = () => {
       font_family: fontFamily,
       hide_sold_out: hideSoldOut,
       compact_spacing: compactSpacing,
+      background_color: backgroundColor,
+      accent_color: accentColor,
     };
 
     const { error } = await supabase
@@ -179,8 +186,33 @@ const Personalization = () => {
     setFontFamily(storefrontConfig.font_family || "default");
     setHideSoldOut(!!storefrontConfig.hide_sold_out);
     setCompactSpacing(!!storefrontConfig.compact_spacing);
+    setBackgroundColor(storefrontConfig.background_color || "#ffffff");
+    setAccentColor(storefrontConfig.accent_color || "#e76f51");
     toast("Cambios descartados");
   };
+
+  const applyPreset = (p: typeof PALETTE_PRESETS[number]) => {
+    setPrimaryColor(p.primary);
+    setSecondaryColor(p.secondary);
+    setBackgroundColor(p.background);
+    setAccentColor(p.accent);
+  };
+
+  const ColorField = ({ id, label, value, onChange }: { id: string; label: string; value: string; onChange: (v: string) => void }) => (
+    <div>
+      <Label htmlFor={id} className="text-xs">{label}</Label>
+      <div className="mt-1.5 flex items-center gap-2">
+        <input
+          id={id}
+          type="color"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-10 w-10 cursor-pointer rounded border-0 bg-transparent p-0"
+        />
+        <Input value={value} onChange={(e) => onChange(e.target.value)} className="flex-1 font-mono text-xs uppercase" maxLength={7} />
+      </div>
+    </div>
+  );
 
   if (loading) {
     return (
