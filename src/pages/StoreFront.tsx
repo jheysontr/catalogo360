@@ -169,6 +169,10 @@ const StoreFront = () => {
 
   const handleQuickAdd = useCallback((p: Product, e: React.MouseEvent) => {
     e.stopPropagation();
+    if (p.id.startsWith("__ph-")) {
+      toast({ title: "Producto de muestra", description: "Agrega productos reales desde el panel.", duration: 1800 });
+      return;
+    }
     const hasAttrs = Array.isArray(p.attributes) && (p.attributes as ProductAttribute[]).length > 0;
     if (hasAttrs) { setSelectedProduct(p); return; }
     addToCart(toCartProduct(p), 1);
