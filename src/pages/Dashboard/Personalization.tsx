@@ -53,6 +53,9 @@ const Personalization = () => {
   const [storeTemplate, setStoreTemplate] = useState("classic");
   const [bannerGreeting, setBannerGreeting] = useState("");
   const [bannerDescription, setBannerDescription] = useState("");
+  const [fontFamily, setFontFamily] = useState("default");
+  const [hideSoldOut, setHideSoldOut] = useState(false);
+  const [compactSpacing, setCompactSpacing] = useState(false);
 
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
@@ -79,6 +82,9 @@ const Personalization = () => {
         setStoreTemplate(sfConfig.template || "classic");
         setBannerGreeting(sfConfig.banner_greeting || "");
         setBannerDescription(sfConfig.banner_description || "");
+        setFontFamily(sfConfig.font_family || "default");
+        setHideSoldOut(!!sfConfig.hide_sold_out);
+        setCompactSpacing(!!sfConfig.compact_spacing);
 
         const { data: prods } = await supabase
           .from("products")
@@ -136,6 +142,9 @@ const Personalization = () => {
       template: storeTemplate,
       banner_greeting: bannerGreeting.trim() || null,
       banner_description: bannerDescription.trim() || null,
+      font_family: fontFamily,
+      hide_sold_out: hideSoldOut,
+      compact_spacing: compactSpacing,
     };
 
     const { error } = await supabase
@@ -167,6 +176,9 @@ const Personalization = () => {
     setStoreTemplate(storefrontConfig.template || "classic");
     setBannerGreeting(storefrontConfig.banner_greeting || "");
     setBannerDescription(storefrontConfig.banner_description || "");
+    setFontFamily(storefrontConfig.font_family || "default");
+    setHideSoldOut(!!storefrontConfig.hide_sold_out);
+    setCompactSpacing(!!storefrontConfig.compact_spacing);
     toast("Cambios descartados");
   };
 
