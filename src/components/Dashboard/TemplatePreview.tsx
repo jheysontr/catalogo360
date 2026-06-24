@@ -18,6 +18,8 @@ interface PreviewProduct {
   sale: boolean;
   desc: string;
   imageUrl: string | null;
+  emoji?: string;
+  tint?: string;
 }
 
 interface TemplatePreviewProps {
@@ -35,15 +37,16 @@ interface TemplatePreviewProps {
   customGreeting?: string;
   customBannerDescription?: string;
   fontFamily?: string;
+  usePlaceholders?: boolean;
 }
 
 const FALLBACK_PRODUCTS: PreviewProduct[] = [
-  { name: "Producto 1", price: "25.00", sale: false, desc: "Descripción del producto", imageUrl: null },
-  { name: "Producto 2", price: "18.50", oldPrice: "22.00", sale: true, desc: "Con descuento", imageUrl: null },
-  { name: "Producto 3", price: "42.00", sale: false, desc: "Alta calidad", imageUrl: null },
-  { name: "Producto 4", price: "15.00", sale: false, desc: "Popular", imageUrl: null },
-  { name: "Producto 5", price: "33.00", sale: false, desc: "Nuevo", imageUrl: null },
-  { name: "Producto 6", price: "28.00", oldPrice: "35.00", sale: true, desc: "Oferta", imageUrl: null },
+  { name: "Manzana Roja", price: "4.99", sale: false, desc: "1kg, fresca", imageUrl: null, emoji: "🍎", tint: "#FBDADA" },
+  { name: "Plátano Orgánico", price: "3.50", oldPrice: "4.50", sale: true, desc: "7pcs", imageUrl: null, emoji: "🍌", tint: "#FFF4C9" },
+  { name: "Pan Artesanal", price: "8.00", sale: false, desc: "Recién horneado", imageUrl: null, emoji: "🥖", tint: "#FFE6CC" },
+  { name: "Aguacate Hass", price: "5.20", sale: false, desc: "Maduro", imageUrl: null, emoji: "🥑", tint: "#DCEFD8" },
+  { name: "Leche Entera", price: "6.00", sale: false, desc: "1L", imageUrl: null, emoji: "🥛", tint: "#D7EAF7" },
+  { name: "Queso Fresco", price: "12.50", oldPrice: "15.00", sale: true, desc: "250g", imageUrl: null, emoji: "🧀", tint: "#FFF4C9" },
 ];
 
 const MOCK_CATEGORIES = ["Todos", "Cat 1", "Cat 2"];
@@ -63,6 +66,7 @@ const TemplatePreview = ({
   customGreeting,
   customBannerDescription,
   fontFamily,
+  usePlaceholders = false,
 }: TemplatePreviewProps) => {
   const theme = getTheme(templateId);
   const isClassic = templateId === "classic";
@@ -71,7 +75,12 @@ const TemplatePreview = ({
   const bannerDesc = customBannerDescription || description;
   const accent = accentColor || "#ef4444";
 
-  const previewProducts: PreviewProduct[] = products && products.length > 0
+  // When placeholders mode is on, ignore real store assets for a consistent showcase
+  const effectiveLogo = usePlaceholders ? null : logoUrl;
+  const effectiveBanner = usePlaceholders ? null : bannerUrl;
+  const effectiveName = storeName || "Mi Tienda";
+
+  const previewProducts: PreviewProduct[] = (!usePlaceholders && products && products.length > 0)
     ? products.map((p) => {
         const finalPrice = p.on_sale && p.discount_percent
           ? p.price * (1 - p.discount_percent / 100)
@@ -90,15 +99,15 @@ const TemplatePreview = ({
   const renderBanner = () => {
     if (isClassic) {
       return (
-        <div className="relative h-24 w-full overflow-hidden" style={{ background: bannerUrl ? `url(${bannerUrl}) center/cover` : `linear-gradient(160deg, ${secondaryColor}, ${primaryColor})` }}>
+        <div className="relative h-24 w-full overflow-hidden" style={{ background: effectiveBanner ? `url(${effectiveBanner}) center/cover` : `linear-gradient(160deg, ${secondaryColor}, ${primaryColor})` }}>
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-2.5">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-xl border-2 border-white/30 overflow-hidden flex items-center justify-center" style={{ backgroundColor: primaryColor }}>
-                {logoUrl ? <img src={logoUrl} alt="" className="h-full w-full object-cover" /> : <StoreIcon className="h-3 w-3 text-white" />}
+                {effectiveLogo ? <img src={effectiveLogo} alt="" className="h-full w-full object-cover" /> : <StoreIcon className="h-3 w-3 text-white" />}
               </div>
               <div>
-                <p className="text-[9px] font-bold text-white">{storeName || "Mi Tienda"}</p>
+                <p className="text-[9px] font-bold text-white">{effectiveName}</p>
                 {description && <p className="text-[6px] text-white/60 line-clamp-1">{description}</p>}
               </div>
             </div>
@@ -114,14 +123,14 @@ const TemplatePreview = ({
       return (
         <div className="px-2.5 pt-2">
           <p className="px-0.5 pb-1.5 text-[9px] font-bold text-foreground leading-tight">
-            Fresh <span style={{ color: primaryColor }}>{storeName || "Tienda"}.</span> <span className="text-foreground/60">Sin complicaciones.</span>
+            Fresh <span style={{ color: primaryColor }}>{effectiveName}.</span> <span className="text-foreground/60">Sin complicaciones.</span>
           </p>
           <div
             className="relative flex items-stretch overflow-hidden rounded-xl"
             style={{
               backgroundColor: "#FFE8B3",
-              backgroundImage: bannerUrl
-                ? `linear-gradient(90deg, #FFE8B3 0%, #FFE8B3 45%, rgba(255,232,179,0.2) 100%), url(${bannerUrl})`
+              backgroundImage: effectiveBanner
+                ? `linear-gradient(90deg, #FFE8B3 0%, #FFE8B3 45%, rgba(255,232,179,0.2) 100%), url(${effectiveBanner})`
                 : undefined,
               backgroundSize: "cover",
               backgroundPosition: "right center",
@@ -145,7 +154,7 @@ const TemplatePreview = ({
     switch (theme.bannerStyle) {
       case "full":
         return (
-          <div className="relative h-24 w-full" style={{ background: bannerUrl ? `url(${bannerUrl}) center/cover` : `linear-gradient(160deg, ${primaryColor}, #000 80%)` }}>
+          <div className="relative h-24 w-full" style={{ background: effectiveBanner ? `url(${effectiveBanner}) center/cover` : `linear-gradient(160deg, ${primaryColor}, #000 80%)` }}>
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
             <div className="absolute top-1.5 left-1.5 w-3 h-3 border-l border-t border-white/30" />
             <div className="absolute bottom-1.5 right-1.5 w-3 h-3 border-r border-b border-white/30" />
@@ -170,10 +179,10 @@ const TemplatePreview = ({
               </div>
               {bannerDesc && <p className="text-[6px] text-white/60 line-clamp-2 mt-0.5">{bannerDesc}</p>}
             </div>
-            {bannerUrl && (
+            {effectiveBanner && (
               <div className="w-1/3 overflow-hidden relative">
                 <div className="absolute inset-0 -skew-x-6 -ml-2 overflow-hidden">
-                  <img src={bannerUrl} alt="" className="h-full w-full object-cover skew-x-6 scale-110" />
+                  <img src={effectiveBanner} alt="" className="h-full w-full object-cover skew-x-6 scale-110" />
                 </div>
               </div>
             )}
@@ -200,7 +209,7 @@ const TemplatePreview = ({
         return (
           <div className="mx-2.5 mt-2">
             <div className={`relative overflow-hidden ${theme.bannerRounded} p-3`} style={{ background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}bb)` }}>
-              {bannerUrl && <img src={bannerUrl} alt="" className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`} />}
+              {effectiveBanner && <img src={effectiveBanner} alt="" className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`} />}
               <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px)`, backgroundSize: "10px 10px" }} />
               <div className="absolute right-2 top-2 flex gap-0.5">
                 <div className="h-1 w-1 rounded-full bg-white/30" />
@@ -218,7 +227,7 @@ const TemplatePreview = ({
         return (
           <div className="mx-2.5 mt-2">
             <div className={`relative overflow-hidden ${theme.bannerRounded} p-3`} style={{ background: `linear-gradient(160deg, ${primaryColor}, ${primaryColor}dd 60%, ${primaryColor}aa)` }}>
-              {bannerUrl && <img src={bannerUrl} alt="" className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`} />}
+              {effectiveBanner && <img src={effectiveBanner} alt="" className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`} />}
               <svg className="absolute bottom-0 left-0 right-0 h-3 text-white/5" viewBox="0 0 200 12" preserveAspectRatio="none">
                 <path d="M0,12 Q50,0 100,6 Q150,12 200,3 L200,12 Z" fill="currentColor" />
               </svg>
@@ -302,9 +311,19 @@ const TemplatePreview = ({
   };
 
 
-  const renderImage = (imageUrl: string | null) => {
+  const renderImage = (imageUrl: string | null, emoji?: string, tint?: string) => {
     if (imageUrl) {
       return <img src={imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />;
+    }
+    if (emoji) {
+      return (
+        <div
+          className="flex h-full w-full items-center justify-center"
+          style={{ background: tint ? `linear-gradient(135deg, ${tint}, ${tint}cc)` : undefined }}
+        >
+          <span className="text-2xl leading-none drop-shadow-sm">{emoji}</span>
+        </div>
+      );
     }
     return (
       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
@@ -319,7 +338,7 @@ const TemplatePreview = ({
         return (
           <div key={i} className="rounded-xl border bg-card p-1.5 shadow-sm">
             <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
-              {renderImage(product.imageUrl)}
+              {renderImage(product.imageUrl, product.emoji, product.tint)}
               {product.sale && (
                 <span className="absolute left-1 top-1 rounded-full bg-white/90 px-1 py-0.5 text-[5px] font-semibold" style={{ color: primaryColor }}>
                   Oferta
@@ -340,7 +359,7 @@ const TemplatePreview = ({
       case "overlay":
         return (
           <div key={i} className={`relative overflow-hidden ${theme.cardRounded} ${theme.cardAspect} bg-muted`}>
-            {renderImage(product.imageUrl)}
+            {renderImage(product.imageUrl, product.emoji, product.tint)}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
             {product.sale && (
               <span className={`absolute left-1 top-1 ${theme.pillRounded} px-1 py-0.5 text-[5px] font-bold text-white`} style={{ backgroundColor: accent }}>Oferta</span>
@@ -360,7 +379,7 @@ const TemplatePreview = ({
         return (
           <div key={i} className={`flex overflow-hidden ${theme.cardRounded} bg-card ${theme.cardShadow.split(" ")[0]}`}>
             <div className="h-14 w-14 flex-shrink-0 bg-muted overflow-hidden">
-              {renderImage(product.imageUrl)}
+              {renderImage(product.imageUrl, product.emoji, product.tint)}
             </div>
             <div className="flex flex-1 items-center justify-between p-1.5">
               <div>
@@ -378,7 +397,7 @@ const TemplatePreview = ({
         return (
           <div key={i} className={`overflow-hidden ${theme.cardRounded} ${theme.cardBorder ? "border" : ""} bg-card ${theme.cardShadow.split(" ")[0]}`}>
             <div className={`relative ${theme.cardAspect} bg-muted overflow-hidden`}>
-              {renderImage(product.imageUrl)}
+              {renderImage(product.imageUrl, product.emoji, product.tint)}
               {product.sale && (
                 <span className={`absolute left-0.5 top-0.5 ${theme.pillRounded} px-1 py-0.5 text-[5px] font-bold text-white`} style={{ backgroundColor: accent }}>Oferta</span>
               )}
@@ -433,9 +452,9 @@ const TemplatePreview = ({
           <div className={`flex items-center justify-between px-3 py-1.5 ${theme.headerBorder ? "border-b" : ""}`}>
             <div className="flex items-center gap-1.5">
               <div className="h-5 w-5 rounded-full overflow-hidden flex items-center justify-center" style={{ backgroundColor: primaryColor }}>
-                {logoUrl ? <img src={logoUrl} alt="" className="h-full w-full object-cover" /> : <StoreIcon className="h-2.5 w-2.5 text-white" />}
+                {effectiveLogo ? <img src={effectiveLogo} alt="" className="h-full w-full object-cover" /> : <StoreIcon className="h-2.5 w-2.5 text-white" />}
               </div>
-              <span className="text-[9px] font-bold text-foreground truncate max-w-[90px]">{storeName || "Mi Tienda"}</span>
+              <span className="text-[9px] font-bold text-foreground truncate max-w-[90px]">{effectiveName}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Search className="h-2.5 w-2.5 text-muted-foreground" />

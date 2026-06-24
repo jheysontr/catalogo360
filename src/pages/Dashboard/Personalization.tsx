@@ -482,6 +482,7 @@ const Personalization = () => {
                         customGreeting={bannerGreeting}
                         customBannerDescription={bannerDescription}
                         fontFamily={getFontStack(fontFamily)}
+                        usePlaceholders
                       />
                     </div>
                   </button>
