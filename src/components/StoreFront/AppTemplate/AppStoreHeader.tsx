@@ -24,34 +24,36 @@ const AppStoreHeader = ({
   const [searchOpen, setSearchOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 bg-background/95 backdrop-blur-md border-b">
+    <header className="sticky top-0 z-40 border-b border-border bg-background/90 backdrop-blur-md">
       <div className="container flex h-16 items-center justify-between px-4">
-        {/* Logo + Store Name */}
-        <div className="flex items-center gap-3 min-w-0">
+        {/* Logo + Store Name — editorial */}
+        <div className="flex min-w-0 items-center gap-3">
           <div
-            className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-xl shadow-sm"
-            style={{ backgroundColor: primaryColor }}
+            className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-border bg-background"
+            style={{ borderRadius: 4 }}
           >
             {store.logo_url ? (
               <img src={store.logo_url} alt={store.store_name} className="h-full w-full object-cover" loading="lazy" />
             ) : (
-              <StoreIcon className="h-5 w-5 text-white" />
+              <div className="flex h-full w-full items-center justify-center" style={{ backgroundColor: primaryColor }}>
+                <StoreIcon className="h-4 w-4 text-white" />
+              </div>
             )}
           </div>
           {!searchOpen && (
-            <h1 className="truncate text-lg font-bold text-foreground">{store.store_name}</h1>
+            <h1 className="truncate text-xl leading-none text-foreground">{store.store_name}</h1>
           )}
         </div>
 
         {/* Search expanded */}
         {searchOpen && (
-          <div className="flex-1 mx-3">
+          <div className="mx-3 flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 autoFocus
-                placeholder="Buscar productos..."
-                className="pl-9 h-10 rounded-xl"
+                placeholder="Buscar productos…"
+                className="h-10 border-border bg-background pl-9"
                 value={search}
                 onChange={(e) => onSearchChange(e.target.value)}
                 onBlur={() => { if (!search) setSearchOpen(false); }}
@@ -60,44 +62,42 @@ const AppStoreHeader = ({
           </div>
         )}
 
-        {/* Action buttons */}
-        <div className="flex items-center gap-1">
+        {/* Action buttons — neutral hairline */}
+        <div className="flex items-center gap-0.5">
           <button
             onClick={() => setSearchOpen(!searchOpen)}
-            className="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-accent transition-colors"
+            className="flex h-10 w-10 items-center justify-center text-foreground transition-colors hover:bg-accent"
+            aria-label="Buscar"
           >
-            <Search className="h-5 w-5 text-foreground" />
+            <Search className="h-[18px] w-[18px]" strokeWidth={1.5} />
           </button>
           <button
             onClick={onInfoClick}
-            className="flex h-10 w-10 items-center justify-center rounded-xl hover:bg-accent transition-colors"
+            className="flex h-10 w-10 items-center justify-center text-foreground transition-colors hover:bg-accent"
+            aria-label="Información"
           >
-            <Info className="h-5 w-5 text-foreground" />
+            <Info className="h-[18px] w-[18px]" strokeWidth={1.5} />
           </button>
           {wishlistCount > 0 && (
             <button
               onClick={onWishlistOpen}
-              className="relative flex h-10 w-10 items-center justify-center rounded-xl hover:bg-accent transition-colors"
+              className="relative flex h-10 w-10 items-center justify-center text-foreground transition-colors hover:bg-accent"
+              aria-label="Favoritos"
             >
-              <Heart className="h-5 w-5 fill-red-500 text-red-500" />
-              <span className="absolute -right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
+              <Heart className="h-[18px] w-[18px] fill-red-500 text-red-500" strokeWidth={1.5} />
+              <span className="absolute right-1 top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-semibold text-white">
                 {wishlistCount}
               </span>
             </button>
           )}
           <button
             onClick={onCartOpen}
-            className="relative flex h-10 w-10 items-center justify-center rounded-xl hover:bg-accent transition-colors"
+            className="relative ml-1 flex h-10 items-center gap-2 border border-foreground bg-foreground px-3 text-background transition-opacity hover:opacity-90"
+            style={{ borderRadius: 2 }}
+            aria-label="Carrito"
           >
-            <ShoppingCart className="h-5 w-5 text-foreground" />
-            {itemCount > 0 && (
-              <span
-                className="absolute -right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold text-white"
-                style={{ backgroundColor: primaryColor }}
-              >
-                {itemCount}
-              </span>
-            )}
+            <ShoppingCart className="h-[16px] w-[16px]" strokeWidth={1.6} />
+            <span className="text-xs font-medium tracking-wide">{itemCount}</span>
           </button>
         </div>
       </div>

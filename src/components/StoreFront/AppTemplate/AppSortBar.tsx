@@ -20,18 +20,20 @@ const AppSortBar = ({
   productCount, activeCategoryName, activeCategory,
   perPage, onPerPageChange,
 }: AppSortBarProps) => (
-  <div className="container px-4 pt-4 space-y-2">
-    <div className="flex items-center justify-between">
+  <div className="container space-y-3 px-4 pt-6">
+    <div className="flex items-end justify-between gap-4 border-b border-border pb-3">
       <div>
-        <h3 className="text-sm font-semibold text-foreground">Productos</h3>
-        <p className="text-xs text-muted-foreground">
-          {productCount} {productCount === 1 ? "producto" : "productos"}
-          {activeCategory !== "all" && ` en ${activeCategoryName || "categoría"}`}
+        <span className="editorial-eyebrow">Catálogo</span>
+        <h2 className="mt-0.5 text-2xl leading-none text-foreground sm:text-3xl">
+          {activeCategory !== "all" ? activeCategoryName || "Productos" : "Productos"}
+        </h2>
+        <p className="mt-1 text-xs text-muted-foreground">
+          {productCount} {productCount === 1 ? "artículo disponible" : "artículos disponibles"}
         </p>
       </div>
       <div className="flex items-center gap-2">
         <Select value={sortBy} onValueChange={onSortChange}>
-          <SelectTrigger className="h-8 w-[120px] rounded-xl text-xs">
+          <SelectTrigger className="h-9 w-[140px] border-border bg-background text-xs" style={{ borderRadius: 2 }}>
             <SelectValue placeholder="Ordenar" />
           </SelectTrigger>
           <SelectContent>
@@ -40,18 +42,20 @@ const AppSortBar = ({
             <SelectItem value="price_low">Menor precio</SelectItem>
           </SelectContent>
         </Select>
-        <div className="flex shrink-0 rounded-xl border overflow-hidden">
+        <div className="flex shrink-0 border border-border" style={{ borderRadius: 2 }}>
           <button
             onClick={() => onViewModeChange("grid")}
-            className={`flex items-center justify-center p-1.5 transition-colors ${viewMode === "grid" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            className={`flex h-9 w-9 items-center justify-center transition-colors ${viewMode === "grid" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+            aria-label="Vista cuadrícula"
           >
-            <LayoutGrid className="h-4 w-4" />
+            <LayoutGrid className="h-4 w-4" strokeWidth={1.5} />
           </button>
           <button
             onClick={() => onViewModeChange("list")}
-            className={`flex items-center justify-center p-1.5 transition-colors ${viewMode === "list" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+            className={`flex h-9 w-9 items-center justify-center transition-colors ${viewMode === "list" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}
+            aria-label="Vista lista"
           >
-            <List className="h-4 w-4" />
+            <List className="h-4 w-4" strokeWidth={1.5} />
           </button>
         </div>
       </div>
