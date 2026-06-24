@@ -328,9 +328,92 @@ const VerticalCard = ({
   );
 };
 
+/* ═══════════════ FRESH CARD — Grocery app style (Elegante) ═══════════════ */
+const FreshCard = ({
+  product: p, finalPrice, currencySymbol, primaryColor, isWishlisted,
+  onQuickAdd, onToggleWishlist, onOpenDetail,
+}: AppProductCardProps) => (
+  <motion.div
+    layout
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, scale: 0.96 }}
+    transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+    className="group cursor-pointer rounded-2xl border border-border bg-card p-2.5 shadow-sm transition-shadow hover:shadow-md"
+    onClick={() => onOpenDetail(p)}
+  >
+    <div className="relative aspect-square overflow-hidden rounded-xl bg-muted">
+      {p.image_url ? (
+        <ProgressiveImage
+          src={p.image_url}
+          alt={p.name}
+          className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
+      ) : (
+        <div className="flex h-full w-full items-center justify-center">
+          <StoreIcon className="h-8 w-8 text-muted-foreground/25" />
+        </div>
+      )}
+      {p.on_sale && p.discount_percent && (
+        <span
+          className="absolute left-2 top-2 rounded-full bg-white/90 px-2 py-0.5 text-[10px] font-semibold backdrop-blur-sm"
+          style={{ color: primaryColor }}
+        >
+          −{p.discount_percent}%
+        </span>
+      )}
+      <button
+        onClick={(e) => onToggleWishlist(p, e)}
+        className={`absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full backdrop-blur-sm transition-colors ${
+          isWishlisted ? "bg-red-500 text-white" : "bg-white/85 text-foreground/70 hover:bg-white"
+        }`}
+        aria-label="Favorito"
+      >
+        <Heart className={`h-3.5 w-3.5 ${isWishlisted ? "fill-white" : ""}`} strokeWidth={2} />
+      </button>
+    </div>
+
+    <div className="mt-2 px-1 pb-1">
+      <div className="flex items-start justify-between gap-2">
+        <h3 className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">
+          {p.name}
+        </h3>
+      </div>
+      <div className="mt-1 flex items-end justify-between gap-2">
+        <div className="flex items-baseline gap-1.5">
+          {p.on_sale && p.discount_percent ? (
+            <>
+              <span className="text-base font-bold text-foreground tabular-nums">
+                {currencySymbol}{finalPrice.toFixed(2)}
+              </span>
+              <span className="text-[11px] text-muted-foreground line-through tabular-nums">
+                {currencySymbol}{p.price.toFixed(2)}
+              </span>
+            </>
+          ) : (
+            <span className="text-base font-bold text-foreground tabular-nums">
+              {currencySymbol}{p.price.toFixed(2)}
+            </span>
+          )}
+        </div>
+        <button
+          onClick={(e) => onQuickAdd(p, e)}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white shadow-sm transition-transform hover:scale-110 active:scale-95"
+          style={{ backgroundColor: primaryColor }}
+          aria-label="Agregar al carrito"
+        >
+          <Plus className="h-4 w-4" strokeWidth={2.5} />
+        </button>
+      </div>
+    </div>
+  </motion.div>
+);
+
 /* ═══════════════ MAIN EXPORT ═══════════════ */
 const AppProductCard = (props: AppProductCardProps) => {
   switch (props.theme.cardLayout) {
+    case "fresh":
+      return <FreshCard {...props} />;
     case "overlay":
       return <OverlayCard {...props} />;
     case "horizontal-mini":
