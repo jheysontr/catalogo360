@@ -328,6 +328,11 @@ const StoreFront = () => {
           />
 
           <div className="container px-4 pb-8 pt-4">
+            {usingPlaceholderProducts && (
+              <div className="mb-4 rounded-xl border border-dashed border-border bg-muted/40 px-4 py-2.5 text-center text-xs text-muted-foreground">
+                Vista previa con productos de muestra. Agrega tus productos para reemplazar este contenido.
+              </div>
+            )}
             {filteredProducts.length === 0 ? renderEmpty() : (
               <>
                 <LayoutGroup>
@@ -418,6 +423,11 @@ const StoreFront = () => {
           />
 
           <div className="container px-4 pb-8 pt-4">
+            {usingPlaceholderProducts && (
+              <div className="mb-4 rounded-xl border border-dashed border-border bg-muted/40 px-4 py-2.5 text-center text-xs text-muted-foreground">
+                Vista previa con productos de muestra. Agrega tus productos para reemplazar este contenido.
+              </div>
+            )}
             {filteredProducts.length === 0 ? renderEmpty() : (
               <>
                 <LayoutGroup>
