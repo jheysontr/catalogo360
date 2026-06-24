@@ -91,6 +91,7 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
     setFormStock(""); setFormOnSale(false); setFormDiscount(""); setFormImageFile(null);
     setFormImagePreview(null); setFormSlug(""); setFormMetaDesc("");
     setFormAttributes([]); setFormExtraImages([]); setFormExtraFiles([]); setFormVariantStock({}); setFormVariantPrices({});
+    setPlanLimit(null);
   };
 
   // Initialize form when dialog opens or editingProduct changes
