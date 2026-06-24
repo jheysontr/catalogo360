@@ -311,9 +311,19 @@ const TemplatePreview = ({
   };
 
 
-  const renderImage = (imageUrl: string | null) => {
+  const renderImage = (imageUrl: string | null, emoji?: string, tint?: string) => {
     if (imageUrl) {
       return <img src={imageUrl} alt="" className="h-full w-full object-cover" loading="lazy" />;
+    }
+    if (emoji) {
+      return (
+        <div
+          className="flex h-full w-full items-center justify-center"
+          style={{ background: tint ? `linear-gradient(135deg, ${tint}, ${tint}cc)` : undefined }}
+        >
+          <span className="text-2xl leading-none drop-shadow-sm">{emoji}</span>
+        </div>
+      );
     }
     return (
       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
