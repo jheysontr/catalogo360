@@ -10,8 +10,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import ResponsiveTabsList from "@/components/Dashboard/ResponsiveTabs";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Upload, Store, Palette, Layout, Eye, Image as ImageIcon } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Upload, Store, Palette, Layout, Eye, Image as ImageIcon, Type } from "lucide-react";
 import TemplatePreview from "@/components/Dashboard/TemplatePreview";
+import { STOREFRONT_FONTS, getFontStack } from "@/lib/storefrontFonts";
 import toast from "react-hot-toast";
 import { compressImage } from "@/lib/imageCompression";
 
