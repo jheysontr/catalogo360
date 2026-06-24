@@ -436,7 +436,9 @@ const StoreFront = () => {
       {isCustomTemplate && layoutConfig ? (
         <>
           {visibleSections(layoutConfig).map((s) => (
-            <div key={s.id}>{sectionRenderers[s.id]?.()}</div>
+            <SectionErrorBoundary key={s.id} section={s.id}>
+              <div>{sectionRenderers[s.id]?.()}</div>
+            </SectionErrorBoundary>
           ))}
         </>
       ) : isAppTemplate ? (
