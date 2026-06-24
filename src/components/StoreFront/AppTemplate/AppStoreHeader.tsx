@@ -1,4 +1,4 @@
-import { Search, ShoppingCart, Heart, Store as StoreIcon, Info } from "lucide-react";
+import { Search, ShoppingCart, Heart, Info } from "lucide-react";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
