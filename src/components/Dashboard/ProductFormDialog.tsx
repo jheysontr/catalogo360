@@ -684,15 +684,20 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
             Cancelar
           </Button>
           {!editingProduct && (
-            <Button variant="secondary" onClick={() => handleSave(true)} disabled={saving} className="gap-2">
+            <Button variant="secondary" onClick={() => handleSave(true)} disabled={saving || blockNew} className="gap-2" title={blockNew && maxProducts ? `Máximo ${maxProducts} productos en tu plan` : undefined}>
               {saving && <Loader2 className="h-4 w-4 animate-spin" />}
               Guardar y agregar otro
             </Button>
           )}
-          <Button onClick={() => handleSave(false)} disabled={saving} className="gap-2">
+          <Button onClick={() => handleSave(false)} disabled={saving || blockNew} className="gap-2" title={blockNew && maxProducts ? `Máximo ${maxProducts} productos en tu plan` : undefined}>
             {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-            {editingProduct ? "Guardar cambios" : "Guardar producto"}
+            {editingProduct
+              ? "Guardar cambios"
+              : blockNew
+                ? (maxProducts ? `Límite ${maxProducts} alcanzado` : "Límite alcanzado")
+                : "Guardar producto"}
           </Button>
+
         </DialogFooter>
       </DialogContent>
     </Dialog>
