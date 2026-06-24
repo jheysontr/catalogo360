@@ -16,6 +16,7 @@ import { getImpersonation, clearImpersonation } from "@/lib/impersonation";
 // Lazy-loaded dashboard pages
 const Products = lazy(() => import("@/pages/Dashboard/Products"));
 const StoreSettings = lazy(() => import("@/pages/Dashboard/StoreSettings"));
+const Personalization = lazy(() => import("@/pages/Dashboard/Personalization"));
 const Orders = lazy(() => import("@/pages/Dashboard/Orders"));
 const Plans = lazy(() => import("@/pages/Dashboard/Plans"));
 const Analytics = lazy(() => import("@/pages/Dashboard/Analytics"));
