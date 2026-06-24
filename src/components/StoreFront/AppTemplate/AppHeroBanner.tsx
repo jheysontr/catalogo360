@@ -243,14 +243,19 @@ const HeroBanner = (props: AppHeroBannerProps) => {
       <div
         className={`relative overflow-hidden border border-border ${theme.bannerRounded}`}
         style={{
-          backgroundColor: "hsl(36 18% 92%)",
+          background: store.banner_url
+            ? undefined
+            : `linear-gradient(135deg, ${primaryColor}22, ${primaryColor}10 60%, hsl(36 18% 96%))`,
+          backgroundColor: store.banner_url ? "hsl(36 18% 92%)" : undefined,
           backgroundImage: store.banner_url ? `url(${store.banner_url})` : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
-        {store.banner_url && (
+        {store.banner_url ? (
           <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-transparent" />
+        ) : (
+          <BannerPlaceholderDecor tone="light" />
         )}
         <div className="relative px-5 py-7 sm:px-8 sm:py-10">
           <div className="flex items-center gap-2.5">
