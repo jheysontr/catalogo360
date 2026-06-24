@@ -8,8 +8,10 @@ export interface TemplateTheme {
   bannerGreeting: string;
   bannerRounded: string;
   bannerOverlayOpacity: string;
-  bannerStyle: "hero" | "compact" | "full" | "split" | "minimal";
+  bannerStyle: "hero" | "compact" | "full" | "split" | "minimal" | "fresh";
   bannerHeight: string;
+  bannerHighlight?: string;
+  bannerCta?: string;
   // Cards
   cardRounded: string;
   cardAspect: string;
