@@ -17,7 +17,7 @@ export interface TemplateTheme {
   cardAspect: string;
   cardBorder: boolean;
   cardShadow: string;
-  cardLayout: "vertical" | "overlay" | "horizontal-mini";
+  cardLayout: "vertical" | "overlay" | "horizontal-mini" | "fresh";
   showDescription: boolean;
   // Grid
   gridCols: string;
