@@ -167,7 +167,7 @@ const Personalization = () => {
         secondary_color: secondaryColor,
         logo_url: logoUrl,
         banner_url: bannerUrl,
-        storefront_config: updatedStorefrontConfig,
+        storefront_config: updatedStorefrontConfig as any,
       })
       .eq("id", store.id);
 
