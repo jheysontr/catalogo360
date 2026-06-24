@@ -50,6 +50,14 @@
     --gradient-hero: linear-gradient(160deg, hsl(220 25% 10%) 0%, hsl(220 30% 18%) 50%, hsl(165 40% 25%) 100%);
     --shadow-soft: 0 4px 24px -4px hsl(220 25% 10% / 0.08);
     --shadow-primary: 0 8px 32px -8px hsl(165 60% 40% / 0.3);
+    --shadow-glow: 0 20px 80px -20px hsl(165 70% 45% / 0.35);
+
+    /* Dashboard shell tokens (refined teal bento) */
+    --shell-deep: 222 47% 11%;          /* #0f172a */
+    --shell-deep-foreground: 210 20% 95%;
+    --shell-teal-900: 170 76% 19%;      /* #134e4a */
+    --shell-teal-500: 173 80% 40%;      /* #14b8a6 */
+    --shell-teal-300: 168 76% 65%;      /* #5eead4 */
   }
 
   .dark {
