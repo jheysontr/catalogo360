@@ -23,6 +23,7 @@ import AppProductCard from "@/components/StoreFront/AppTemplate/AppProductCard";
 import AppSortBar from "@/components/StoreFront/AppTemplate/AppSortBar";
 import { getTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
 import { getFontStack } from "@/lib/storefrontFonts";
+import { hexToHslTriple } from "@/lib/colorUtils";
 
 /* Lazy-load heavy dialogs/panels (not needed on initial render) */
 const CartPanel = lazy(() => import("@/components/StoreFront/CartPanel"));
@@ -108,6 +109,14 @@ const StoreFront = () => {
   const theme = getTheme(template);
   const fontStack = getFontStack(storefrontConfig?.font_family);
   const hideSoldOut = !!storefrontConfig?.hide_sold_out;
+  const backgroundColor: string | undefined = storefrontConfig?.background_color || undefined;
+  const accentColor: string | undefined = storefrontConfig?.accent_color || undefined;
+  const accentHsl = accentColor ? hexToHslTriple(accentColor) : null;
+
+  const scopeStyle: React.CSSProperties & Record<string, string> = { fontFamily: fontStack };
+  if (backgroundColor) scopeStyle.backgroundColor = backgroundColor;
+  if (accentColor) scopeStyle["--sf-accent"] = accentColor;
+  if (accentHsl) scopeStyle["--destructive"] = accentHsl;
 
   const filteredProducts = useMemo(() => {
     let items = [...products];
@@ -269,7 +278,7 @@ const StoreFront = () => {
   );
 
   return (
-    <div className="storefront-scope min-h-screen bg-background" style={{ fontFamily: fontStack }}>
+    <div className="storefront-scope min-h-screen bg-background" style={scopeStyle}>
 
       {isAppTemplate ? (
         <>
