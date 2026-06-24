@@ -35,8 +35,11 @@ const AppStoreHeader = ({
             {store.logo_url ? (
               <img src={store.logo_url} alt={store.store_name} className="h-full w-full object-cover" loading="lazy" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center" style={{ backgroundColor: primaryColor }}>
-                <StoreIcon className="h-4 w-4 text-white" />
+              <div
+                className="flex h-full w-full items-center justify-center text-sm font-bold text-white"
+                style={{ background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}aa)` }}
+              >
+                {(store.store_name || "T").trim().charAt(0).toUpperCase()}
               </div>
             )}
           </div>
