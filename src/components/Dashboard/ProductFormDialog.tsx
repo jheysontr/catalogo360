@@ -341,15 +341,18 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
           </DialogDescription>
         </DialogHeader>
 
-        {planLimit && (
+        {(planLimit || blockNew) && (
           <Alert variant="destructive" className="border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100">
             <Crown className="h-4 w-4" />
             <AlertTitle>Límite del plan alcanzado</AlertTitle>
             <AlertDescription className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <span>
-                {planLimit.max
-                  ? <>Tu plan actual permite máximo <strong>{planLimit.max}</strong> producto{planLimit.max === 1 ? "" : "s"}. Mejora tu plan para agregar más.</>
-                  : <>Has alcanzado el límite de productos de tu plan.</>}
+                {(() => {
+                  const n = planLimit?.max ?? maxProducts ?? null;
+                  return n
+                    ? <>Tu plan actual permite máximo <strong>{n}</strong> producto{n === 1 ? "" : "s"}. Mejora tu plan para agregar más.</>
+                    : <>Has alcanzado el límite de productos de tu plan.</>;
+                })()}
               </span>
               <Button asChild size="sm" variant="default" className="shrink-0 gap-1.5">
                 <Link to="/dashboard/plans" onClick={() => { onOpenChange(false); resetForm(); }}>
@@ -359,6 +362,7 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
             </AlertDescription>
           </Alert>
         )}
+
 
         <div className="grid gap-6 py-2">
 
