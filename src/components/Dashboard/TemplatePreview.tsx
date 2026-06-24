@@ -18,6 +18,8 @@ interface PreviewProduct {
   sale: boolean;
   desc: string;
   imageUrl: string | null;
+  emoji?: string;
+  tint?: string;
 }
 
 interface TemplatePreviewProps {
@@ -35,15 +37,16 @@ interface TemplatePreviewProps {
   customGreeting?: string;
   customBannerDescription?: string;
   fontFamily?: string;
+  usePlaceholders?: boolean;
 }
 
 const FALLBACK_PRODUCTS: PreviewProduct[] = [
-  { name: "Producto 1", price: "25.00", sale: false, desc: "Descripción del producto", imageUrl: null },
-  { name: "Producto 2", price: "18.50", oldPrice: "22.00", sale: true, desc: "Con descuento", imageUrl: null },
-  { name: "Producto 3", price: "42.00", sale: false, desc: "Alta calidad", imageUrl: null },
-  { name: "Producto 4", price: "15.00", sale: false, desc: "Popular", imageUrl: null },
-  { name: "Producto 5", price: "33.00", sale: false, desc: "Nuevo", imageUrl: null },
-  { name: "Producto 6", price: "28.00", oldPrice: "35.00", sale: true, desc: "Oferta", imageUrl: null },
+  { name: "Manzana Roja", price: "4.99", sale: false, desc: "1kg, fresca", imageUrl: null, emoji: "🍎", tint: "#FBDADA" },
+  { name: "Plátano Orgánico", price: "3.50", oldPrice: "4.50", sale: true, desc: "7pcs", imageUrl: null, emoji: "🍌", tint: "#FFF4C9" },
+  { name: "Pan Artesanal", price: "8.00", sale: false, desc: "Recién horneado", imageUrl: null, emoji: "🥖", tint: "#FFE6CC" },
+  { name: "Aguacate Hass", price: "5.20", sale: false, desc: "Maduro", imageUrl: null, emoji: "🥑", tint: "#DCEFD8" },
+  { name: "Leche Entera", price: "6.00", sale: false, desc: "1L", imageUrl: null, emoji: "🥛", tint: "#D7EAF7" },
+  { name: "Queso Fresco", price: "12.50", oldPrice: "15.00", sale: true, desc: "250g", imageUrl: null, emoji: "🧀", tint: "#FFF4C9" },
 ];
 
 const MOCK_CATEGORIES = ["Todos", "Cat 1", "Cat 2"];
