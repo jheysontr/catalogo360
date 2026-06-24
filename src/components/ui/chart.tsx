@@ -58,6 +58,14 @@ const ChartContainer = React.forwardRef<
 });
 ChartContainer.displayName = "Chart";
 
+const COLOR_VALUE_RE = /^(#[0-9a-fA-F]{3,8}|rgb\(\s*[\d.\s,%/]+\)|rgba\(\s*[\d.\s,%/]+\)|hsl\(\s*[\d.\s,%/deg]+\)|hsla\(\s*[\d.\s,%/deg]+\)|hsl\(var\(--[a-zA-Z0-9_-]+\)\)|var\(--[a-zA-Z0-9_-]+\)|[a-zA-Z]+)$/;
+const isSafeColor = (value: string): boolean => {
+  if (typeof value !== "string") return false;
+  if (/[;{}<>\\]/.test(value)) return false;
+  return COLOR_VALUE_RE.test(value.trim());
+};
+const isSafeKey = (key: string): boolean => /^[a-zA-Z0-9_-]+$/.test(key);
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(([_, config]) => config.theme || config.color);
 
@@ -75,8 +83,10 @@ ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    if (!color || !isSafeKey(key) || !isSafeColor(color)) return null;
+    return `  --color-${key}: ${color};`;
   })
+  .filter(Boolean)
   .join("\n")}
 }
 `,
