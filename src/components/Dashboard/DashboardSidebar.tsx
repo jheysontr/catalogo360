@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import {
   Package, Store, ShoppingCart, BarChart3, CreditCard, Settings,
   ExternalLink, Eye, X, LogOut, FolderOpen, Ticket,
-  Truck, Link2, Wallet, Shield, Sparkles,
+  Truck, Link2, Wallet, Shield, Sparkles, Palette,
 } from "lucide-react";
 
 type SidebarItem =
