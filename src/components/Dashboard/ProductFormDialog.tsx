@@ -65,6 +65,7 @@ const discountedPrice = (price: number, discount: number) =>
 const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, categories, onSaved, onDelete }: Props) => {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
+  const [planLimit, setPlanLimit] = useState<{ max: number | null } | null>(null);
 
   // Form state
   const [formName, setFormName] = useState("");
