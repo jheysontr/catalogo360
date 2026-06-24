@@ -149,8 +149,20 @@ const Products = () => {
       variant_prices: ((product as any).variant_prices as any) ?? {},
       store_id: storeId,
     });
-    if (error) toast({ title: "Error", description: "Error al duplicar", variant: "destructive" });
-    else { toast({ title: "Producto duplicado" }); fetchProducts(); }
+    if (error) {
+      const planErr = parsePlanLimitError(error);
+      if (planErr.isPlanLimit) {
+        toast({
+          title: "Límite del plan alcanzado",
+          description: planErr.max
+            ? `Tu plan permite máximo ${planErr.max} producto${planErr.max === 1 ? "" : "s"}. Mejora tu plan para duplicar más.`
+            : planErr.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({ title: "Error", description: error.message || "Error al duplicar", variant: "destructive" });
+      }
+    } else { toast({ title: "Producto duplicado" }); fetchProducts(); }
   };
 
   const handleDelete = async (product: Product) => {
