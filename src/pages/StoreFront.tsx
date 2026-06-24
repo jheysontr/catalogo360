@@ -396,15 +396,18 @@ const StoreFront = () => {
       ) : (
         <>
           {/* ── CLASSIC TEMPLATE ── */}
-          <StickyTopBar
-            visible={showStickyBar}
-            storeName={store.store_name}
-            logoUrl={store.logo_url}
+          <FloatingHeader
+            store={store}
             primaryColor={primaryColor}
+            theme={theme}
+            search={search}
+            onSearchChange={setSearch}
             itemCount={itemCount}
             wishlistCount={wishlistCount}
+            whatsapp={socialMedia?.whatsapp}
             onCartOpen={() => setCartOpen(true)}
             onWishlistOpen={() => setWishlistOpen(true)}
+            onInfoClick={() => setInfoOpen(true)}
           />
 
           <StoreHeader
@@ -414,6 +417,7 @@ const StoreFront = () => {
             onInfoClick={() => setInfoOpen(true)}
             onShareClick={handleShare}
           />
+
 
           <StoreFilters
             search={search}
