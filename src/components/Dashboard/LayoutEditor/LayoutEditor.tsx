@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sparkles, RotateCcw, Smartphone, Monitor, Eye } from "lucide-react";
 import SectionList from "./SectionList";
 import SectionConfig from "./SectionConfig";
+import SectionContentConfig from "./SectionContentConfig";
 import TemplatePreview from "@/components/Dashboard/TemplatePreview";
 import {
   defaultLayoutConfig,
