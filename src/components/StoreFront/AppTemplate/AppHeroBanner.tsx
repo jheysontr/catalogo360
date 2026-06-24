@@ -19,6 +19,28 @@ const useTexts = (props: AppHeroBannerProps) => ({
   desc: props.customDescription || props.store.description,
 });
 
+/** Friendly emoji decor used when the store has no banner image. */
+const BannerPlaceholderDecor = ({ tone = "light" }: { tone?: "light" | "dark" }) => {
+  const opacity = tone === "dark" ? "opacity-30" : "opacity-50";
+  const emojis = ["🛍️", "🍎", "🥖", "☕", "🌿", "✨"];
+  return (
+    <div className={`pointer-events-none absolute inset-0 ${opacity}`} aria-hidden="true">
+      {emojis.map((e, i) => (
+        <span
+          key={i}
+          className="absolute text-3xl sm:text-4xl"
+          style={{
+            top: `${10 + (i * 13) % 70}%`,
+            left: `${(i * 17 + 8) % 90}%`,
+            transform: `rotate(${(i * 23) % 40 - 20}deg)`,
+          }}
+        >{e}</span>
+      ))}
+    </div>
+  );
+};
+
+
 /* ──────────────────────────────────────────────────────────────
  * BOUTIQUE — full-bleed cinematic editorial (Elegante)
  * Tall image · serif headline · vendor primary as fine accent line
