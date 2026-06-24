@@ -499,6 +499,18 @@ const Personalization = () => {
           </Card>
         </TabsContent>
 
+        {/* LAYOUT PERSONALIZADO */}
+        <TabsContent value="layout" className="mt-6">
+          <LayoutEditor
+            value={layoutConfig}
+            onChange={setLayoutConfig}
+            isActive={storeTemplate === "custom"}
+            onEnableCustomTemplate={() => setStoreTemplate("custom")}
+          />
+        </TabsContent>
+
+
+
         {/* TIPOGRAFÍA */}
         <TabsContent value="tipografia" className="mt-6 space-y-6">
           <Card>
