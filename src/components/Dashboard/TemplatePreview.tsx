@@ -78,7 +78,7 @@ const TemplatePreview = ({
   // When placeholders mode is on, ignore real store assets for a consistent showcase
   const effectiveLogo = usePlaceholders ? null : logoUrl;
   const effectiveBanner = usePlaceholders ? null : bannerUrl;
-  const effectiveName = usePlaceholders ? (storeName || "Mi Tienda") : storeName;
+  const effectiveName = usePlaceholders ? (effectiveName) : storeName;
 
   const previewProducts: PreviewProduct[] = (!usePlaceholders && products && products.length > 0)
     ? products.map((p) => {
@@ -99,15 +99,15 @@ const TemplatePreview = ({
   const renderBanner = () => {
     if (isClassic) {
       return (
-        <div className="relative h-24 w-full overflow-hidden" style={{ background: bannerUrl ? `url(${bannerUrl}) center/cover` : `linear-gradient(160deg, ${secondaryColor}, ${primaryColor})` }}>
+        <div className="relative h-24 w-full overflow-hidden" style={{ background: effectiveBanner ? `url(${effectiveBanner}) center/cover` : `linear-gradient(160deg, ${secondaryColor}, ${primaryColor})` }}>
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-2.5">
             <div className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-xl border-2 border-white/30 overflow-hidden flex items-center justify-center" style={{ backgroundColor: primaryColor }}>
-                {logoUrl ? <img src={logoUrl} alt="" className="h-full w-full object-cover" /> : <StoreIcon className="h-3 w-3 text-white" />}
+                {effectiveLogo ? <img src={effectiveLogo} alt="" className="h-full w-full object-cover" /> : <StoreIcon className="h-3 w-3 text-white" />}
               </div>
               <div>
-                <p className="text-[9px] font-bold text-white">{storeName || "Mi Tienda"}</p>
+                <p className="text-[9px] font-bold text-white">{effectiveName}</p>
                 {description && <p className="text-[6px] text-white/60 line-clamp-1">{description}</p>}
               </div>
             </div>
@@ -123,14 +123,14 @@ const TemplatePreview = ({
       return (
         <div className="px-2.5 pt-2">
           <p className="px-0.5 pb-1.5 text-[9px] font-bold text-foreground leading-tight">
-            Fresh <span style={{ color: primaryColor }}>{storeName || "Tienda"}.</span> <span className="text-foreground/60">Sin complicaciones.</span>
+            Fresh <span style={{ color: primaryColor }}>{effectiveName}.</span> <span className="text-foreground/60">Sin complicaciones.</span>
           </p>
           <div
             className="relative flex items-stretch overflow-hidden rounded-xl"
             style={{
               backgroundColor: "#FFE8B3",
-              backgroundImage: bannerUrl
-                ? `linear-gradient(90deg, #FFE8B3 0%, #FFE8B3 45%, rgba(255,232,179,0.2) 100%), url(${bannerUrl})`
+              backgroundImage: effectiveBanner
+                ? `linear-gradient(90deg, #FFE8B3 0%, #FFE8B3 45%, rgba(255,232,179,0.2) 100%), url(${effectiveBanner})`
                 : undefined,
               backgroundSize: "cover",
               backgroundPosition: "right center",
@@ -154,7 +154,7 @@ const TemplatePreview = ({
     switch (theme.bannerStyle) {
       case "full":
         return (
-          <div className="relative h-24 w-full" style={{ background: bannerUrl ? `url(${bannerUrl}) center/cover` : `linear-gradient(160deg, ${primaryColor}, #000 80%)` }}>
+          <div className="relative h-24 w-full" style={{ background: effectiveBanner ? `url(${effectiveBanner}) center/cover` : `linear-gradient(160deg, ${primaryColor}, #000 80%)` }}>
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/30" />
             <div className="absolute top-1.5 left-1.5 w-3 h-3 border-l border-t border-white/30" />
             <div className="absolute bottom-1.5 right-1.5 w-3 h-3 border-r border-b border-white/30" />
@@ -179,10 +179,10 @@ const TemplatePreview = ({
               </div>
               {bannerDesc && <p className="text-[6px] text-white/60 line-clamp-2 mt-0.5">{bannerDesc}</p>}
             </div>
-            {bannerUrl && (
+            {effectiveBanner && (
               <div className="w-1/3 overflow-hidden relative">
                 <div className="absolute inset-0 -skew-x-6 -ml-2 overflow-hidden">
-                  <img src={bannerUrl} alt="" className="h-full w-full object-cover skew-x-6 scale-110" />
+                  <img src={effectiveBanner} alt="" className="h-full w-full object-cover skew-x-6 scale-110" />
                 </div>
               </div>
             )}
@@ -209,7 +209,7 @@ const TemplatePreview = ({
         return (
           <div className="mx-2.5 mt-2">
             <div className={`relative overflow-hidden ${theme.bannerRounded} p-3`} style={{ background: `linear-gradient(135deg, ${primaryColor}, ${primaryColor}bb)` }}>
-              {bannerUrl && <img src={bannerUrl} alt="" className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`} />}
+              {effectiveBanner && <img src={effectiveBanner} alt="" className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`} />}
               <div className="absolute inset-0 opacity-[0.07]" style={{ backgroundImage: `linear-gradient(rgba(255,255,255,.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.3) 1px, transparent 1px)`, backgroundSize: "10px 10px" }} />
               <div className="absolute right-2 top-2 flex gap-0.5">
                 <div className="h-1 w-1 rounded-full bg-white/30" />
@@ -227,7 +227,7 @@ const TemplatePreview = ({
         return (
           <div className="mx-2.5 mt-2">
             <div className={`relative overflow-hidden ${theme.bannerRounded} p-3`} style={{ background: `linear-gradient(160deg, ${primaryColor}, ${primaryColor}dd 60%, ${primaryColor}aa)` }}>
-              {bannerUrl && <img src={bannerUrl} alt="" className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`} />}
+              {effectiveBanner && <img src={effectiveBanner} alt="" className={`absolute inset-0 h-full w-full object-cover mix-blend-overlay ${theme.bannerOverlayOpacity}`} />}
               <svg className="absolute bottom-0 left-0 right-0 h-3 text-white/5" viewBox="0 0 200 12" preserveAspectRatio="none">
                 <path d="M0,12 Q50,0 100,6 Q150,12 200,3 L200,12 Z" fill="currentColor" />
               </svg>
@@ -442,9 +442,9 @@ const TemplatePreview = ({
           <div className={`flex items-center justify-between px-3 py-1.5 ${theme.headerBorder ? "border-b" : ""}`}>
             <div className="flex items-center gap-1.5">
               <div className="h-5 w-5 rounded-full overflow-hidden flex items-center justify-center" style={{ backgroundColor: primaryColor }}>
-                {logoUrl ? <img src={logoUrl} alt="" className="h-full w-full object-cover" /> : <StoreIcon className="h-2.5 w-2.5 text-white" />}
+                {effectiveLogo ? <img src={effectiveLogo} alt="" className="h-full w-full object-cover" /> : <StoreIcon className="h-2.5 w-2.5 text-white" />}
               </div>
-              <span className="text-[9px] font-bold text-foreground truncate max-w-[90px]">{storeName || "Mi Tienda"}</span>
+              <span className="text-[9px] font-bold text-foreground truncate max-w-[90px]">{effectiveName}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Search className="h-2.5 w-2.5 text-muted-foreground" />
