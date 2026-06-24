@@ -22,6 +22,7 @@ import AppCategoryPills from "@/components/StoreFront/AppTemplate/AppCategoryPil
 import AppProductCard from "@/components/StoreFront/AppTemplate/AppProductCard";
 import AppSortBar from "@/components/StoreFront/AppTemplate/AppSortBar";
 import { getTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
+import { getFontStack } from "@/lib/storefrontFonts";
 
 /* Lazy-load heavy dialogs/panels (not needed on initial render) */
 const CartPanel = lazy(() => import("@/components/StoreFront/CartPanel"));
@@ -105,9 +106,12 @@ const StoreFront = () => {
   const storefrontConfig = (store as any)?.storefront_config as Record<string, any> | null;
   const template = storefrontConfig?.template || "classic";
   const theme = getTheme(template);
+  const fontStack = getFontStack(storefrontConfig?.font_family);
+  const hideSoldOut = !!storefrontConfig?.hide_sold_out;
 
   const filteredProducts = useMemo(() => {
     let items = [...products];
+    if (hideSoldOut) items = items.filter((p) => (p.stock ?? 0) > 0);
     if (search) items = items.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
     if (activeCategory !== "all") items = items.filter((p) => p.category_id === activeCategory);
     switch (sortBy) {
@@ -116,7 +120,7 @@ const StoreFront = () => {
       default: break;
     }
     return items;
-  }, [products, search, activeCategory, sortBy]);
+  }, [products, search, activeCategory, sortBy, hideSoldOut]);
 
   const totalPages = Math.ceil(filteredProducts.length / perPage);
   const paginatedProducts = useMemo(
@@ -265,7 +269,7 @@ const StoreFront = () => {
   );
 
   return (
-    <div className="storefront-scope min-h-screen bg-background">
+    <div className="storefront-scope min-h-screen bg-background" style={{ fontFamily: fontStack }}>
 
       {isAppTemplate ? (
         <>
