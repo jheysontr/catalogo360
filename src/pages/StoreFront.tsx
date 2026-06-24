@@ -9,14 +9,13 @@ import { useCart, getFinalPrice } from "@/lib/CartContext";
 import { getCurrencySymbol } from "@/lib/currency";
 import { useWishlist } from "@/lib/WishlistContext";
 import type { StoreData, Product, ProductAttribute, Category } from "@/components/StoreFront/types";
-import StickyTopBar from "@/components/StoreFront/StickyTopBar";
 import StoreHeader from "@/components/StoreFront/StoreHeader";
 import StoreFilters from "@/components/StoreFront/StoreFilters";
 import StoreFrontProductCard from "@/components/StoreFront/StoreFrontProductCard";
 import FloatingActions from "@/components/StoreFront/FloatingActions";
 import ProductSkeleton from "@/components/StoreFront/ProductSkeleton";
 import StoreFooter from "@/components/StoreFront/StoreFooter";
-import AppStoreHeader from "@/components/StoreFront/AppTemplate/AppStoreHeader";
+import FloatingHeader from "@/components/StoreFront/FloatingHeader";
 import AppHeroBanner from "@/components/StoreFront/AppTemplate/AppHeroBanner";
 import AppCategoryPills from "@/components/StoreFront/AppTemplate/AppCategoryPills";
 import AppProductCard from "@/components/StoreFront/AppTemplate/AppProductCard";
@@ -294,18 +293,21 @@ const StoreFront = () => {
 
       {isAppTemplate ? (
         <>
-          {/* ── APP TEMPLATE ── */}
-          <AppStoreHeader
+          {/* ── APP-FAMILY TEMPLATES ── */}
+          <FloatingHeader
             store={store}
             primaryColor={primaryColor}
+            theme={theme}
             search={search}
             onSearchChange={setSearch}
             itemCount={itemCount}
             wishlistCount={wishlistCount}
+            whatsapp={socialMedia?.whatsapp}
             onCartOpen={() => setCartOpen(true)}
             onWishlistOpen={() => setWishlistOpen(true)}
             onInfoClick={() => setInfoOpen(true)}
           />
+
 
           <AppHeroBanner
             store={store}
@@ -394,15 +396,18 @@ const StoreFront = () => {
       ) : (
         <>
           {/* ── CLASSIC TEMPLATE ── */}
-          <StickyTopBar
-            visible={showStickyBar}
-            storeName={store.store_name}
-            logoUrl={store.logo_url}
+          <FloatingHeader
+            store={store}
             primaryColor={primaryColor}
+            theme={theme}
+            search={search}
+            onSearchChange={setSearch}
             itemCount={itemCount}
             wishlistCount={wishlistCount}
+            whatsapp={socialMedia?.whatsapp}
             onCartOpen={() => setCartOpen(true)}
             onWishlistOpen={() => setWishlistOpen(true)}
+            onInfoClick={() => setInfoOpen(true)}
           />
 
           <StoreHeader
@@ -412,6 +417,7 @@ const StoreFront = () => {
             onInfoClick={() => setInfoOpen(true)}
             onShareClick={handleShare}
           />
+
 
           <StoreFilters
             search={search}
