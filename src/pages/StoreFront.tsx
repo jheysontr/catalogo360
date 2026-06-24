@@ -119,8 +119,11 @@ const StoreFront = () => {
   if (accentColor) scopeStyle["--sf-accent"] = accentColor;
   if (accentHsl) scopeStyle["--destructive"] = accentHsl;
 
+  const usingPlaceholderProducts = products.length === 0;
+  const sourceProducts = usingPlaceholderProducts ? (PLACEHOLDER_PRODUCTS as unknown as Product[]) : products;
+
   const filteredProducts = useMemo(() => {
-    let items = [...products];
+    let items = [...sourceProducts];
     if (hideSoldOut) items = items.filter((p) => (p.stock ?? 0) > 0);
     if (search) items = items.filter((p) => p.name.toLowerCase().includes(search.toLowerCase()));
     if (activeCategory !== "all") items = items.filter((p) => p.category_id === activeCategory);
@@ -130,7 +133,7 @@ const StoreFront = () => {
       default: break;
     }
     return items;
-  }, [products, search, activeCategory, sortBy, hideSoldOut]);
+  }, [sourceProducts, search, activeCategory, sortBy, hideSoldOut]);
 
   const totalPages = Math.ceil(filteredProducts.length / perPage);
   const paginatedProducts = useMemo(
