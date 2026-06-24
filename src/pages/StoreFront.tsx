@@ -21,6 +21,7 @@ import AppCategoryPills from "@/components/StoreFront/AppTemplate/AppCategoryPil
 import AppProductCard from "@/components/StoreFront/AppTemplate/AppProductCard";
 import AppSortBar from "@/components/StoreFront/AppTemplate/AppSortBar";
 import { getTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
+import { resolveTheme, normalizeLayoutConfig, visibleSections, type LayoutConfig, type SectionId } from "@/components/StoreFront/AppTemplate/layoutConfig";
 import { getFontStack } from "@/lib/storefrontFonts";
 import { hexToHslTriple } from "@/lib/colorUtils";
 import { PLACEHOLDER_PRODUCTS } from "@/lib/storefrontPlaceholders";
@@ -106,7 +107,10 @@ const StoreFront = () => {
   const currencySymbol = getCurrencySymbol(store?.currency || "BOB");
   const storefrontConfig = (store as any)?.storefront_config as Record<string, any> | null;
   const template = storefrontConfig?.template || "classic";
-  const theme = getTheme(template);
+  const layoutConfig: LayoutConfig | null = template === "custom"
+    ? normalizeLayoutConfig(storefrontConfig?.layout_config)
+    : null;
+  const theme = resolveTheme(template, layoutConfig);
   const fontStack = getFontStack(storefrontConfig?.font_family);
   const hideSoldOut = !!storefrontConfig?.hide_sold_out;
   const backgroundColor: string | undefined = storefrontConfig?.background_color || undefined;
@@ -234,6 +238,7 @@ const StoreFront = () => {
   }
 
   const isAppTemplate = template !== "classic";
+  const isCustomTemplate = template === "custom";
 
   /* ── Pagination component (shared) ── */
   const renderPagination = () => {
