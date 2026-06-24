@@ -177,7 +177,7 @@ const StoreFront = () => {
   /* ── Loading skeleton ── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="storefront-scope min-h-screen bg-background">
         <Skeleton className="h-44 w-full sm:h-56 md:h-64" />
         <div className="container px-4">
           <div className="relative -mt-12 flex flex-col items-center gap-3 sm:-mt-14 sm:flex-row sm:items-end sm:gap-5">
@@ -265,7 +265,8 @@ const StoreFront = () => {
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="storefront-scope min-h-screen bg-background">
+
       {isAppTemplate ? (
         <>
           {/* ── APP TEMPLATE ── */}

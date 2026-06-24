@@ -9,50 +9,41 @@ interface AppCategoryPillsProps {
   theme: TemplateTheme;
 }
 
-const AppCategoryPills = ({ categories, activeCategory, onCategoryChange, primaryColor, theme }: AppCategoryPillsProps) => {
+/**
+ * Editorial premium neutral: all templates render the same restrained
+ * underline-style category strip. Vendor primaryColor is the only accent.
+ */
+const AppCategoryPills = ({ categories, activeCategory, onCategoryChange, primaryColor }: AppCategoryPillsProps) => {
   if (categories.length === 0) return null;
 
-  const isUnderline = theme.pillStyle === "underline";
-  const isOutline = theme.pillStyle === "outline";
-
-  const getActiveStyle = (isActive: boolean) => {
-    if (!isActive) {
-      if (isOutline) return { border: `1.5px solid hsl(var(--border))` };
-      if (isUnderline) return {};
-      return {};
-    }
-    if (isUnderline) return { borderBottom: `2px solid ${primaryColor}`, color: primaryColor };
-    if (isOutline) return { border: `1.5px solid ${primaryColor}`, color: primaryColor };
-    return { backgroundColor: primaryColor, color: "white" };
-  };
+  const itemClass = (active: boolean) =>
+    `relative whitespace-nowrap px-1 pb-2 pt-1 text-[13px] font-medium tracking-wide transition-colors ${
+      active ? "text-foreground" : "text-muted-foreground hover:text-foreground"
+    }`;
 
   return (
-    <div className="container px-4 pt-4">
-      <div className={`flex ${isUnderline ? "gap-0 border-b" : "gap-2"} overflow-x-auto pb-1 scrollbar-hide -mx-4 px-4`}>
+    <div className="container px-4 pt-5">
+      <div className="-mx-4 flex gap-6 overflow-x-auto border-b border-border px-4 scrollbar-hide">
         <button
           onClick={() => onCategoryChange("all")}
-          className={`whitespace-nowrap ${isUnderline ? "rounded-none px-4 py-2.5" : `${theme.pillRounded} px-4 py-2`} text-sm font-medium transition-all ${
-            activeCategory === "all"
-              ? isUnderline ? "" : "text-white shadow-md"
-              : isOutline ? "text-muted-foreground" : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-          }`}
-          style={getActiveStyle(activeCategory === "all")}
+          className={itemClass(activeCategory === "all")}
         >
           Todos
+          {activeCategory === "all" && (
+            <span className="absolute inset-x-0 -bottom-px h-[2px]" style={{ backgroundColor: primaryColor }} />
+          )}
         </button>
         {categories.map((cat) => (
           <button
             key={cat.id}
             onClick={() => onCategoryChange(cat.id)}
-            className={`whitespace-nowrap ${isUnderline ? "rounded-none px-4 py-2.5" : `${theme.pillRounded} px-4 py-2`} text-sm font-medium transition-all ${
-              activeCategory === cat.id
-                ? isUnderline ? "" : "text-white shadow-md"
-                : isOutline ? "text-muted-foreground" : "bg-secondary text-secondary-foreground hover:bg-secondary/80"
-            }`}
-            style={getActiveStyle(activeCategory === cat.id)}
+            className={itemClass(activeCategory === cat.id)}
           >
             {cat.icon && <span className="mr-1.5">{cat.icon}</span>}
             {cat.name}
+            {activeCategory === cat.id && (
+              <span className="absolute inset-x-0 -bottom-px h-[2px]" style={{ backgroundColor: primaryColor }} />
+            )}
           </button>
         ))}
       </div>

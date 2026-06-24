@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&family=Work+Sans:wght@300;400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -136,4 +136,89 @@
       @apply px-4 pb-3 text-sm;
     }
   }
+
+  /* ════════════════════════════════════════════════════════════
+     STOREFRONT • Editorial Premium Neutral
+     Paper & ink palette. Vendor primary stays as accent only.
+     Applied via .storefront-scope on the storefront root.
+     ════════════════════════════════════════════════════════════ */
+  .storefront-scope {
+    /* Warm paper + soft ink */
+    --background: 36 30% 97%;
+    --foreground: 24 14% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 24 14% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 24 14% 12%;
+    --muted: 36 16% 93%;
+    --muted-foreground: 24 8% 40%;
+    --secondary: 36 16% 93%;
+    --secondary-foreground: 24 14% 18%;
+    --accent: 36 18% 92%;
+    --accent-foreground: 24 14% 18%;
+    --border: 30 10% 88%;
+    --input: 30 10% 88%;
+    --ring: 24 14% 30%;
+    --radius: 0.5rem;
+
+    font-family: 'DM Sans', 'Work Sans', system-ui, sans-serif;
+    color: hsl(var(--foreground));
+    background-color: hsl(var(--background));
+    letter-spacing: -0.005em;
+  }
+  .storefront-scope h1,
+  .storefront-scope h2,
+  .storefront-scope h3,
+  .storefront-scope .editorial-serif,
+  .storefront-scope [data-editorial="title"] {
+    font-family: 'Instrument Serif', 'Cormorant', Georgia, serif;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+  }
+  .storefront-scope .editorial-eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: hsl(var(--muted-foreground));
+  }
+  /* Hairline cards override the default rounded-2xl heaviness */
+  .storefront-scope .editorial-card {
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 4px;
+    box-shadow: none;
+    transition: border-color 200ms ease, transform 300ms ease;
+  }
+  .storefront-scope .editorial-card:hover {
+    border-color: hsl(var(--foreground) / 0.35);
+  }
+  .storefront-scope .editorial-hairline {
+    border-color: hsl(var(--border));
+  }
+  /* Soften default rounded utilities inside the storefront */
+  .storefront-scope .rounded-2xl,
+  .storefront-scope .rounded-3xl {
+    border-radius: 6px;
+  }
+  .storefront-scope .rounded-xl {
+    border-radius: 4px;
+  }
+  /* Quieter shadows */
+  .storefront-scope .shadow-sm,
+  .storefront-scope .shadow,
+  .storefront-scope .shadow-md,
+  .storefront-scope .shadow-lg,
+  .storefront-scope .shadow-xl,
+  .storefront-scope .shadow-2xl {
+    box-shadow: 0 1px 2px hsl(24 14% 12% / 0.04), 0 1px 1px hsl(24 14% 12% / 0.03);
+  }
+  .storefront-scope .hover\:shadow-md:hover,
+  .storefront-scope .hover\:shadow-lg:hover,
+  .storefront-scope .hover\:shadow-xl:hover {
+    box-shadow: 0 4px 12px -2px hsl(24 14% 12% / 0.08);
+  }
+  /* Buttons get a square-ish editorial feel */
+  .storefront-scope button { letter-spacing: 0.01em; }
 }
