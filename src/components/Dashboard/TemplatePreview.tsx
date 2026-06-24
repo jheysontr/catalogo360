@@ -287,6 +287,28 @@ const TemplatePreview = ({
 
   const renderProductCard = (product: PreviewProduct, i: number) => {
     switch (theme.cardLayout) {
+      case "fresh":
+        return (
+          <div key={i} className="rounded-xl border bg-card p-1.5 shadow-sm">
+            <div className="relative aspect-square overflow-hidden rounded-lg bg-muted">
+              {renderImage(product.imageUrl)}
+              {product.sale && (
+                <span className="absolute left-1 top-1 rounded-full bg-white/90 px-1 py-0.5 text-[5px] font-semibold" style={{ color: primaryColor }}>
+                  Oferta
+                </span>
+              )}
+            </div>
+            <div className="mt-1 flex items-center justify-between px-0.5">
+              <div className="min-w-0">
+                <p className="truncate text-[7px] font-semibold text-foreground">{product.name}</p>
+                <p className="text-[8px] font-bold text-foreground">{sym}{product.price}</p>
+              </div>
+              <div className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-white shadow-sm" style={{ backgroundColor: primaryColor }}>
+                <Plus className="h-2.5 w-2.5" strokeWidth={2.5} />
+              </div>
+            </div>
+          </div>
+        );
       case "overlay":
         return (
           <div key={i} className={`relative overflow-hidden ${theme.cardRounded} ${theme.cardAspect} bg-muted`}>
