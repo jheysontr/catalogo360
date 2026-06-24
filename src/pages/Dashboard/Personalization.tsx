@@ -10,8 +10,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tabs, TabsContent } from "@/components/ui/tabs";
 import ResponsiveTabsList from "@/components/Dashboard/ResponsiveTabs";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, Upload, Store, Palette, Layout, Eye, Image as ImageIcon } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, Upload, Store, Palette, Layout, Eye, Image as ImageIcon, Type } from "lucide-react";
 import TemplatePreview from "@/components/Dashboard/TemplatePreview";
+import { STOREFRONT_FONTS, getFontStack } from "@/lib/storefrontFonts";
 import toast from "react-hot-toast";
 import { compressImage } from "@/lib/imageCompression";
 
@@ -50,6 +53,9 @@ const Personalization = () => {
   const [storeTemplate, setStoreTemplate] = useState("classic");
   const [bannerGreeting, setBannerGreeting] = useState("");
   const [bannerDescription, setBannerDescription] = useState("");
+  const [fontFamily, setFontFamily] = useState("default");
+  const [hideSoldOut, setHideSoldOut] = useState(false);
+  const [compactSpacing, setCompactSpacing] = useState(false);
 
   const [uploadingLogo, setUploadingLogo] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
@@ -76,6 +82,9 @@ const Personalization = () => {
         setStoreTemplate(sfConfig.template || "classic");
         setBannerGreeting(sfConfig.banner_greeting || "");
         setBannerDescription(sfConfig.banner_description || "");
+        setFontFamily(sfConfig.font_family || "default");
+        setHideSoldOut(!!sfConfig.hide_sold_out);
+        setCompactSpacing(!!sfConfig.compact_spacing);
 
         const { data: prods } = await supabase
           .from("products")
@@ -133,6 +142,9 @@ const Personalization = () => {
       template: storeTemplate,
       banner_greeting: bannerGreeting.trim() || null,
       banner_description: bannerDescription.trim() || null,
+      font_family: fontFamily,
+      hide_sold_out: hideSoldOut,
+      compact_spacing: compactSpacing,
     };
 
     const { error } = await supabase
@@ -164,6 +176,9 @@ const Personalization = () => {
     setStoreTemplate(storefrontConfig.template || "classic");
     setBannerGreeting(storefrontConfig.banner_greeting || "");
     setBannerDescription(storefrontConfig.banner_description || "");
+    setFontFamily(storefrontConfig.font_family || "default");
+    setHideSoldOut(!!storefrontConfig.hide_sold_out);
+    setCompactSpacing(!!storefrontConfig.compact_spacing);
     toast("Cambios descartados");
   };
 
@@ -199,8 +214,10 @@ const Personalization = () => {
           onValueChange={setActiveTab}
           options={[
             { value: "apariencia", label: "Apariencia", icon: <Palette className="h-4 w-4" /> },
+            { value: "tipografia", label: "Tipografía", icon: <Type className="h-4 w-4" /> },
             { value: "imagenes", label: "Imágenes", icon: <ImageIcon className="h-4 w-4" /> },
             { value: "plantilla", label: "Plantilla", icon: <Layout className="h-4 w-4" /> },
+            { value: "opciones", label: "Opciones", icon: <Eye className="h-4 w-4" /> },
           ]}
         />
 
@@ -405,11 +422,79 @@ const Personalization = () => {
                         currency={store?.currency || "BOB"}
                         customGreeting={bannerGreeting}
                         customBannerDescription={bannerDescription}
+                        fontFamily={getFontStack(fontFamily)}
                       />
                     </div>
                   </button>
                 ))}
               </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* TIPOGRAFÍA */}
+        <TabsContent value="tipografia" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Tipografía de la tienda</CardTitle>
+              <CardDescription>Elige la fuente que se usará en toda tu tienda pública</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div>
+                <Label htmlFor="font-family">Fuente principal</Label>
+                <Select value={fontFamily} onValueChange={setFontFamily}>
+                  <SelectTrigger id="font-family" className="mt-1.5">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STOREFRONT_FONTS.map((f) => (
+                      <SelectItem key={f.value} value={f.value} style={{ fontFamily: f.stack }}>
+                        {f.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Separator />
+
+              <div className="rounded-xl border bg-card p-5" style={{ fontFamily: getFontStack(fontFamily) }}>
+                <p className="text-[11px] uppercase tracking-widest text-muted-foreground">Vista previa</p>
+                <h3 className="mt-2 text-2xl font-bold text-foreground">{store?.store_name || "Mi Tienda"}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {store?.description || "Aquí va la descripción de tu tienda con la fuente seleccionada."}
+                </p>
+                <div className="mt-4 flex items-center gap-3">
+                  <span className="text-xl font-bold" style={{ color: primaryColor }}>Bs 120.00</span>
+                  <span className="text-sm text-muted-foreground line-through">Bs 150.00</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* OPCIONES */}
+        <TabsContent value="opciones" className="mt-6 space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Comportamiento del catálogo</CardTitle>
+              <CardDescription>Controla cómo se muestran los productos en tu tienda</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-5">
+              <div className="flex items-start justify-between gap-4 rounded-lg border p-3">
+                <div className="flex-1">
+                  <Label htmlFor="hide-sold" className="text-sm font-medium">Ocultar productos agotados</Label>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    Los productos sin stock no aparecerán en el catálogo público.
+                  </p>
+                </div>
+                <Switch id="hide-sold" checked={hideSoldOut} onCheckedChange={setHideSoldOut} />
+              </div>
+
+              <div className="rounded-lg border border-dashed bg-muted/30 p-3 text-xs text-muted-foreground">
+                Próximamente: más opciones de visualización (densidad, badges, etiquetas de stock).
+              </div>
+
             </CardContent>
           </Card>
         </TabsContent>
