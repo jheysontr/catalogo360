@@ -1,4 +1,4 @@
-import { Search, ShoppingCart, Heart, Info, MessageCircle, X } from "lucide-react";
+import { Search, ShoppingCart, Heart, Info, MessageCircle, X, Menu } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import type { TemplateTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
@@ -27,15 +27,15 @@ interface FloatingHeaderProps {
 const variantStyles = (id: string) => {
   switch (id) {
     case "classic":
-      return { card: "rounded-none", chip: "rounded-none", cartBtn: "rounded-none", logoRadius: 2, accentTint: false };
+      return { card: "rounded-none", chip: "rounded-none", cartBtn: "rounded-none", logoRadius: 2 };
     case "app":
     case "moderna":
-      return { card: "rounded-md", chip: "rounded-sm", cartBtn: "rounded-md", logoRadius: 4, accentTint: false };
+      return { card: "rounded-md", chip: "rounded-sm", cartBtn: "rounded-md", logoRadius: 4 };
     case "elegante":
     case "market":
-      return { card: "rounded-2xl", chip: "rounded-full", cartBtn: "rounded-xl", logoRadius: 12, accentTint: true };
+      return { card: "rounded-2xl", chip: "rounded-full", cartBtn: "rounded-xl", logoRadius: 12 };
     default:
-      return { card: "rounded-2xl", chip: "rounded-full", cartBtn: "rounded-xl", logoRadius: 12, accentTint: true };
+      return { card: "rounded-2xl", chip: "rounded-full", cartBtn: "rounded-xl", logoRadius: 12 };
   }
 };
 
@@ -45,6 +45,7 @@ const FloatingHeader = ({
   onCartOpen, onWishlistOpen, onInfoClick,
 }: FloatingHeaderProps) => {
   const [searchOpen, setSearchOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const v = variantStyles(theme.id);
 
@@ -55,133 +56,252 @@ const FloatingHeader = ({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Lock body scroll when mobile menu open
+  useEffect(() => {
+    if (menuOpen) {
+      const prev = document.body.style.overflow;
+      document.body.style.overflow = "hidden";
+      return () => { document.body.style.overflow = prev; };
+    }
+  }, [menuOpen]);
+
   const waLink = whatsapp
     ? `https://wa.me/${whatsapp.replace(/\D/g, "")}?text=${encodeURIComponent("Hola, vengo desde tu catálogo")}`
     : null;
 
   return (
-    <header className="sticky top-0 z-40 w-full px-3 pt-3 sm:px-4 sm:pt-4">
-      <div className="container mx-auto max-w-5xl px-0">
-        <nav
-          className={`${v.card} overflow-hidden border backdrop-blur-md transition-all duration-300 ${
-            scrolled
-              ? "border-border/60 bg-background/95 shadow-md"
-              : "border-white/40 bg-background/80 shadow-lg shadow-black/5"
-          }`}
-        >
-          {/* Top info strip — status + WhatsApp */}
-          <div className="flex items-center justify-between border-b border-border/30 px-3 py-1.5 text-[11px] font-medium sm:px-4">
-            <div className="flex items-center gap-1.5">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
-              </span>
-              <span className="uppercase tracking-wider text-muted-foreground">Abierto ahora</span>
+    <>
+      <header className="sticky top-0 z-40 w-full px-2 pt-2 sm:px-4 sm:pt-4">
+        <div className="container mx-auto max-w-5xl px-0">
+          <nav
+            className={`${v.card} overflow-hidden border backdrop-blur-md transition-all duration-300 ${
+              scrolled
+                ? "border-border/60 bg-background/95 shadow-md"
+                : "border-white/40 bg-background/80 shadow-lg shadow-black/5"
+            }`}
+          >
+            {/* Top info strip — desktop/tablet only */}
+            <div className="hidden items-center justify-between border-b border-border/30 px-4 py-1.5 text-[11px] font-medium sm:flex">
+              <div className="flex items-center gap-1.5">
+                <span className="relative flex h-2 w-2">
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+                </span>
+                <span className="uppercase tracking-wider text-muted-foreground">Abierto ahora</span>
+              </div>
+              {waLink && (
+                <a
+                  href={waLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-emerald-600 transition-colors hover:text-emerald-700"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" strokeWidth={2} />
+                  <span>WhatsApp</span>
+                </a>
+              )}
             </div>
-            {waLink && (
-              <a
-                href={waLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-emerald-600 transition-colors hover:text-emerald-700"
-              >
-                <MessageCircle className="h-3.5 w-3.5" strokeWidth={2} />
-                <span className="hidden sm:inline">WhatsApp</span>
-                <span className="sm:hidden">Contactar</span>
-              </a>
-            )}
-          </div>
 
-          {/* Main row */}
-          <div className="flex items-center gap-3 px-3 py-2.5 sm:px-4 sm:py-3">
-            {/* Logo + name */}
-            {!searchOpen && (
-              <div className="flex min-w-0 flex-1 items-center gap-2.5 sm:gap-3">
+            {/* Main row */}
+            <div className="flex items-center gap-2 px-2.5 py-2 sm:gap-3 sm:px-4 sm:py-3">
+              {/* Mobile hamburger */}
+              {!searchOpen && (
+                <button
+                  onClick={() => setMenuOpen(true)}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-foreground transition-colors hover:bg-muted sm:hidden"
+                  aria-label="Abrir menú"
+                >
+                  <Menu className="h-[20px] w-[20px]" strokeWidth={1.8} />
+                </button>
+              )}
+
+              {/* Logo + name */}
+              {!searchOpen && (
+                <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                  <div
+                    className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden border border-border/40 sm:h-10 sm:w-10"
+                    style={{ borderRadius: v.logoRadius, backgroundColor: store.logo_url ? undefined : primaryColor }}
+                  >
+                    {store.logo_url ? (
+                      <img src={store.logo_url} alt={store.store_name} className="h-full w-full object-cover" loading="lazy" />
+                    ) : (
+                      <span className="text-sm font-bold text-white sm:text-lg">
+                        {(store.store_name || "T").trim().charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </div>
+                  <h1 className="truncate text-sm font-semibold tracking-tight text-foreground sm:text-base">
+                    {store.store_name}
+                  </h1>
+                  {/* Mobile status dot */}
+                  <span className="relative flex h-1.5 w-1.5 shrink-0 sm:hidden" aria-label="Abierto">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                    <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  </span>
+                </div>
+              )}
+
+              {/* Search expanded */}
+              {searchOpen && (
+                <div className="flex flex-1 items-center gap-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      autoFocus
+                      placeholder="Buscar productos…"
+                      className="h-9 border-border bg-background pl-8 text-sm"
+                      value={search}
+                      onChange={(e) => onSearchChange(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    onClick={() => { onSearchChange(""); setSearchOpen(false); }}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+                    aria-label="Cerrar búsqueda"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
+
+              {/* Actions */}
+              {!searchOpen && (
+                <div className="flex items-center gap-0.5 sm:gap-1">
+                  <button
+                    onClick={() => setSearchOpen(true)}
+                    className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                    aria-label="Buscar"
+                  >
+                    <Search className="h-[18px] w-[18px]" strokeWidth={1.8} />
+                  </button>
+                  <button
+                    onClick={onInfoClick}
+                    className="hidden h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
+                    aria-label="Información"
+                  >
+                    <Info className="h-[18px] w-[18px]" strokeWidth={1.8} />
+                  </button>
+                  {wishlistCount > 0 && (
+                    <button
+                      onClick={onWishlistOpen}
+                      className="relative flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted"
+                      aria-label="Favoritos"
+                    >
+                      <Heart className="h-[18px] w-[18px] fill-red-500 text-red-500" strokeWidth={1.5} />
+                      <span className="absolute right-0 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-semibold text-white">
+                        {wishlistCount}
+                      </span>
+                    </button>
+                  )}
+                  <button
+                    onClick={onCartOpen}
+                    className={`relative ml-0.5 flex h-9 items-center gap-1.5 px-2.5 text-white shadow-sm transition-all hover:opacity-90 active:scale-95 sm:ml-1 sm:px-3 ${v.cartBtn}`}
+                    style={{ backgroundColor: primaryColor }}
+                    aria-label="Carrito"
+                  >
+                    <ShoppingCart className="h-[16px] w-[16px]" strokeWidth={2} />
+                    <span className="text-xs font-bold tabular-nums">{itemCount}</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          </nav>
+        </div>
+      </header>
+
+      {/* Mobile menu drawer */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-50 sm:hidden" role="dialog" aria-modal="true">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm animate-in fade-in"
+            onClick={() => setMenuOpen(false)}
+          />
+          <div className="absolute left-0 top-0 h-full w-[82%] max-w-xs bg-background shadow-2xl animate-in slide-in-from-left duration-200">
+            <div className="flex items-center justify-between border-b border-border px-4 py-3">
+              <div className="flex items-center gap-2.5 min-w-0">
                 <div
-                  className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-border/40 sm:h-10 sm:w-10"
+                  className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden border border-border/40"
                   style={{ borderRadius: v.logoRadius, backgroundColor: store.logo_url ? undefined : primaryColor }}
                 >
                   {store.logo_url ? (
-                    <img src={store.logo_url} alt={store.store_name} className="h-full w-full object-cover" loading="lazy" />
+                    <img src={store.logo_url} alt={store.store_name} className="h-full w-full object-cover" />
                   ) : (
-                    <span className="text-base font-bold text-white sm:text-lg">
+                    <span className="text-base font-bold text-white">
                       {(store.store_name || "T").trim().charAt(0).toUpperCase()}
                     </span>
                   )}
                 </div>
-                <h1 className="truncate text-sm font-semibold tracking-tight text-foreground sm:text-base">
-                  {store.store_name}
-                </h1>
+                <h2 className="truncate text-base font-semibold">{store.store_name}</h2>
               </div>
-            )}
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
+                aria-label="Cerrar menú"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-            {/* Search expanded */}
-            {searchOpen && (
-              <div className="flex flex-1 items-center gap-2">
-                <div className="relative flex-1">
-                  <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    autoFocus
-                    placeholder="Buscar productos…"
-                    className="h-9 border-border bg-background pl-8 text-sm"
-                    value={search}
-                    onChange={(e) => onSearchChange(e.target.value)}
-                  />
-                </div>
-                <button
-                  onClick={() => { onSearchChange(""); setSearchOpen(false); }}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground hover:bg-muted"
-                  aria-label="Cerrar búsqueda"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-            )}
+            <div className="flex items-center gap-2 border-b border-border/60 px-4 py-2.5 text-xs">
+              <span className="relative flex h-2 w-2">
+                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
+              </span>
+              <span className="font-medium uppercase tracking-wider text-muted-foreground">Abierto ahora</span>
+            </div>
 
-            {/* Actions */}
-            {!searchOpen && (
-              <div className="flex items-center gap-0.5 sm:gap-1">
+            <nav className="flex flex-col py-2">
+              <button
+                onClick={() => { setMenuOpen(false); onInfoClick(); }}
+                className="flex items-center gap-3 px-4 py-3 text-sm text-foreground transition-colors hover:bg-muted"
+              >
+                <Info className="h-5 w-5 text-muted-foreground" strokeWidth={1.8} />
+                <span>Información de la tienda</span>
+              </button>
+              {wishlistCount > 0 && (
                 <button
-                  onClick={() => setSearchOpen(true)}
-                  className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                  aria-label="Buscar"
+                  onClick={() => { setMenuOpen(false); onWishlistOpen(); }}
+                  className="flex items-center gap-3 px-4 py-3 text-sm text-foreground transition-colors hover:bg-muted"
                 >
-                  <Search className="h-[18px] w-[18px]" strokeWidth={1.8} />
+                  <Heart className="h-5 w-5 fill-red-500 text-red-500" strokeWidth={1.5} />
+                  <span className="flex-1 text-left">Favoritos</span>
+                  <span className="rounded-full bg-red-500 px-2 py-0.5 text-[10px] font-semibold text-white">
+                    {wishlistCount}
+                  </span>
                 </button>
-                <button
-                  onClick={onInfoClick}
-                  className="hidden h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground sm:flex"
-                  aria-label="Información"
-                >
-                  <Info className="h-[18px] w-[18px]" strokeWidth={1.8} />
-                </button>
-                {wishlistCount > 0 && (
-                  <button
-                    onClick={onWishlistOpen}
-                    className="relative flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted"
-                    aria-label="Favoritos"
+              )}
+              <button
+                onClick={() => { setMenuOpen(false); onCartOpen(); }}
+                className="flex items-center gap-3 px-4 py-3 text-sm text-foreground transition-colors hover:bg-muted"
+              >
+                <ShoppingCart className="h-5 w-5 text-muted-foreground" strokeWidth={1.8} />
+                <span className="flex-1 text-left">Carrito</span>
+                {itemCount > 0 && (
+                  <span
+                    className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-white"
+                    style={{ backgroundColor: primaryColor }}
                   >
-                    <Heart className="h-[18px] w-[18px] fill-red-500 text-red-500" strokeWidth={1.5} />
-                    <span className="absolute right-0 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-semibold text-white">
-                      {wishlistCount}
-                    </span>
-                  </button>
+                    {itemCount}
+                  </span>
                 )}
-                <button
-                  onClick={onCartOpen}
-                  className={`relative ml-1 flex h-9 items-center gap-1.5 px-3 text-white shadow-sm transition-all hover:opacity-90 active:scale-95 ${v.cartBtn}`}
-                  style={{ backgroundColor: primaryColor }}
-                  aria-label="Carrito"
+              </button>
+              {waLink && (
+                <a
+                  href={waLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setMenuOpen(false)}
+                  className="mx-4 mt-3 flex items-center justify-center gap-2 rounded-full bg-emerald-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-emerald-600"
                 >
-                  <ShoppingCart className="h-[16px] w-[16px]" strokeWidth={2} />
-                  <span className="text-xs font-bold tabular-nums">{itemCount}</span>
-                </button>
-              </div>
-            )}
+                  <MessageCircle className="h-4 w-4" strokeWidth={2.2} />
+                  <span>Contactar por WhatsApp</span>
+                </a>
+              )}
+            </nav>
           </div>
-        </nav>
-      </div>
-    </header>
+        </div>
+      )}
+    </>
   );
 };
 
