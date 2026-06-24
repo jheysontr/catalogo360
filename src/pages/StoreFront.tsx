@@ -191,6 +191,10 @@ const StoreFront = () => {
   }, [isInWishlist, removeFromWishlist, addToWishlist, toast]);
 
   const handleAddFromDetail = useCallback((product: Product, qty: number, attrs?: Record<string, string>) => {
+    if (product.id.startsWith("__ph-")) {
+      toast({ title: "Producto de muestra", description: "Agrega productos reales desde el panel.", duration: 1800 });
+      return;
+    }
     addToCart(toCartProduct(product), qty, attrs);
     toast({ title: "✓ Agregado", description: product.name, duration: 1500 });
   }, [addToCart, toCartProduct, toast]);
