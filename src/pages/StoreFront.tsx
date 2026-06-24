@@ -293,110 +293,131 @@ const StoreFront = () => {
     </div>
   );
 
+  // Section renderers shared between app-template and custom-template modes.
+  const sectionRenderers: Record<SectionId, () => JSX.Element | null> = {
+    header: () => (
+      <FloatingHeader
+        store={store}
+        primaryColor={primaryColor}
+        theme={theme}
+        search={search}
+        onSearchChange={setSearch}
+        itemCount={itemCount}
+        wishlistCount={wishlistCount}
+        whatsapp={socialMedia?.whatsapp}
+        onCartOpen={() => setCartOpen(true)}
+        onWishlistOpen={() => setWishlistOpen(true)}
+        onInfoClick={() => setInfoOpen(true)}
+      />
+    ),
+    banner: () => (
+      <AppHeroBanner
+        store={store}
+        primaryColor={primaryColor}
+        theme={theme}
+        customGreeting={storefrontConfig?.banner_greeting || undefined}
+        customDescription={storefrontConfig?.banner_description || undefined}
+      />
+    ),
+    categories: () => (
+      <AppCategoryPills
+        categories={categories}
+        activeCategory={activeCategory}
+        onCategoryChange={setActiveCategory}
+        primaryColor={primaryColor}
+        theme={theme}
+      />
+    ),
+    sort: () => (
+      <AppSortBar
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        productCount={filteredProducts.length}
+        activeCategoryName={getCategoryName(activeCategory)}
+        activeCategory={activeCategory}
+        perPage={perPage}
+        onPerPageChange={setPerPage}
+      />
+    ),
+    products: () => (
+      <div className="container px-4 pb-8 pt-4">
+        {usingPlaceholderProducts && (
+          <div className="mb-4 rounded-xl border border-dashed border-border bg-muted/40 px-4 py-2.5 text-center text-xs text-muted-foreground">
+            Vista previa con productos de muestra. Agrega tus productos para reemplazar este contenido.
+          </div>
+        )}
+        {filteredProducts.length === 0 ? renderEmpty() : (
+          <>
+            <LayoutGroup>
+              <motion.div
+                layout
+                className={viewMode === "grid"
+                  ? `grid ${theme.gridCols} ${theme.gridGap}`
+                  : "flex flex-col gap-3"
+                }
+              >
+                <AnimatePresence mode="popLayout">
+                  {paginatedProducts.map((p) =>
+                    viewMode === "list" ? (
+                      <StoreFrontProductCard
+                        key={p.id}
+                        product={p}
+                        viewMode="list"
+                        catName={getCategoryName(p.category_id)}
+                        finalPrice={getFinalPrice(toCartProduct(p))}
+                        currencySymbol={currencySymbol}
+                        primaryColor={primaryColor}
+                        isWishlisted={isInWishlist(p.id)}
+                        onQuickAdd={handleQuickAdd}
+                        onToggleWishlist={toggleWishlist}
+                        onOpenDetail={setSelectedProduct}
+                      />
+                    ) : (
+                      <AppProductCard
+                        key={p.id}
+                        product={p}
+                        finalPrice={getFinalPrice(toCartProduct(p))}
+                        currencySymbol={currencySymbol}
+                        primaryColor={primaryColor}
+                        isWishlisted={isInWishlist(p.id)}
+                        onQuickAdd={handleQuickAdd}
+                        onToggleWishlist={toggleWishlist}
+                        onOpenDetail={setSelectedProduct}
+                        theme={theme}
+                        catName={getCategoryName(p.category_id)}
+                      />
+                    )
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </LayoutGroup>
+            {renderPagination()}
+          </>
+        )}
+      </div>
+    ),
+    footer: () => null, // footer is rendered outside the section flow
+  };
+
   return (
     <div className="storefront-scope min-h-screen bg-background" style={scopeStyle}>
 
-      {isAppTemplate ? (
+      {isCustomTemplate && layoutConfig ? (
+        <>
+          {visibleSections(layoutConfig).map((s) => (
+            <div key={s.id}>{sectionRenderers[s.id]?.()}</div>
+          ))}
+        </>
+      ) : isAppTemplate ? (
         <>
           {/* ── APP-FAMILY TEMPLATES ── */}
-          <FloatingHeader
-            store={store}
-            primaryColor={primaryColor}
-            theme={theme}
-            search={search}
-            onSearchChange={setSearch}
-            itemCount={itemCount}
-            wishlistCount={wishlistCount}
-            whatsapp={socialMedia?.whatsapp}
-            onCartOpen={() => setCartOpen(true)}
-            onWishlistOpen={() => setWishlistOpen(true)}
-            onInfoClick={() => setInfoOpen(true)}
-          />
-
-
-          <AppHeroBanner
-            store={store}
-            primaryColor={primaryColor}
-            theme={theme}
-            customGreeting={storefrontConfig?.banner_greeting || undefined}
-            customDescription={storefrontConfig?.banner_description || undefined}
-          />
-
-          <AppCategoryPills
-            categories={categories}
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-            primaryColor={primaryColor}
-            theme={theme}
-          />
-
-          <AppSortBar
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            productCount={filteredProducts.length}
-            activeCategoryName={getCategoryName(activeCategory)}
-            activeCategory={activeCategory}
-            perPage={perPage}
-            onPerPageChange={setPerPage}
-          />
-
-          <div className="container px-4 pb-8 pt-4">
-            {usingPlaceholderProducts && (
-              <div className="mb-4 rounded-xl border border-dashed border-border bg-muted/40 px-4 py-2.5 text-center text-xs text-muted-foreground">
-                Vista previa con productos de muestra. Agrega tus productos para reemplazar este contenido.
-              </div>
-            )}
-            {filteredProducts.length === 0 ? renderEmpty() : (
-              <>
-                <LayoutGroup>
-                  <motion.div
-                    layout
-                    className={viewMode === "grid"
-                      ? `grid ${theme.gridCols} ${theme.gridGap}`
-                      : "flex flex-col gap-3"
-                    }
-                  >
-                    <AnimatePresence mode="popLayout">
-                      {paginatedProducts.map((p) =>
-                        viewMode === "list" ? (
-                          <StoreFrontProductCard
-                            key={p.id}
-                            product={p}
-                            viewMode="list"
-                            catName={getCategoryName(p.category_id)}
-                            finalPrice={getFinalPrice(toCartProduct(p))}
-                            currencySymbol={currencySymbol}
-                            primaryColor={primaryColor}
-                            isWishlisted={isInWishlist(p.id)}
-                            onQuickAdd={handleQuickAdd}
-                            onToggleWishlist={toggleWishlist}
-                            onOpenDetail={setSelectedProduct}
-                          />
-                        ) : (
-                          <AppProductCard
-                            key={p.id}
-                            product={p}
-                            finalPrice={getFinalPrice(toCartProduct(p))}
-                            currencySymbol={currencySymbol}
-                            primaryColor={primaryColor}
-                            isWishlisted={isInWishlist(p.id)}
-                            onQuickAdd={handleQuickAdd}
-                            onToggleWishlist={toggleWishlist}
-                            onOpenDetail={setSelectedProduct}
-                            theme={theme}
-                            catName={getCategoryName(p.category_id)}
-                          />
-                        )
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                </LayoutGroup>
-                {renderPagination()}
-              </>
-            )}
-          </div>
+          {sectionRenderers.header()}
+          {sectionRenderers.banner()}
+          {sectionRenderers.categories()}
+          {sectionRenderers.sort()}
+          {sectionRenderers.products()}
         </>
       ) : (
         <>
