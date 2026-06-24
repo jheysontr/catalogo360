@@ -41,6 +41,7 @@ const SECTION_MAP: Record<string, React.FC<any>> = {
   linkbox: Linkbox,
   payment_methods: PaymentMethods,
   settings: StoreSettings,
+  personalization: Personalization,
   orders: Orders,
   plans: Plans,
 };
