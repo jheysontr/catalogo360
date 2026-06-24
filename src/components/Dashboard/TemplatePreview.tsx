@@ -39,6 +39,7 @@ interface TemplatePreviewProps {
   customBannerDescription?: string;
   fontFamily?: string;
   usePlaceholders?: boolean;
+  layoutConfig?: LayoutConfig | null;
 }
 
 const FALLBACK_PRODUCTS: PreviewProduct[] = [
@@ -68,8 +69,11 @@ const TemplatePreview = ({
   customBannerDescription,
   fontFamily,
   usePlaceholders = false,
+  layoutConfig,
 }: TemplatePreviewProps) => {
-  const theme = getTheme(templateId);
+  const theme = templateId === "custom" && layoutConfig
+    ? resolveTheme("custom", layoutConfig)
+    : getTheme(templateId);
   const isClassic = templateId === "classic";
   const sym = getCurrencySymbol(currency);
   const greeting = customGreeting || theme.bannerGreeting;
