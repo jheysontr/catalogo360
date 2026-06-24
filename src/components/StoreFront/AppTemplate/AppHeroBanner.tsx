@@ -59,15 +59,20 @@ const FullBanner = (props: AppHeroBannerProps) => {
       <div
         className={`relative ${theme.bannerHeight} w-full sm:h-72 md:h-80`}
         style={{
-          backgroundColor: "hsl(24 14% 12%)",
+          background: store.banner_url
+            ? undefined
+            : `linear-gradient(135deg, ${primaryColor}, hsl(24 14% 12%) 90%)`,
+          backgroundColor: store.banner_url ? "hsl(24 14% 12%)" : undefined,
           backgroundImage: store.banner_url ? `url(${store.banner_url})` : undefined,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
+        {!store.banner_url && <BannerPlaceholderDecor tone="dark" />}
         {/* Editorial double-overlay for legibility */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-black/20 to-black/55" />
         <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-background to-transparent" />
+
 
         {/* Editorial frame marks */}
         <div className="absolute left-5 top-5 h-6 w-6 border-l border-t border-white/40" />
