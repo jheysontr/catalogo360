@@ -35,6 +35,7 @@ const TEMPLATES = [
   { value: "app", emoji: "📱", label: "App", desc: "Estilo app móvil moderno" },
   { value: "elegante", emoji: "✨", label: "Elegante", desc: "Minimalista y sofisticado" },
   { value: "moderna", emoji: "🚀", label: "Moderna", desc: "Audaz y dinámica" },
+  { value: "market", emoji: "🛒", label: "Mercado", desc: "Categorías en mosaico pastel" },
 ];
 
 const Personalization = () => {
