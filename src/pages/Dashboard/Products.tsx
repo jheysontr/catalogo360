@@ -357,8 +357,11 @@ const Products = () => {
           categories={categories}
           onSaved={fetchProducts}
           onDelete={handleDelete}
+          atLimit={atLimit}
+          maxProducts={maxProducts}
         />
       )}
+
     </div>
   );
 };

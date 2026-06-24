@@ -54,7 +54,10 @@ interface Props {
   categories: Category[];
   onSaved: () => void;
   onDelete: (product: Product) => void;
+  atLimit?: boolean;
+  maxProducts?: number;
 }
+
 
 const generateSlug = (name: string) =>
   name.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
@@ -62,10 +65,12 @@ const generateSlug = (name: string) =>
 const discountedPrice = (price: number, discount: number) =>
   (price * (1 - discount / 100)).toFixed(2);
 
-const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, categories, onSaved, onDelete }: Props) => {
+const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, categories, onSaved, onDelete, atLimit = false, maxProducts }: Props) => {
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
   const [planLimit, setPlanLimit] = useState<{ max: number | null } | null>(null);
+  const blockNew = !editingProduct && atLimit;
+
 
   // Form state
   const [formName, setFormName] = useState("");
@@ -192,10 +197,22 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
 
   /* ── Save product ── */
   const handleSave = async (addAnother = false) => {
+    if (blockNew) {
+      toast({
+        title: "Límite del plan alcanzado",
+        description: maxProducts
+          ? `Tu plan permite máximo ${maxProducts} producto${maxProducts === 1 ? "" : "s"}. Mejora tu plan para agregar más.`
+          : "Has alcanzado el límite de productos de tu plan.",
+        variant: "destructive",
+      });
+      setPlanLimit({ max: maxProducts ?? null });
+      return;
+    }
     if (!formName.trim() || formName.trim().length < 3) {
       toast({ title: "Error", description: "El nombre debe tener al menos 3 caracteres", variant: "destructive" });
       return;
     }
+
     const priceNum = Number(formPrice);
     if (!formPrice || priceNum <= 0) {
       toast({ title: "Error", description: "Ingresa un precio válido (> 0)", variant: "destructive" });
@@ -324,15 +341,18 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
           </DialogDescription>
         </DialogHeader>
 
-        {planLimit && (
+        {(planLimit || blockNew) && (
           <Alert variant="destructive" className="border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-100">
             <Crown className="h-4 w-4" />
             <AlertTitle>Límite del plan alcanzado</AlertTitle>
             <AlertDescription className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <span>
-                {planLimit.max
-                  ? <>Tu plan actual permite máximo <strong>{planLimit.max}</strong> producto{planLimit.max === 1 ? "" : "s"}. Mejora tu plan para agregar más.</>
-                  : <>Has alcanzado el límite de productos de tu plan.</>}
+                {(() => {
+                  const n = planLimit?.max ?? maxProducts ?? null;
+                  return n
+                    ? <>Tu plan actual permite máximo <strong>{n}</strong> producto{n === 1 ? "" : "s"}. Mejora tu plan para agregar más.</>
+                    : <>Has alcanzado el límite de productos de tu plan.</>;
+                })()}
               </span>
               <Button asChild size="sm" variant="default" className="shrink-0 gap-1.5">
                 <Link to="/dashboard/plans" onClick={() => { onOpenChange(false); resetForm(); }}>
@@ -342,6 +362,7 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
             </AlertDescription>
           </Alert>
         )}
+
 
         <div className="grid gap-6 py-2">
 
@@ -663,15 +684,20 @@ const ProductFormDialog = ({ open, onOpenChange, editingProduct, storeId, catego
             Cancelar
           </Button>
           {!editingProduct && (
-            <Button variant="secondary" onClick={() => handleSave(true)} disabled={saving} className="gap-2">
+            <Button variant="secondary" onClick={() => handleSave(true)} disabled={saving || blockNew} className="gap-2" title={blockNew && maxProducts ? `Máximo ${maxProducts} productos en tu plan` : undefined}>
               {saving && <Loader2 className="h-4 w-4 animate-spin" />}
               Guardar y agregar otro
             </Button>
           )}
-          <Button onClick={() => handleSave(false)} disabled={saving} className="gap-2">
+          <Button onClick={() => handleSave(false)} disabled={saving || blockNew} className="gap-2" title={blockNew && maxProducts ? `Máximo ${maxProducts} productos en tu plan` : undefined}>
             {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-            {editingProduct ? "Guardar cambios" : "Guardar producto"}
+            {editingProduct
+              ? "Guardar cambios"
+              : blockNew
+                ? (maxProducts ? `Límite ${maxProducts} alcanzado` : "Límite alcanzado")
+                : "Guardar producto"}
           </Button>
+
         </DialogFooter>
       </DialogContent>
     </Dialog>
