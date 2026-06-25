@@ -1,10 +1,21 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
+import {
+  DndContext,
+  PointerSensor,
+  TouchSensor,
+  KeyboardSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { SortableContext, arrayMove, sortableKeyboardCoordinates, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import SortableTestimonialItem from "./SortableTestimonialItem";
 import type {
   LayoutSection,
   SectionId,
@@ -181,76 +192,73 @@ const SectionContentConfig = ({ sections, onChange }: Props) => {
               placeholder="Lo que dicen"
             />
           </div>
-          <div className="space-y-3">
-            {(testimonials.items || []).map((t, i) => (
-              <div key={i} className="space-y-2 rounded-md border p-2.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-semibold uppercase text-muted-foreground">Testimonio {i + 1}</span>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onClick={() => updateTestimonialItems((testimonials.items || []).filter((_, idx) => idx !== i))}
-                    className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                    aria-label="Eliminar"
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
-                <div className="grid grid-cols-2 gap-2">
-                  <Input
-                    className="h-8 text-sm"
-                    placeholder="Nombre"
-                    value={t.name}
-                    maxLength={40}
-                    onChange={(e) => {
-                      const next = [...(testimonials.items || [])];
-                      next[i] = { ...next[i], name: e.target.value };
-                      updateTestimonialItems(next);
-                    }}
-                  />
-                  <Input
-                    className="h-8 text-sm"
-                    placeholder="Rol (opcional)"
-                    value={t.role ?? ""}
-                    maxLength={40}
-                    onChange={(e) => {
-                      const next = [...(testimonials.items || [])];
-                      next[i] = { ...next[i], role: e.target.value };
-                      updateTestimonialItems(next);
-                    }}
-                  />
-                </div>
-                <Textarea
-                  className="text-sm"
-                  rows={2}
-                  placeholder="Mensaje del cliente"
-                  value={t.text}
-                  maxLength={200}
-                  onChange={(e) => {
-                    const next = [...(testimonials.items || [])];
-                    next[i] = { ...next[i], text: e.target.value };
-                    updateTestimonialItems(next);
-                  }}
-                />
-              </div>
-            ))}
-            {(testimonials.items?.length ?? 0) < 6 && (
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full gap-1.5"
-                onClick={() => updateTestimonialItems([
-                  ...(testimonials.items || []),
-                  { name: "", text: "" },
-                ])}
-              >
-                <Plus className="h-3.5 w-3.5" /> Agregar testimonio
-              </Button>
-            )}
-          </div>
+          <TestimonialsDnDList
+            items={testimonials.items || []}
+            onChange={updateTestimonialItems}
+          />
         </AccordionContent>
       </AccordionItem>
     </Accordion>
+  );
+};
+
+/** Drag & drop sortable list for testimonials. */
+const TestimonialsDnDList = ({
+  items,
+  onChange,
+}: {
+  items: TestimonialItem[];
+  onChange: (items: TestimonialItem[]) => void;
+}) => {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+
+  // Stable ids per index (testimonials have no inherent id).
+  const ids = items.map((_, i) => `testimonial-${i}`);
+
+  const handleDragEnd = (e: DragEndEvent) => {
+    const { active, over } = e;
+    if (!over || active.id === over.id) return;
+    const from = ids.indexOf(String(active.id));
+    const to = ids.indexOf(String(over.id));
+    if (from < 0 || to < 0) return;
+    onChange(arrayMove(items, from, to));
+  };
+
+  return (
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+        <div className="space-y-2">
+          {items.map((t, i) => (
+            <SortableTestimonialItem
+              key={ids[i]}
+              id={ids[i]}
+              index={i}
+              item={t}
+              onChange={(next) => {
+                const arr = [...items];
+                arr[i] = next;
+                onChange(arr);
+              }}
+              onRemove={() => onChange(items.filter((_, idx) => idx !== i))}
+            />
+          ))}
+          {items.length < 6 && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full gap-1.5"
+              onClick={() => onChange([...items, { name: "", text: "" }])}
+            >
+              <Plus className="h-3.5 w-3.5" /> Agregar testimonio
+            </Button>
+          )}
+        </div>
+      </SortableContext>
+    </DndContext>
   );
 };
 
