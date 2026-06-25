@@ -16,6 +16,7 @@ import FloatingActions from "@/components/StoreFront/FloatingActions";
 import ProductSkeleton from "@/components/StoreFront/ProductSkeleton";
 import StoreFooter from "@/components/StoreFront/StoreFooter";
 import TemplateHeader from "@/components/StoreFront/headers";
+import TemplateLayout from "@/components/StoreFront/headers/TemplateLayout";
 import AppHeroBanner from "@/components/StoreFront/AppTemplate/AppHeroBanner";
 import AppCategoryPills from "@/components/StoreFront/AppTemplate/AppCategoryPills";
 import AppProductCard from "@/components/StoreFront/AppTemplate/AppProductCard";
@@ -431,107 +432,120 @@ const StoreFront = () => {
     footer: () => null, // footer is rendered outside the section flow
   };
 
-  return (
-    <div className="storefront-scope min-h-screen bg-background" style={scopeStyle}>
+  const headerNode = (
+    <TemplateHeader
+      store={store}
+      primaryColor={primaryColor}
+      theme={theme}
+      search={search}
+      onSearchChange={setSearch}
+      itemCount={itemCount}
+      wishlistCount={wishlistCount}
+      whatsapp={socialMedia?.whatsapp}
+      onCartOpen={() => setCartOpen(true)}
+      onWishlistOpen={() => setWishlistOpen(true)}
+      onInfoClick={() => setInfoOpen(true)}
+    />
+  );
 
-      {isCustomTemplate && layoutConfig ? (
-        <>
-          {visibleSections(layoutConfig).map((s) => (
-            <SectionErrorBoundary key={s.id} section={s.id}>
-              <div>{sectionRenderers[s.id]?.()}</div>
-            </SectionErrorBoundary>
-          ))}
-        </>
-      ) : isAppTemplate ? (
-        <>
-          {/* ── APP-FAMILY TEMPLATES ── */}
-          {sectionRenderers.header()}
-          {sectionRenderers.banner()}
-          {sectionRenderers.categories()}
-          {sectionRenderers.sort()}
-          {sectionRenderers.products()}
-        </>
-      ) : (
-        <>
-          {/* ── CLASSIC TEMPLATE ── */}
-          <TemplateHeader
-            store={store}
-            primaryColor={primaryColor}
-            theme={theme}
-            search={search}
-            onSearchChange={setSearch}
-            itemCount={itemCount}
-            wishlistCount={wishlistCount}
-            whatsapp={socialMedia?.whatsapp}
-            onCartOpen={() => setCartOpen(true)}
-            onWishlistOpen={() => setWishlistOpen(true)}
-            onInfoClick={() => setInfoOpen(true)}
-          />
-
-          <StoreHeader
-            store={store}
-            primaryColor={primaryColor}
-            secondaryColor={secondaryColor}
-            onInfoClick={() => setInfoOpen(true)}
-            onShareClick={handleShare}
-          />
-
-
-          <StoreFilters
-            search={search}
-            onSearchChange={setSearch}
-            sortBy={sortBy}
-            onSortChange={setSortBy}
-            viewMode={viewMode}
-            onViewModeChange={setViewMode}
-            categories={categories}
-            activeCategory={activeCategory}
-            onCategoryChange={setActiveCategory}
-            primaryColor={primaryColor}
-            productCount={filteredProducts.length}
-            activeCategoryName={getCategoryName(activeCategory)}
-            perPage={perPage}
-            onPerPageChange={setPerPage}
-          />
-
-          <div className="container px-4 pb-8 pt-4">
-            {usingPlaceholderProducts && (
-              <div className="mb-4 rounded-xl border border-dashed border-border bg-muted/40 px-4 py-2.5 text-center text-xs text-muted-foreground">
-                Vista previa con productos de muestra. Agrega tus productos para reemplazar este contenido.
-              </div>
-            )}
-            {filteredProducts.length === 0 ? renderEmpty() : (
-              <>
-                <LayoutGroup>
-                  <motion.div
-                    layout
-                    className={viewMode === "grid" ? "grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:gap-6" : "flex flex-col gap-3"}
-                  >
-                    <AnimatePresence mode="popLayout">
-                      {paginatedProducts.map((p) => (
-                        <StoreFrontProductCard
-                          key={p.id}
-                          product={p}
-                          viewMode={viewMode}
-                          catName={getCategoryName(p.category_id)}
-                          finalPrice={getFinalPrice(toCartProduct(p))}
-                          currencySymbol={currencySymbol}
-                          primaryColor={primaryColor}
-                          isWishlisted={isInWishlist(p.id)}
-                          onQuickAdd={handleQuickAdd}
-                          onToggleWishlist={toggleWishlist}
-                          onOpenDetail={setSelectedProduct}
-                        />
-                      ))}
-                    </AnimatePresence>
-                  </motion.div>
-                </LayoutGroup>
-                {renderPagination()}
-              </>
-            )}
+  const classicBody = (
+    <>
+      <StoreHeader
+        store={store}
+        primaryColor={primaryColor}
+        secondaryColor={secondaryColor}
+        onInfoClick={() => setInfoOpen(true)}
+        onShareClick={handleShare}
+      />
+      <StoreFilters
+        search={search}
+        onSearchChange={setSearch}
+        sortBy={sortBy}
+        onSortChange={setSortBy}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        categories={categories}
+        activeCategory={activeCategory}
+        onCategoryChange={setActiveCategory}
+        primaryColor={primaryColor}
+        productCount={filteredProducts.length}
+        activeCategoryName={getCategoryName(activeCategory)}
+        perPage={perPage}
+        onPerPageChange={setPerPage}
+      />
+      <div className="container px-4 pb-8 pt-4">
+        {usingPlaceholderProducts && (
+          <div className="mb-4 rounded-xl border border-dashed border-border bg-muted/40 px-4 py-2.5 text-center text-xs text-muted-foreground">
+            Vista previa con productos de muestra. Agrega tus productos para reemplazar este contenido.
           </div>
-        </>
-      )}
+        )}
+        {filteredProducts.length === 0 ? renderEmpty() : (
+          <>
+            <LayoutGroup>
+              <motion.div
+                layout
+                className={viewMode === "grid" ? "grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:gap-6" : "flex flex-col gap-3"}
+              >
+                <AnimatePresence mode="popLayout">
+                  {paginatedProducts.map((p) => (
+                    <StoreFrontProductCard
+                      key={p.id}
+                      product={p}
+                      viewMode={viewMode}
+                      catName={getCategoryName(p.category_id)}
+                      finalPrice={getFinalPrice(toCartProduct(p))}
+                      currencySymbol={currencySymbol}
+                      primaryColor={primaryColor}
+                      isWishlisted={isInWishlist(p.id)}
+                      onQuickAdd={handleQuickAdd}
+                      onToggleWishlist={toggleWishlist}
+                      onOpenDetail={setSelectedProduct}
+                    />
+                  ))}
+                </AnimatePresence>
+              </motion.div>
+            </LayoutGroup>
+            {renderPagination()}
+          </>
+        )}
+      </div>
+    </>
+  );
+
+  const appBody = (
+    <>
+      {sectionRenderers.banner()}
+      {sectionRenderers.categories()}
+      {sectionRenderers.sort()}
+      {sectionRenderers.products()}
+    </>
+  );
+
+  const customBody = isCustomTemplate && layoutConfig ? (
+    <>
+      {visibleSections(layoutConfig)
+        .filter((s) => s.id !== "header")
+        .map((s) => (
+          <SectionErrorBoundary key={s.id} section={s.id}>
+            <div>{sectionRenderers[s.id]?.()}</div>
+          </SectionErrorBoundary>
+        ))}
+    </>
+  ) : null;
+
+  return (
+    <div className="storefront-scope" style={scopeStyle}>
+      <TemplateLayout
+        theme={theme}
+        primaryColor={primaryColor}
+        header={headerNode}
+      >
+        {isCustomTemplate && layoutConfig
+          ? customBody
+          : isAppTemplate
+          ? appBody
+          : classicBody}
+      </TemplateLayout>
 
       <FloatingActions
         primaryColor={primaryColor}
