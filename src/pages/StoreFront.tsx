@@ -300,7 +300,7 @@ const StoreFront = () => {
   // Section renderers shared between app-template and custom-template modes.
   const sectionRenderers: Record<SectionId, () => JSX.Element | null> = {
     header: () => (
-      <FloatingHeader
+      <TemplateHeader
         store={store}
         primaryColor={primaryColor}
         theme={theme}
@@ -454,7 +454,7 @@ const StoreFront = () => {
       ) : (
         <>
           {/* ── CLASSIC TEMPLATE ── */}
-          <FloatingHeader
+          <TemplateHeader
             store={store}
             primaryColor={primaryColor}
             theme={theme}
