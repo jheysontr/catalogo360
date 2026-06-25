@@ -28,7 +28,7 @@ interface CartModalProps {
   onOrderComplete?: () => void;
 }
 
-const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primaryColor, currencySymbol = "$", onOrderComplete }: CartModalProps) => {
+const CartModal = ({ open, onOpenChange, storeId, storePhone, storeName, primaryColor, currencySymbol = "Bs", onOrderComplete }: CartModalProps) => {
   const { toast } = useToast();
   const { items, cartTotal, clearCart } = useCart();
 
