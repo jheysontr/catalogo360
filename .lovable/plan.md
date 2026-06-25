@@ -1,155 +1,82 @@
-# Personalización Avanzada — Editor Visual de Layout
+# Drag & Drop Personalizable — Plan de Implementación
 
-Sistema completo para que cualquier tienda diseñe su storefront combinando secciones reordenables y ajustes finos sobre cualquier plantilla base o desde un lienzo neutro.
+## Objetivo
 
-## Alcance
+Llevar el editor visual de layout a una experiencia tipo Webflow/Framer con tres capas de drag & drop, funcionales en escritorio y táctil.
 
-1. **Nueva plantilla "Personalizado"** disponible junto a las 5 actuales (Editorial, Diario, Fresh, Studio, Mercado).
-2. **Editor visual** en `Dashboard → Personalización` con preview en vivo lado a lado.
-3. **Secciones reordenables** (drag & drop) que se pueden activar/desactivar.
-4. **Ajustes finos** por sección (banner, cards, grid, header, etc.).
-5. **Modo "Duplicar y personalizar"**: tomar cualquier plantilla existente como punto de partida.
-6. **Disponible en todos los planes**.
+## Las tres capas
 
-## Arquitectura de datos
+### 1. Paleta de secciones (sidebar → lista)
+Nueva tarjeta **"Secciones disponibles"** que muestra las secciones actualmente desactivadas (`featured`, `promo`, `testimonials`, etc.) como tarjetas arrastrables. Al soltarlas en la lista de secciones activas:
+- Se insertan en la posición exacta del drop.
+- Se activan automáticamente (`enabled: true`).
+- Si ya estaban en la lista, se reordenan a esa posición.
 
-Nueva columna en `stores`:
+### 2. Reordenar directamente en el preview en vivo
+Botón toggle **"Modo edición"** sobre el preview. Al activarlo:
+- Cada sección renderizada recibe un overlay semi-transparente con:
+  - Etiqueta del nombre de sección.
+  - Handle de arrastre (grip).
+  - Botón de ocultar (×).
+- Drag entre overlays reordena las secciones en tiempo real.
+- Compartido con la paleta vía un único `DndContext` global, así una sección de la paleta también puede caer directamente sobre el preview.
 
-```sql
-ALTER TABLE public.stores
-  ADD COLUMN layout_config jsonb DEFAULT NULL;
-```
+### 3. DnD de bloques internos
+Aplicado donde tiene más sentido:
+- **Testimonios**: cada tarjeta de testimonio en `SectionContentConfig` se vuelve sortable (grip + reorder vertical).
+- **Categorías** (futuro): ya tienen orden propio en otra pantalla, no se toca aquí.
+- **Productos destacados**: el orden viene de la fuente (`on_sale`/`newest`), no se reordenan manualmente — no aplica.
 
-Estructura JSON:
+## Soporte táctil
+- `PointerSensor` + `TouchSensor` de `@dnd-kit/core` con `activationConstraint: { delay: 150, tolerance: 8 }` para no interferir con scroll en móvil.
+- `KeyboardSensor` para accesibilidad.
 
-```json
-{
-  "base": "app",                    // plantilla base o "blank"
-  "sections": [
-    { "id": "header",     "enabled": true,  "order": 0 },
-    { "id": "banner",     "enabled": true,  "order": 1, "config": {...} },
-    { "id": "categories", "enabled": true,  "order": 2, "config": {...} },
-    { "id": "featured",   "enabled": false, "order": 3 },
-    { "id": "products",   "enabled": true,  "order": 4, "config": {...} },
-    { "id": "promo",      "enabled": false, "order": 5 },
-    { "id": "footer",     "enabled": true,  "order": 6 }
-  ],
-  "overrides": {
-    "bannerStyle": "fresh",
-    "bannerHeight": "h-36",
-    "cardLayout": "fresh",
-    "gridCols": "grid-cols-2 sm:grid-cols-3 lg:grid-cols-4",
-    "pillStyle": "tiles",
-    "ctaText": "Comprar",
-    "headerBorder": false
-  }
-}
-```
+## Archivos
 
-Cuando `template = "custom"` el storefront resuelve el tema así:
-`getTheme(base) + overrides → finalTheme`, y renderiza solo las `sections` activas en su orden.
+**Nuevos**
+- `src/components/Dashboard/LayoutEditor/SectionPalette.tsx` — paleta de secciones disponibles, ítems sortables compartidos con la lista.
+- `src/components/Dashboard/LayoutEditor/PreviewDnDOverlay.tsx` — overlay de edición sobre el preview con handles por sección.
+- `src/components/Dashboard/LayoutEditor/SortableTestimonialItem.tsx` — wrapper sortable para items de testimonios.
 
-## Secciones disponibles
+**Modificados**
+- `src/components/Dashboard/LayoutEditor/LayoutEditor.tsx` — eleva el `DndContext` para que paleta, lista y overlay del preview compartan el mismo contexto; añade toggle "Modo edición"; layout de 3 columnas en xl.
+- `src/components/Dashboard/LayoutEditor/SectionList.tsx` — acepta drops desde la paleta (insertar+activar), usa el `DndContext` del padre.
+- `src/components/Dashboard/LayoutEditor/SectionContentConfig.tsx` — testimonios envueltos en `SortableContext`.
 
-| ID | Descripción | Configurable |
-|----|-------------|--------------|
-| `header` | Navbar flotante | Estilo (compact/airy), border, sticky |
-| `banner` | Hero principal | Estilo, altura, redondeo, overlay, CTA |
-| `categories` | Pills/tiles de categorías | Estilo, forma, slider on/off |
-| `featured` | Productos destacados (nuevo) | Cantidad, layout (carousel/grid) |
-| `promo` | Banner promocional secundario (nuevo) | Imagen, texto, link |
-| `products` | Grid principal | Columnas, gap, layout de card |
-| `testimonials` | Testimonios (nuevo, opcional) | Lista editable |
-| `footer` | Footer de tienda | Mostrar/ocultar bloques |
-
-Secciones `featured`, `promo` y `testimonials` son **nuevas** y aparecen solo en modo personalizado.
-
-## UI del editor
-
-`src/pages/Dashboard/Personalization.tsx` gana una nueva pestaña **"Layout personalizado"** con:
+## UX
 
 ```text
-┌─────────────────────────────────────────────────────┐
-│  Base: [Duplicar plantilla ▾] [Empezar en blanco]   │
-├──────────────────────┬──────────────────────────────┤
-│  SECCIONES (drag)    │   PREVIEW EN VIVO            │
-│  ☰ ✓ Header     ⚙   │                              │
-│  ☰ ✓ Banner     ⚙   │   [render storefront real]   │
-│  ☰ ✓ Categorías ⚙   │                              │
-│  ☰ □ Destacados ⚙   │   📱  💻  toggle             │
-│  ☰ ✓ Productos  ⚙   │                              │
-│  ☰ □ Promo      ⚙   │                              │
-│  ☰ ✓ Footer     ⚙   │                              │
-├──────────────────────┴──────────────────────────────┤
-│  AJUSTES FINOS (acordeón por sección seleccionada)  │
-│  Banner ▾                                            │
-│    Estilo:    [hero|compact|split|fresh|minimal]    │
-│    Altura:    [────●────] 96–240 px                 │
-│    Redondeo:  [none|sm|md|lg|2xl|full]              │
-│    Overlay:   [────●────] 0–100%                    │
-│  Cards ▾  ...                                        │
-│  Grid ▾   ...                                        │
-└─────────────────────────────────────────────────────┘
-            [Cancelar]  [Guardar layout]
+┌────────────────────────────────────────────────────────────────────┐
+│  Plantilla base [Diario ▾]                                         │
+├────────────────────────┬───────────────────────────────────────────┤
+│ SECCIONES ACTIVAS      │   PREVIEW          [📱] [💻]  [✏️ Editar] │
+│ ☰ Header        [🔒]   │  ┌────────────────────────────────────┐   │
+│ ☰ Banner        [⚙]   │  │ ▒▒▒ Header        ✕   ▒▒▒          │   │
+│ ☰ Categorías    [⚙]   │  │ ▒▒▒ Banner        ✕   ▒▒▒          │◀──┐│
+│ ☰ Productos     [🔒]   │  │ ▒▒▒ Categorías    ✕   ▒▒▒          │   │
+│ ☰ Footer        [🔒]   │  │ ▒▒▒ Productos     ✕   ▒▒▒          │   │
+│                        │  │ ▒▒▒ Footer        ✕   ▒▒▒          │   │
+│ DISPONIBLES (arrastra) │  └────────────────────────────────────┘   │
+│ ◫ Destacados           │                                            │
+│ ◫ Promo banner         │   El usuario arrastra "Destacados" desde   │
+│ ◫ Testimonios          │   la paleta directamente al preview ─────┘ │
+└────────────────────────┴────────────────────────────────────────────┘
 ```
 
 ## Detalles técnicos
 
-**Drag & drop**: `@dnd-kit/core` + `@dnd-kit/sortable` (sin dependencias React-pesadas extra).
+- **Unified DndContext** en `LayoutEditor`: contiene `SortableContext` para la lista activa y la paleta; un `DragOverlay` global muestra la card flotante durante el drag.
+- **Cross-list drag**: al soltar un ítem de la paleta sobre la lista activa, `onDragEnd` detecta el origen (`data.from = "palette"`) y muta el array `sections`: si la sección ya existe → reordena + `enabled: true`; si no → inserta.
+- **Preview overlay**: posicionado con `position: absolute` sobre cada sección renderizada. Se mide la altura/posición de cada sección con `useRef` + `ResizeObserver` y se calcula la posición de los overlays. Como alternativa más simple, en "modo edición" el preview se oculta y se reemplaza por una pila vertical de tarjetas placeholder con los nombres de sección, conservando la altura aproximada — esto evita medir el DOM real.
 
-**Resolución del tema en runtime** (`src/components/StoreFront/AppTemplate/templateThemes.ts`):
+Vamos con la **alternativa simple** para el overlay (sustituye el render por placeholders en modo edición). El reorder es lo importante; el visual real ya se ve fuera del modo edición.
 
-```ts
-export const resolveTheme = (
-  templateId: string,
-  layoutConfig?: LayoutConfig
-): TemplateTheme => {
-  if (templateId !== "custom" || !layoutConfig) return getTheme(templateId);
-  const base = layoutConfig.base === "blank"
-    ? BLANK_THEME
-    : getTheme(layoutConfig.base);
-  return { ...base, ...layoutConfig.overrides, id: "custom" };
-};
-```
+## Fuera de alcance (por ahora)
 
-**Renderizado por secciones** en `src/pages/StoreFront.tsx`: cuando `template === "custom"`, mapear `layoutConfig.sections.filter(s => s.enabled).sort(byOrder)` a sus componentes. Las plantillas no-custom siguen renderizando como hoy (cero regresión).
+- DnD de productos dentro del grid principal (los productos ya tienen su propio orden en Dashboard → Productos).
+- DnD de categorías (ya existe en su propia pantalla).
+- Resize de secciones, edición inline de textos en el preview.
 
-**Nuevas secciones**:
-- `src/components/StoreFront/sections/FeaturedProductsSection.tsx`
-- `src/components/StoreFront/sections/PromoBannerSection.tsx`
-- `src/components/StoreFront/sections/TestimonialsSection.tsx`
+## Iteraciones
 
-**Editor**:
-- `src/components/Dashboard/LayoutEditor/LayoutEditor.tsx` (raíz)
-- `src/components/Dashboard/LayoutEditor/SectionList.tsx` (DnD)
-- `src/components/Dashboard/LayoutEditor/SectionConfig.tsx` (acordeón ajustes)
-- `src/components/Dashboard/LayoutEditor/LivePreview.tsx` (iframe-less, monta StoreFront en miniatura)
-- `src/components/Dashboard/LayoutEditor/types.ts`
-
-**Persistencia**: hook `useLayoutConfig(storeId)` con `useDashboardStore`. Auto-save con debounce 800 ms o botón "Guardar" explícito (a definir, por ahora explícito).
-
-## Plan de entrega
-
-Para no entregar un mega-PR ilegible, lo construyo en **3 iteraciones secuenciales**, cada una funcional:
-
-1. **Iteración 1 — Fundación**
-   - Migración `layout_config` + tipos.
-   - Plantilla "custom" + `resolveTheme`.
-   - Renderizado de secciones reordenables (header, banner, categorías, productos, footer) leyendo `layout_config`.
-   - Editor mínimo: lista drag & drop de secciones con toggle on/off + selector de base. Sin ajustes finos todavía.
-
-2. **Iteración 2 — Ajustes finos**
-   - Panel de overrides por sección (banner, cards, grid, pills, header, CTA).
-   - Live preview lado a lado con toggle desktop/mobile.
-
-3. **Iteración 3 — Secciones nuevas**
-   - `featured`, `promo`, `testimonials` con sus editores.
-   - Pulido visual del editor, validaciones, empty states.
-
-## Fuera de alcance (explícito)
-
-- Editor de CSS crudo o tipografías personalizadas (ya existe en otra parte).
-- Páginas adicionales (about, contacto): el editor afecta solo el storefront principal.
-- Theming oscuro independiente por sección.
-
-¿Procedo con la **Iteración 1** o quieres ajustar el alcance antes?
+Una sola entrega — el alcance es coherente y los tres puntos comparten infraestructura (`DndContext` unificado).

@@ -1,14 +1,16 @@
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
-import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
+import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { GripVertical, Lock } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { SECTION_META, type LayoutSection } from "@/components/StoreFront/AppTemplate/layoutConfig";
 
 interface SectionListProps {
-  sections: LayoutSection[];
-  onChange: (sections: LayoutSection[]) => void;
+  /** Only enabled sections, in display order. */
+  activeSections: LayoutSection[];
+  onToggle: (id: string, enabled: boolean) => void;
 }
+
+const PREFIX = "active:";
 
 const SortableRow = ({
   section,
@@ -18,12 +20,15 @@ const SortableRow = ({
   onToggle: (id: string, enabled: boolean) => void;
 }) => {
   const meta = SECTION_META[section.id];
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: section.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: PREFIX + section.id,
+    data: { from: "active", sectionId: section.id },
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.4 : 1,
   };
 
   return (
@@ -60,37 +65,23 @@ const SortableRow = ({
   );
 };
 
-const SectionList = ({ sections, onChange }: SectionListProps) => {
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const oldIdx = sections.findIndex((s) => s.id === active.id);
-    const newIdx = sections.findIndex((s) => s.id === over.id);
-    if (oldIdx < 0 || newIdx < 0) return;
-    const reordered = arrayMove(sections, oldIdx, newIdx).map((s, idx) => ({ ...s, order: idx }));
-    onChange(reordered);
-  };
-
-  const handleToggle = (id: string, enabled: boolean) => {
-    onChange(sections.map((s) => (s.id === id ? { ...s, enabled } : s)));
-  };
-
+const SectionList = ({ activeSections, onToggle }: SectionListProps) => {
+  const ids = activeSections.map((s) => PREFIX + s.id);
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={sections.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-        <div className="flex flex-col gap-2">
-          {sections.map((s) => (
-            <SortableRow key={s.id} section={s} onToggle={handleToggle} />
-          ))}
-        </div>
-      </SortableContext>
-    </DndContext>
+    <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+      <div className="flex flex-col gap-2">
+        {activeSections.map((s) => (
+          <SortableRow key={s.id} section={s} onToggle={onToggle} />
+        ))}
+        {activeSections.length === 0 && (
+          <div className="rounded-lg border border-dashed bg-muted/30 p-6 text-center text-xs text-muted-foreground">
+            No hay secciones activas. Arrastra desde la paleta de abajo.
+          </div>
+        )}
+      </div>
+    </SortableContext>
   );
 };
 
 export default SectionList;
+export { PREFIX as ACTIVE_PREFIX };
