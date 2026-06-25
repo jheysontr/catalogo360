@@ -15,7 +15,7 @@ import StoreFrontProductCard from "@/components/StoreFront/StoreFrontProductCard
 import FloatingActions from "@/components/StoreFront/FloatingActions";
 import ProductSkeleton from "@/components/StoreFront/ProductSkeleton";
 import StoreFooter from "@/components/StoreFront/StoreFooter";
-import FloatingHeader from "@/components/StoreFront/FloatingHeader";
+import TemplateHeader from "@/components/StoreFront/headers";
 import AppHeroBanner from "@/components/StoreFront/AppTemplate/AppHeroBanner";
 import AppCategoryPills from "@/components/StoreFront/AppTemplate/AppCategoryPills";
 import AppProductCard from "@/components/StoreFront/AppTemplate/AppProductCard";
@@ -300,7 +300,7 @@ const StoreFront = () => {
   // Section renderers shared between app-template and custom-template modes.
   const sectionRenderers: Record<SectionId, () => JSX.Element | null> = {
     header: () => (
-      <FloatingHeader
+      <TemplateHeader
         store={store}
         primaryColor={primaryColor}
         theme={theme}
@@ -454,7 +454,7 @@ const StoreFront = () => {
       ) : (
         <>
           {/* ── CLASSIC TEMPLATE ── */}
-          <FloatingHeader
+          <TemplateHeader
             store={store}
             primaryColor={primaryColor}
             theme={theme}
