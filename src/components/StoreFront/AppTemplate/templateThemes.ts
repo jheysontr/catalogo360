@@ -1,5 +1,11 @@
+export const TEMPLATE_IDS = ["classic", "app", "elegante", "moderna", "market"] as const;
+export type TemplateId = (typeof TEMPLATE_IDS)[number];
+
+export const isTemplateId = (value: unknown): value is TemplateId =>
+  typeof value === "string" && (TEMPLATE_IDS as readonly string[]).includes(value);
+
 export interface TemplateTheme {
-  id: string;
+  id: TemplateId;
   label: string;
   description: string;
   emoji: string;
