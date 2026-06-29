@@ -1,5 +1,18 @@
+/** Stock templates that ship with a dedicated header + shell. */
+export const TEMPLATE_IDS = ["classic", "app", "elegante", "moderna", "market"] as const;
+export type TemplateId = (typeof TEMPLATE_IDS)[number];
+
+/** Meta ids used by the custom layout system (no dedicated header/shell). */
+export const META_TEMPLATE_IDS = ["custom", "blank"] as const;
+export type MetaTemplateId = (typeof META_TEMPLATE_IDS)[number];
+
+export type AnyTemplateId = TemplateId | MetaTemplateId;
+
+export const isTemplateId = (value: unknown): value is TemplateId =>
+  typeof value === "string" && (TEMPLATE_IDS as readonly string[]).includes(value);
+
 export interface TemplateTheme {
-  id: string;
+  id: AnyTemplateId;
   label: string;
   description: string;
   emoji: string;

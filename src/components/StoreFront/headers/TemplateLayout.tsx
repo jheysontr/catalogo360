@@ -1,5 +1,9 @@
 import type { ReactNode, CSSProperties } from "react";
-import type { TemplateTheme } from "@/components/StoreFront/AppTemplate/templateThemes";
+import {
+  isTemplateId,
+  type TemplateTheme,
+  type TemplateId,
+} from "@/components/StoreFront/AppTemplate/templateThemes";
 
 /**
  * Each template owns a fully independent outer layout shell:
@@ -86,15 +90,26 @@ const NeutralShell = ({ header, children }: ShellProps) => (
   </div>
 );
 
+const SHELL_REGISTRY: Record<TemplateId, (props: ShellProps) => JSX.Element> = {
+  classic: ClassicShell,
+  app: AppShell,
+  elegante: EleganteShell,
+  moderna: ModernaShell,
+  market: MarketShell,
+};
+
 const TemplateLayout = (props: ShellProps) => {
-  switch (props.theme.id) {
-    case "classic":  return <ClassicShell {...props} />;
-    case "app":      return <AppShell {...props} />;
-    case "elegante": return <EleganteShell {...props} />;
-    case "moderna":  return <ModernaShell {...props} />;
-    case "market":   return <MarketShell {...props} />;
-    default:         return <NeutralShell {...props} />;
+  const rawId = props.theme?.id;
+  if (!isTemplateId(rawId)) {
+    if (import.meta.env.DEV && rawId !== "custom" && rawId !== "blank") {
+      console.warn(
+        `[TemplateLayout] Unknown theme.id="${String(rawId)}" — falling back to NeutralShell.`,
+      );
+    }
+    return <NeutralShell {...props} />;
   }
+  const Shell = SHELL_REGISTRY[rawId];
+  return <Shell {...props} />;
 };
 
 export default TemplateLayout;
