@@ -9,7 +9,7 @@ import { useCart, getFinalPrice } from "@/lib/CartContext";
 import { getCurrencySymbol } from "@/lib/currency";
 import { useWishlist } from "@/lib/WishlistContext";
 import type { StoreData, Product, ProductAttribute, Category } from "@/components/StoreFront/types";
-import StoreHeader from "@/components/StoreFront/StoreHeader";
+
 import StoreFilters from "@/components/StoreFront/StoreFilters";
 import StoreFrontProductCard from "@/components/StoreFront/StoreFrontProductCard";
 import FloatingActions from "@/components/StoreFront/FloatingActions";
@@ -450,13 +450,6 @@ const StoreFront = () => {
 
   const classicBody = (
     <>
-      <StoreHeader
-        store={store}
-        primaryColor={primaryColor}
-        secondaryColor={secondaryColor}
-        onInfoClick={() => setInfoOpen(true)}
-        onShareClick={handleShare}
-      />
       <StoreFilters
         search={search}
         onSearchChange={setSearch}
